@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View,Text, ScrollView } from 'react-native';
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
@@ -7,104 +7,147 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useSafeAreaEnv } from 'nativewind';
+import { useState } from 'react';
+import { Search, SearchIcon } from 'lucide-react-native';
+// import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
+import { VIDEO_CATEGORIES } from '@/utils/common';
+import ExplainerPagination from '@/components/explainers/ExplainerPagination';
+import { ExplainerType } from '@/utils/constant';
+import clsx from 'clsx';
 
-export default function TabTwoScreen() {
+export default function Explore() {
+  const [search,setSearch] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [explainerType,setExplainerType] = useState("podcasts")
+  const sortTypes = [
+    {label:"Videos", value:"videos"},
+    {label:"Podcasts", value:"podcasts"}
+  ]
+  
+if (selectedCategory) return (
+  <SafeAreaView className='p-4'>
+    <ScrollView>
+      <View className='p-2'>
+        <TouchableOpacity onPress={() => setSelectedCategory(null)} className='ml-auto'>
+          <SearchIcon></SearchIcon>
+        </TouchableOpacity>
+      </View>
+      <View
+        style={{ backgroundColor: selectedCategory.color }}
+        className='flex flex-col rounded-2xl gap-2 pb-8 p-4'
+        // entering={Animated.spring({ damping: 20, stiffness: 100 }).from({ translateY: 100 })}
+      >
+        {selectedCategory.icon}
+        <Text className='text-2xl mt-2 font-bold'>{selectedCategory.label}</Text>
+        <Text className='text-slate-700 text-lg'>{selectedCategory.description}</Text>
+      </View>
+
+      <View className='flex flex-row gap-2 mt-4 p-2'>
+        {sortTypes.map((s, i) => (
+          <TouchableOpacity
+            key={i}
+            className={clsx("px-4 p-2 rounded-full", s.value == explainerType ? "bg-blue" : "bg-slate-200")}
+            onPress={() => setExplainerType(s.value)}
+          >
+            <Text className={clsx(s.value == explainerType && "text-white")}>{s.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View className='flex flex-col gap-4 mt-4'>
+        <View>
+          <ExplainerPagination
+            pageResults={20}
+            name={''}
+            apiRoute={"/explainers"}
+            extraParams={{ sortType: explainerType }}
+            hideSearch
+            hideCount
+            hideSort
+          />
+        </View>
+      </View>
+    </ScrollView>
+  </SafeAreaView>
+)
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView className='p-4 flex flex-col'>
+      <ScrollView className='p-4'>
+        <View className='flex flex-col gap-4'>
+          <Text className=' font-bold text-4xl '>Explore</Text>
+          <TouchableOpacity className='p-3 gap-4 bg-slate-200 rounded-xl flex flex-row items-center'>
+            <Search size={20} className=' font-bold text-zinc-300 w-fit '></Search>
+            <TextInput placeholder='Search'>
+
+            </TextInput>
+          </TouchableOpacity>
+
+        </View>
+        {/* <Text>hi</Text> */}
+        {/* podcasts */}
+        <View className='flex flex-col gap-4 mt-4'>
+          <Text className='text-2xl font-semibold'>Trending Podcasts</Text>
+          <View className='h-[250px]'>
+
+            <ExplainerPagination
+              pageResults={20}
+              name={''}
+              apiRoute={"/explainers"}
+              sortExplainer='podcasts'
+              hideSearch
+              hideCount
+              hideSort
+              
+              />
+              
+          </View>
+            
+          
+        </View>
+        {/* reels */}
+        <View className='flex flex-col gap-4 mt-4'>
+          <Text className='text-2xl font-semibold'>Trending Reels</Text>
+          <View className='h-[300px]'>
+
+            <ExplainerPagination
+              pageResults={20}
+              name={''}
+              apiRoute={"/explainers"}
+              sortExplainer='videos'
+              hideSearch
+              hideCount
+              hideSort
+              
+              />
+              
+          </View>
+            
+          
+        </View>
+        {/* categories */}
+        <View className='flex mt-8 flex-col gap-4 mb-32'>
+          <Text className='text-2xl font-semibold'>Categories</Text>
+          <ScrollView horizontal>
+            <View className='flex flex-row gap-4'>
+              {VIDEO_CATEGORIES.map((category, i) => {
+                return (
+                  <TouchableOpacity onPress={()=>setSelectedCategory(category)} style={{backgroundColor:category.color}} className='rounded-xl flex flex-col gap-2 p-2 h-fit w-[150px] bg-slate-200'>
+                    <Text className='text-xl font-semibold '>{category.label}</Text>
+                    <View className='text-white '>
+                      {category.icon}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </View>
+        
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
+

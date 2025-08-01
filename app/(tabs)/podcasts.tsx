@@ -11,26 +11,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { PodcastThumbnail } from '@/components/podcasts/PodcastThumbnail';
+import ExplainerPagination from '@/components/explainers/ExplainerPagination';
 
 
 export default function PodcastScreen() {
-  const [Podcasts,setPodcasts] = useState([])
-  const [error,setError] = useState()
+
   const [loading,setLoading] = useState(false)
-  const getPodcasts = ()=>{
-    setLoading(true)
-    console.log(process.env.EXPO_PUBLIC_API_URL)
-    axios.post(`${process.env.EXPO_PUBLIC_API_URL}/explainers`,{sortType:"podcasts",pageNumber:1, resultsPerPage:10},{withCredentials:true}).then((res)=>{
-        console.log(res.data)
-        setPodcasts(res.data.explainers)
-    }).catch(err=>{
-        console.log(err.message)
-        setError(err)
-    }).finally(()=>setLoading(false))
-  }
-  useEffect(()=>{
-    getPodcasts()
-  },[])
+  
   return (
     <SafeAreaView className='p-4 flex flex-col gap-2'>
         {loading &&(
@@ -39,12 +26,25 @@ export default function PodcastScreen() {
         <Text className='font-semibold text-3xl'>Discover Podcasts</Text>
         {/* <Text>{error}</Text> */}
         {/* <Text className='text-3xl'>Whh</Text> */}
-
-        <ScrollView className=' space-y-4 mt-4'>
+        <View className='mt-4'>
+  
+            <ExplainerPagination
+            pageResults={20}
+            name={''}
+            apiRoute={"/explainers"}
+            // hideSearch
+            // hideCount
+            // hideSort
+            // hideSearch
+            >
+            
+            </ExplainerPagination>
+        </View>
+        {/* <ScrollView className=' space-y-4 mt-4'>
             {Podcasts.map((p,i)=>(
                 <PodcastThumbnail podcast={p}/>
             ))}
-        </ScrollView>
+        </ScrollView> */}
     </SafeAreaView>
   );
 }

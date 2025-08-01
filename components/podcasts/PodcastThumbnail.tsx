@@ -18,8 +18,10 @@ export const PodcastThumbnail: React.FC<PodcastThumbnailProps> = ({
   podcast,
 }) => {
   // Get duration from the single audio source
-  let length = podcast.sectionAudios?.[0]?.duration || 0;
+  console.log("Rendering PodcastThumbnail");
 
+  let length = podcast.sectionAudios?.[0]?.duration || 0;
+    
   return (
     <TouchableOpacity
       onPress={() => {
@@ -60,7 +62,8 @@ export const PodcastThumbnail: React.FC<PodcastThumbnailProps> = ({
         {podcast.thumbnailUrl ? (
           <Image
             source={{ uri: podcast.thumbnailUrl }}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            resizeMode="cover"
+            style={{ width: "100%", height: "100%" }}
           />
         ) : (
           <View className="w-full h-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
@@ -81,7 +84,7 @@ export const PodcastThumbnail: React.FC<PodcastThumbnailProps> = ({
         </View>
       </View>
 
-      <View className="w-full h-full">
+      <View className="w-full">
         <Text className="text-xl font-semibold truncate overflow-hidden">
           {podcast.title}
         </Text>

@@ -1,23 +1,25 @@
 "use client";
 
-import SkeletonVideoThumbnail from "../videos/SkeletionVideoThumbnail";
+// import SkeletonVideoThumbnail from "../videos/SkeletionVideoThumbnail";
 import Pagination from "../ui/Pagination";
-import VideoThumbnail from "@components/[locale]/videos/VideoThumbnail";
+// import VideoThumbnail from "@components/[locale]/videos/VideoThumbnail";
 import axios from "axios";
-import { useLocale, useTranslations } from "next-intl";
+// import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState, JSX, useRef } from "react";
 
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 
-import { cn } from "../../../utils/css";
-import Button from "@components/[locale]/common/Button";
+import clsx from "clsx";
+// import SpecialButton from "../common/SpecialButton";
 import { PodcastThumbnail } from "../podcasts/PodcastThumbnail";
-import { getWatchedUpToExplainerLengths } from "@utils/api/explainers";
+// import { getWatchedUpToExplainerLengths } from "@utils/api/explainers";
 import { IExplainerPodcast, IExplainerVideo } from "@/interfaces";
 import React from 'react';
-import { View, Text, Picker, TextInput, Button, ScrollView, TouchableOpacity } from 'react-native';
-import { ArrowDownWideNarrow, ArrowUpWideNarrow, Search, SearchX } from 'lucide-react-native';
-
+import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { ArrowDownWideNarrow, ArrowUpWideNarrow, Loader, Search, SearchX } from 'lucide-react-native';
+import { Picker } from "@react-native-picker/picker";
+import PodcastThumbnail2 from "../podcasts/PodcastThumbnail2";
+import VideoThumbnail from "../videos/VideoThumbnail";
 interface IExplainer extends IExplainerVideo, IExplainerPodcast {}
 
 export default function ExplainerPagination({
@@ -33,6 +35,7 @@ export default function ExplainerPagination({
   pageNumber = 1,
   hideSortBy = false,
   customResults,
+  sortExplainer
 }: {
   name: string | JSX.Element;
   apiRoute?: string;
@@ -45,10 +48,10 @@ export default function ExplainerPagination({
   hideCount?: boolean;
   pageNumber?: number;
   hideSortBy?: boolean;
+  sortExplainer?:string;
   customResults?: IExplainer[];
 }) {
-  const tran = useTranslations();
-  const locale = useLocale();
+ 
   const resultsPerPage = pageResults || 3;
   const [page, setPage] = useState(pageNumber);
   const [Explainers, setExplainers] = useState<IExplainer[]>(customResults || []);
@@ -58,7 +61,7 @@ export default function ExplainerPagination({
   const [loading, setLoading] = useState(!!customResults ? false : true);
   const [sortBy, setSortBy] = useState("views");
   const [sortOrder, setSortOrder] = useState("desc");
-  const [sortType, setSortType] = useState("all");
+  const [sortType, setSortType] = useState(sortExplainer||"all");
 
   // Track last used parameters to prevent unnecessary fetches
   const lastFetchParams = useRef({
@@ -72,6 +75,7 @@ export default function ExplainerPagination({
 
   // Effect to update Explainers when customResults changes
   useEffect(() => {
+    
     if (customResults) {
       setExplainers(customResults);
       setTotalPages(customResults.length === 0 ? 0 : 1);
@@ -153,9 +157,9 @@ export default function ExplainerPagination({
   async function getExplainersWatchTime(explainers:IExplainer[]) {
     if(!explainers) return
     if(explainers.length == 0) return
-    const explainersHistory = await getWatchedUpToExplainerLengths(explainers)
-    console.log("Explainer histroy", explainersHistory)
-    setExplainers(explainersHistory as any)
+    // const explainersHistory = await getWatchedUpToExplainerLengths(explainers)
+    // console.log("Explainer histroy", explainersHistory)
+    // setExplainers(explainersHistory as any)
     
   }
 
@@ -199,7 +203,7 @@ export default function ExplainerPagination({
       console.log(sortBy);
       
       // Append type as query parameter for search and trending endpoints
-      let finalApiRoute = apiRoute;
+      let finalApiRoute = process.env.EXPO_PUBLIC_API_URL + apiRoute;
       if (apiRoute.includes('/search') || apiRoute.includes('/trending')) {
         const url = new URL(apiRoute, window.location.origin);
         if (currentType !== 'all') {
@@ -207,21 +211,23 @@ export default function ExplainerPagination({
         }
         finalApiRoute = url.pathname + url.search;
       }
-      
+      console.log(finalApiRoute)
       const response = await axios.post(
         finalApiRoute,
         {
-          ...extraParams,
+          
           pageNumber: page,
           resultsPerPage,
           searchQuery: currentQuery,
           sortBy: currentSortBy,
           sortOrder: currentSortOrder,
           sortType: currentType,
-          locale: locale,
+          ...extraParams,
+          locale: "en",
         },
         { withCredentials: true }
       );
+      console.log(response.data.explainers)
       setExplainers(prev=>response.data.explainers);
       getExplainersWatchTime(response.data.explainers)
       setPollExplainers?.(response.data.explainers);
@@ -235,7 +241,7 @@ export default function ExplainerPagination({
       
       setCount(response.data.count);
     } catch (error: any) {
-      toast.error(error?.response?.data?.error);
+    //   toast.error(error?.response?.data?.error);
     } finally {
       setLoading(false);
     }
@@ -243,28 +249,29 @@ export default function ExplainerPagination({
 
   // Fetch videos whenever the page number changes
   useEffect(() => {
+    console.log("Hello there")
     fetchExplainers(undefined, undefined, undefined, undefined, true);
   }, [page, apiRoute, extraParams]);
 
 
 
 return (
-  <ScrollView style={{ flex: 1, paddingHorizontal: 8, width: '100%' }}>
+  <ScrollView className="flex-col px-2 h-full w-full">
     {(name || !hideCount || !hideSearch || !hideSort) && (
-      <View style={{ flexDirection: 'column', gap: 16 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-            {name && <Text style={{ fontWeight: 'bold', fontSize: 24 }}>{name}</Text>}
+      <View className="flex-col gap-4">
+        <View className="flex-row justify-between flex-wrap">
+          <View className="flex-row gap-4 items-center">
+            {name && <Text className="font-bold text-2xl">{name}</Text>}
             {!hideCount && count != undefined && (
-              <Text style={{ borderRadius: 12, paddingHorizontal: 12, fontSize: 14, backgroundColor: '#E2E8F0', color: '#3B82F6', borderWidth: 2 }}>
+              <Text className="rounded-lg px-3 text-sm bg-gray-200 text-blue-500 border-2">
                 {count}
               </Text>
             )}
           </View>
           {(!hideSearch || !hideSort) && (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, width: '100%' }}>
+            <View className="flex-row flex-wrap gap-2 w-full">
               {!hideSort && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, gap: 16 }}>
+                <View className="flex-row items-center rounded-lg gap-4">
                   <Picker
                     selectedValue={sortType}
                     style={{ height: 40, width: 150 }}
@@ -273,12 +280,12 @@ return (
                       fetchExplainers(searchQuery, undefined, undefined, itemValue);
                     }}
                   >
-                    <Picker.Item label={tran("lbnr0k4f5y")} value="all" />
-                    <Picker.Item label={tran("nglcs37abqm")} value="videos" />
-                    <Picker.Item label={tran("oj42ykrvs9")} value="podcasts" />
+                    <Picker.Item label={"All"} value="all" />
+                    <Picker.Item label={"Videos"} value="videos" />
+                    <Picker.Item label={"Podcasts"} value="podcasts" />
                   </Picker>
                   {!hideSortBy && (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12 }}>
+                    <View className="flex-row items-center rounded-lg">
                       <Picker
                         selectedValue={sortBy}
                         style={{ height: 40, width: 150 }}
@@ -287,8 +294,8 @@ return (
                           fetchExplainers(searchQuery, itemValue);
                         }}
                       >
-                        <Picker.Item label={tran("9vbir7hm0y5")} value="views" />
-                        <Picker.Item label={tran("6rpzd2fpjnj")} value="created" />
+                        <Picker.Item label={"Views"} value="views" />
+                        <Picker.Item label={"Created"} value="created" />
                       </Picker>
                       <TouchableOpacity
                         onPress={() => {
@@ -308,16 +315,16 @@ return (
                 </View>
               )}
               {!hideSearch && (
-                <View style={{ width: 280, flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E5E7EB' }}>
+                <View className="w-70 flex-row items-center rounded-lg px-3 py-2 bg-white border border-gray-300">
                   <TextInput
                     onChangeText={handleSearchInput}
                     onSubmitEditing={handleSearch}
                     value={searchQuery}
-                    placeholder={tran("uayocwmq8i")}
-                    style={{ flex: 1, fontSize: 14, backgroundColor: 'transparent', paddingVertical: 8 }}
+                    placeholder={"Search"}
+                    className="flex-1 text-sm bg-transparent py-2"
                   />
                   <TouchableOpacity onPress={handleSearch}>
-                    <Search size={20}  style={{ padding: 8, color: '#9CA3AF' }} />
+                    <Search size={20} className="p-2 text-gray-400" />
                   </TouchableOpacity>
                 </View>
               )}
@@ -326,42 +333,41 @@ return (
         </View>
       </View>
     )}
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16 }}>
+    <View className="flex-row flex-wrap gap-4">
       {!loading && Explainers.length === 0 && (
-        <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: 16, minHeight: 400 }}>
-          <SearchX size={48} style={{ color: '#9CA3AF' }} />
-          <View style={{ flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#374151' }}>
-              {tran("y5fexthdi2")}
+        <View className="flex-col items-center justify-center flex-1 gap-4 min-h-100">
+          <SearchX size={48} className="text-gray-400" />
+          <View className="flex-col items-center gap-2">
+            <Text className="text-xl font-bold text-gray-700">
+              {"Hello"}
             </Text>
-            <Text style={{ color: '#6B7280', textAlign: 'center' }}>
+            <Text className="text-gray-500 text-center">
               {searchQuery ? "Try adjusting your search query" : "No explainers are available at the moment"}
             </Text>
-            {!hideCreateButton && !searchQuery && (
-              <Button title={tran("8agffguos92")} onPress={() => {}} />
-            )}
+            {/* {!hideCreateButton && !searchQuery && (
+              <SpecialButton title={"Create"} onPress={() => {}} />
+            )} */}
           </View>
         </View>
       )}
-      {Explainers.map((explainer, index) => {
-        if (explainer?.videoUrl || (explainer?.generating && !explainer?.sectionAudios))
-          return (
-            <VideoThumbnail
-              errored={explainer.errored}
-              generating={explainer.generating}
-              key={index}
-              video={explainer as IExplainerVideo}
-            />
-          );
-        if (explainer?.sectionAudios)
-          return <PodcastThumbnail key={index} podcast={explainer as any} />;
-      })}
+      <ScrollView>
+        <View className="flex flex-col gap-8">
+            {Explainers.map((explainer, index) => {
+                if(explainer.sectionAudios){
+                    return <PodcastThumbnail2
+                    key={index}
+                     podcast={explainer as any} />
+                }else{
+                    return <VideoThumbnail
+                    key={index}
+                     video={explainer as any} />
+                }
+            })}
+        </View>
+      </ScrollView>
       {loading &&
-        Array.from({ length: resultsPerPage }).map((_, index) => {
-          return (
-            <SkeletonVideoThumbnail key={index}></SkeletonVideoThumbnail>
-          );
-        })}
+        <Loader />
+      }
     </View>
     <Pagination
       currentPage={page}

@@ -1,6 +1,8 @@
 import React from "react";
 import { Ionicons } from '@expo/vector-icons';
 import clsx from "clsx";
+import { View,Text,TouchableOpacity } from "react-native";
+
 
 function Pagination({
   currentPage,
@@ -85,7 +87,7 @@ function Pagination({
   }
 
   // Base styles for the navigation container
-  const navClasses = clsx("flex items-center justify-center gap-1");
+  const navClasses = clsx("flex flex-row items-center justify-center gap-1");
 
   // Base styles for navigation buttons (prev/next)
   const buttonBaseClasses = clsx(
@@ -113,46 +115,47 @@ function Pagination({
   const ellipsisClasses = clsx("px-3 py-2 text-slate-500 dark:text-slate-400");
 
   return (
-    <nav className={navClasses} aria-label="Pagination">
-      <button
-        onClick={handlePrevious}
+    <View className={navClasses} accessibilityLabel="Pagination">
+      <TouchableOpacity
+        onPress={handlePrevious}
         disabled={currentPage === 1}
         className={buttonBaseClasses}
-        aria-label="Previous page"
+        accessibilityLabel="Previous page"
       >
         <Ionicons name="chevron-back" size={20} />
-      </button>
-      <div className="flex items-center gap-1">
+      </TouchableOpacity>
+      <View className="flex flex-row items-center gap-1">
         {getPageNumbers().map((page, index) =>
           page === "..." ? (
-            <span
+            <Text
               key={`ellipsis-${index}`}
               className={ellipsisClasses}
-              aria-hidden="true"
+              accessibilityElementsHidden={true}
             >
               ...
-            </span>
+            </Text>
           ) : (
-            <button
+            <TouchableOpacity
               key={page}
-              onClick={() => onPageChange(page as number)}
+              onPress={() => onPageChange(page as number)}
               className={pageButtonClasses(page as number)}
-              aria-current={page === currentPage ? "page" : undefined}
+              accessibilityRole="button"
+              accessibilityState={page === currentPage ? { selected: true } : {}}
             >
-              {page}
-            </button>
+              <Text>{page}</Text>
+            </TouchableOpacity>
           )
         )}
-      </div>
-      <button
-        onClick={handleNext}
+      </View>
+      <TouchableOpacity
+        onPress={handleNext}
         disabled={currentPage === totalPages}
         className={buttonBaseClasses}
-        aria-label="Next page"
+        accessibilityLabel="Next page"
       >
         <Ionicons name="chevron-forward" size={20} />
-      </button>
-    </nav>
+      </TouchableOpacity>
+    </View>
   );
 }
 
