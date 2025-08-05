@@ -62,6 +62,12 @@ export default function ExplainerPagination({
   const [sortBy, setSortBy] = useState("views");
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState(sortExplainer||"all");
+  // const [explainerType,setExplainerType] = useState("podcasts")
+  const sortTypes = [
+    {label:"All", value:"all"},
+    {label:"Videos", value:"videos"},
+    {label:"Podcasts", value:"podcasts"}
+  ]
 
   // Track last used parameters to prevent unnecessary fetches
   const lastFetchParams = useRef({
@@ -221,13 +227,14 @@ export default function ExplainerPagination({
           searchQuery: currentQuery,
           sortBy: currentSortBy,
           sortOrder: currentSortOrder,
-          sortType: currentType,
           ...extraParams,
+          sortType: currentType,
           locale: "en",
         },
         { withCredentials: true }
       );
-      console.log(response.data.explainers)
+      console.log("Success")
+      // console.log(response.data.explainers)
       setExplainers(prev=>response.data.explainers);
       getExplainersWatchTime(response.data.explainers)
       setPollExplainers?.(response.data.explainers);
@@ -241,6 +248,8 @@ export default function ExplainerPagination({
       
       setCount(response.data.count);
     } catch (error: any) {
+      console.log(error)
+      console.log("Error")
     //   toast.error(error?.response?.data?.error);
     } finally {
       setLoading(false);
@@ -251,7 +260,7 @@ export default function ExplainerPagination({
   useEffect(() => {
     console.log("Hello there")
     fetchExplainers(undefined, undefined, undefined, undefined, true);
-  }, [page, apiRoute, extraParams]);
+  }, [page, apiRoute, extraParams, sortType]);
 
 
 
@@ -272,18 +281,17 @@ return (
             <View className="flex-row flex-wrap gap-2 w-full">
               {!hideSort && (
                 <View className="flex-row items-center rounded-lg gap-4">
-                  <Picker
-                    selectedValue={sortType}
-                    style={{ height: 40, width: 150 }}
-                    onValueChange={(itemValue) => {
-                      setSortType(itemValue);
-                      fetchExplainers(searchQuery, undefined, undefined, itemValue);
-                    }}
-                  >
-                    <Picker.Item label={"All"} value="all" />
-                    <Picker.Item label={"Videos"} value="videos" />
-                    <Picker.Item label={"Podcasts"} value="podcasts" />
-                  </Picker>
+                  <View className='flex flex-row gap-2 mt-4 py-2'>
+                    {sortTypes.map((s, i) => (
+                      <TouchableOpacity
+                        key={i}
+                        className={clsx("px-4 p-2 rounded-full", s.value == sortType ? "bg-blue" : "bg-slate-200")}
+                        onPress={() => setSortType(s.value)}
+                      >
+                        <Text className={clsx(s.value == sortType && "text-white")}>{s.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                   {!hideSortBy && (
                     <View className="flex-row items-center rounded-lg">
                       <Picker
