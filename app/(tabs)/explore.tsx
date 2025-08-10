@@ -25,124 +25,143 @@ export default function Explore() {
     {label:"Podcasts", value:"podcasts"}
   ]
   
-if (selectedCategory) return (
-  <SafeAreaView className='p-4'>
-    <ScrollView>
-      <View className='p-2'>
-        <TouchableOpacity onPress={() => setSelectedCategory(null)} className='ml-auto'>
-          <SearchIcon></SearchIcon>
-        </TouchableOpacity>
-      </View>
-      <View
-        style={{ backgroundColor: selectedCategory.color }}
-        className='flex flex-col rounded-2xl gap-2 pb-8 p-4'
-        // entering={Animated.spring({ damping: 20, stiffness: 100 }).from({ translateY: 100 })}
-      >
-        {selectedCategory.icon}
-        <Text className='text-2xl mt-2 font-bold'>{selectedCategory.label}</Text>
-        <Text className='text-slate-700 text-lg'>{selectedCategory.description}</Text>
-      </View>
 
-      <View className='flex flex-row gap-2 mt-4 p-2'>
-        {sortTypes.map((s, i) => (
-          <TouchableOpacity
-            key={i}
-            className={clsx("px-4 p-2 rounded-full", s.value == explainerType ? "bg-blue" : "bg-slate-200")}
-            onPress={() => setExplainerType(s.value)}
-          >
-            <Text className={clsx(s.value == explainerType && "text-white")}>{s.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <View className='flex flex-col gap-4 mt-4'>
-        <View>
-          <ExplainerPagination
-            pageResults={20}
-            name={''}
-            apiRoute={"/explainers"}
-            extraParams={{ sortType: explainerType }}
-            hideSearch
-            hideCount
-            hideSort
-          />
-        </View>
-      </View>
-    </ScrollView>
-  </SafeAreaView>
-)
   return (
     <SafeAreaView className='p-4 flex flex-col'>
       <ScrollView className='p-4'>
-        <View className='flex flex-col gap-4'>
-          <Text className=' font-bold text-4xl '>Explore</Text>
-          <TouchableOpacity className='p-3 gap-4 bg-slate-200 rounded-xl flex flex-row items-center'>
-            <Search size={20} className=' font-bold text-zinc-300 w-fit '></Search>
-            <TextInput placeholder='Search'>
+        {selectedCategory ?(
+          <View className='-p-4'>
 
-            </TextInput>
-          </TouchableOpacity>
-
-        </View>
-        {/* <Text>hi</Text> */}
-        {/* podcasts */}
-        <View className='flex flex-col gap-4 mt-4'>
-          <Text className='text-2xl font-semibold'>Trending Podcasts</Text>
-          <View className='h-[250px]'>
-
-            <ExplainerPagination
-              pageResults={20}
-              name={''}
-              apiRoute={"/explainers"}
-              sortExplainer='podcasts'
-              hideSearch
-              hideCount
-              hideSort
-              
-              />
-              
-          </View>
-            
-          
-        </View>
-        {/* reels */}
-        <View className='flex flex-col gap-4 mt-4'>
-          <Text className='text-2xl font-semibold'>Trending Reels</Text>
-          <View className='h-[300px]'>
-
-            <ExplainerPagination
-              pageResults={20}
-              name={''}
-              apiRoute={"/explainers"}
-              sortExplainer='videos'
-              hideSearch
-              hideCount
-              hideSort
-              
-              />
-              
-          </View>
-            
-          
-        </View>
-        {/* categories */}
-        <View className='flex mt-8 flex-col gap-4 mb-32'>
-          <Text className='text-2xl font-semibold'>Categories</Text>
-          <ScrollView horizontal>
-            <View className='flex flex-row gap-4'>
-              {VIDEO_CATEGORIES.map((category, i) => {
-                return (
-                  <TouchableOpacity onPress={()=>setSelectedCategory(category)} style={{backgroundColor:category.color}} className='rounded-xl flex flex-col gap-2 p-2 h-fit w-[150px] bg-slate-200'>
-                    <Text className='text-xl font-semibold '>{category.label}</Text>
-                    <View className='text-white '>
-                      {category.icon}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
+            <View className='p-2'>
+              <TouchableOpacity onPress={() => setSelectedCategory(null)} className='ml-auto'>
+                <SearchIcon></SearchIcon>
+              </TouchableOpacity>
             </View>
-          </ScrollView>
-        </View>
+            <View
+              style={{ backgroundColor: selectedCategory.color }}
+              className='flex flex-col rounded-2xl gap-2 pb-8 p-4'
+              // entering={Animated.spring({ damping: 20, stiffness: 100 }).from({ translateY: 100 })}
+            >
+              {selectedCategory.icon}
+              <Text className='text-2xl mt-2 font-bold'>{selectedCategory.label}</Text>
+              <Text className='text-slate-700 text-lg'>{selectedCategory.description}</Text>
+            </View>
+          </View>
+        ):(
+
+          <View className='flex flex-col gap-4'>
+            <Text className=' font-bold text-4xl '>Explore</Text>
+            <TouchableOpacity className='p-0 gap-4 bg-slate-200 rounded-xl flex flex-row items-center'>
+              <Search size={20} className=' font-bold text-zinc-300 w-fit '></Search>
+              <TextInput className='p-3' onChangeText={(t)=>setSearch(t)} placeholder='Search'>
+
+              </TextInput>
+            </TouchableOpacity>
+
+          </View>
+        )}
+        {search.length > 0 && (
+          // search filters
+          <View>
+            {/* <View className='flex flex-row gap-2 mt-4 p-2'>
+              {sortTypes.map((s, i) => (
+                <TouchableOpacity
+                  key={i}
+                  className={clsx("px-4 p-2 rounded-full", s.value == explainerType ? "bg-blue" : "bg-slate-200")}
+                  onPress={() => setExplainerType(s.value)}
+                >
+                  <Text className={clsx(s.value == explainerType && "text-white")}>{s.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+       */}
+            <View className='flex flex-col gap-4 '>
+              <View>
+                <ExplainerPagination
+                  pageResults={20}
+                  name={''}
+                  apiRoute={"/explainers"}
+                  extraParams={{ sortType: explainerType, searchQuery:search }}
+                  hideSearch
+                  hideCount
+                  hideSortBy
+                  // hideSort
+                />
+              </View>
+            </View>
+          </View>
+        )}
+        
+        {search.length < 1 &&(
+          <View>
+            {/* podcasts */}
+            <View className='flex flex-col gap-4 mt-4'>
+              <Text className='text-2xl font-semibold'>Trending Podcasts</Text>
+              <View className='h-[250px]'>
+                
+                <ExplainerPagination
+                  pageResults={20}
+                  name={''}
+                  apiRoute={ !selectedCategory ? "/explainers":`/explainers/category`}
+                  sortExplainer='podcasts'
+                  hideSearch
+                  hideCount
+                  hideSort
+                  extraParams={{
+                    searchQuery: search && search.length > 1 ? search : undefined,
+                    category: selectedCategory?.id || null
+                  }}
+                  
+                  />
+                  
+              </View>
+                
+              
+            </View>
+            {/* reels */}
+            <View className='flex flex-col gap-4 mt-4'>
+              <Text className='text-2xl font-semibold'>Trending Reels</Text>
+              <View className='h-[300px]'>
+
+                <ExplainerPagination
+                  pageResults={20}
+                  name={''}
+                  apiRoute={ !selectedCategory ? "/explainers":`/explainers/category`}
+                  sortExplainer='videos'
+                  hideSearch
+                  hideCount
+                  extraParams={{
+                    searchQuery: search && search.length > 1 ? search : undefined,
+                    category: selectedCategory?.id || null
+                  }}
+                  hideSort
+                  
+                  />
+                  
+              </View>
+                
+              
+            </View>
+            {/* categories */}
+            <View className='flex mt-8 flex-col gap-4 mb-32'>
+              <Text className='text-2xl font-semibold'>Categories</Text>
+              <ScrollView horizontal>
+                <View className='flex flex-row gap-4'>
+                  {VIDEO_CATEGORIES.map((category, i) => {
+                    return (
+                      <TouchableOpacity onPress={()=>setSelectedCategory(category)} style={{backgroundColor:category.color}} className='rounded-xl flex flex-col gap-2 p-2 h-fit w-[150px] bg-slate-200'>
+                        <Text className='text-xl font-semibold '>{category.label}</Text>
+                        <View className='text-white '>
+                          {category.icon}
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        )}
         
 
       </ScrollView>

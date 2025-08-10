@@ -11,7 +11,13 @@
     },
     "scheme": "explainersapp",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow Imagine to access your microphone."
+        }
+      ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
