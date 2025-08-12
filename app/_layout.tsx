@@ -6,6 +6,8 @@ import 'react-native-reanimated';
 import "../global.css";
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { View,Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -20,6 +22,11 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      {/* <SafeAreaView>
+        <View className='mt-8'>
+          <Text className='text-4xl'>Explore</Text>
+        </View>
+      </SafeAreaView> */}
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(public)" options={{ headerShown: false }} />

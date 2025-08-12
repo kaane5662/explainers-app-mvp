@@ -15,6 +15,7 @@ import { VIDEO_CATEGORIES } from '@/utils/common';
 import ExplainerPagination from '@/components/explainers/ExplainerPagination';
 import { ExplainerType } from '@/utils/constant';
 import clsx from 'clsx';
+import { router } from 'expo-router';
 
 export default function Explore() {
   const [search,setSearch] = useState('')
@@ -29,37 +30,19 @@ export default function Explore() {
   return (
     <SafeAreaView className='p-4 flex flex-col'>
       <ScrollView className='p-4'>
-        {selectedCategory ?(
-          <View className='-p-4'>
+      
 
-            <View className='p-2'>
-              <TouchableOpacity onPress={() => setSelectedCategory(null)} className='ml-auto'>
-                <SearchIcon></SearchIcon>
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{ backgroundColor: selectedCategory.color }}
-              className='flex flex-col rounded-2xl gap-2 pb-8 p-4'
-              // entering={Animated.spring({ damping: 20, stiffness: 100 }).from({ translateY: 100 })}
-            >
-              {selectedCategory.icon}
-              <Text className='text-2xl mt-2 font-bold'>{selectedCategory.label}</Text>
-              <Text className='text-slate-700 text-lg'>{selectedCategory.description}</Text>
-            </View>
-          </View>
-        ):(
+        <View className='flex flex-col gap-4'>
+          <Text className=' font-bold text-4xl '>Explore</Text>
+          <TouchableOpacity className='p-0 gap-4 bg-slate-200 rounded-xl flex flex-row items-center'>
+            <Search size={20} className=' font-bold text-zinc-300 w-fit '></Search>
+            <TextInput className='p-3' onChangeText={(t)=>setSearch(t)} placeholder='Search'>
 
-          <View className='flex flex-col gap-4'>
-            <Text className=' font-bold text-4xl '>Explore</Text>
-            <TouchableOpacity className='p-0 gap-4 bg-slate-200 rounded-xl flex flex-row items-center'>
-              <Search size={20} className=' font-bold text-zinc-300 w-fit '></Search>
-              <TextInput className='p-3' onChangeText={(t)=>setSearch(t)} placeholder='Search'>
+            </TextInput>
+          </TouchableOpacity>
 
-              </TextInput>
-            </TouchableOpacity>
-
-          </View>
-        )}
+        </View>
+        
         {search.length > 0 && (
           // search filters
           <View>
@@ -149,7 +132,7 @@ export default function Explore() {
                 <View className='flex flex-row gap-4'>
                   {VIDEO_CATEGORIES.map((category, i) => {
                     return (
-                      <TouchableOpacity onPress={()=>setSelectedCategory(category)} style={{backgroundColor:category.color}} className='rounded-xl flex flex-col gap-2 p-2 h-fit w-[150px] bg-slate-200'>
+                      <TouchableOpacity onPress={()=>router.push(`/category/${category.id}`)} style={{backgroundColor:category.color}} className='rounded-xl flex flex-col gap-2 p-2 h-fit w-[150px] bg-slate-200'>
                         <Text className='text-xl font-semibold '>{category.label}</Text>
                         <View className='text-white '>
                           {category.icon}

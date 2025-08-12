@@ -38,7 +38,9 @@ export default function ProfileScreen() {
     setLoading(true);
     try {
       const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/profile/${id}`);
+      console.log(response.data.profile)
       setProfile(response.data.profile);
+
     } catch (error) {
       console.error('Error fetching user profile:', error);
     } finally {
@@ -95,7 +97,7 @@ export default function ProfileScreen() {
             )}
             >
             {availableOptions
-                .filter((option) => !option.ownerOnly)
+                .filter((option) => !option.ownerOnly || profile?.profileOwner)
                 .map((option, index) => (
                 <TouchableOpacity
                     key={index}
