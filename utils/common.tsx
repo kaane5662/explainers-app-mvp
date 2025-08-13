@@ -1,5 +1,10 @@
-import { Atom, Brain, Calculator, Code, FlaskConical, Leaf, Settings, Terminal, Gamepad, BarChart, Moon, Globe, Bot, Shield, Book, BookOpen, Monitor, Search, Wrench } from "lucide-react-native";
+import { Atom, Brain, Calculator, Code, FlaskConical, Leaf, Settings, Terminal, Gamepad, BarChart, Moon, Globe, Bot, Shield, Book, BookOpen, Monitor, Search, Wrench, Video, Headphones, Film,Loader,
+  Stars,
+  Laptop,
+} from "lucide-react-native";
 import { JSX } from "react";
+import { ExplainerType } from "./constant";
+
 
 
 export function randomString(length = 32) {
@@ -184,11 +189,32 @@ VIDEO_CATEGORIES: {
   }
 ];
 
-export const ALL_CATEGORY = { id: "all", name: "All" };
+export const ALL_CATEGORY = { id: "all",
+  name: "fspza5jqu3j",
+  label: "All",
+  description: "All topics",
+  color: "#B3CCFF",
+  icon: <Wrench  />, };
 
 
 
-
+export const explainerTypeOptions = [
+  {
+    label:"Video",
+    value:ExplainerType.VIDEO,
+    icon: <Video size={20}></Video>
+  },
+  {
+    label:"Podcast",
+    value:ExplainerType.PODCAST,
+    icon:<Headphones size={20}></Headphones>
+  },
+  {
+    label:"Reel",
+    value:ExplainerType.REEL,
+    icon:<Film size={20}></Film>
+  }
+]
 
 export const voiceOptions = [
   { label: "Alex (female)", value: "Autonoe", audio:"/audios/alex-voice-preview.wav" },
@@ -212,16 +238,16 @@ export const voiceThemeOptions = [
 ];
 
 export const videoStyleOptions = [
-  { label: "zpzt7fo1rvq", value: "professional", example: "j7d7icrbcs" },
-  { label: "ieicn96oeg", value: "teacher", example: "j1v4ilcqm7" },
-  { label: "yf8jhln9ijb", value: "quick-guide", example: "zinos1c7axe" },
-  { label: "urqsoinnxb", value: "deep-dive", example: "9rs21lh6uj" },
-  { label: "8qui6i1dmaf", value: "storyteller", example: "8087ebzu1fx" },
-  { label: "hs6ghotswi", value: "angry", example: "ao6xouf8s9s" },
-  { label: "hjpc2cqcgs", value: "comedy", example: "u26noqaq76p" },
-  { label: "vxwn67y0b2p", value: "meme", example: "li0xq0tyfdg" },
-  { label: "4zpn4hxjwy5", value: "sarcastic", example: "rf86n54n7a" },
-  { label: "cjaypyxkl6r", value: "custom", example: "" }
+  { label: "cjaypyxkl6r", name: "Custom", value: "custom", example: "", example_label: "A personalized or user-defined style" },
+  { label: "zpzt7fo1rvq", name: "Professional", value: "professional", example: "j7d7icrbcs", example_label: "A polished and formal presentation" },
+  { label: "ieicn96oeg", name: "Teacher", value: "teacher", example: "j1v4ilcqm7", example_label: "An educational lecture or tutorial" },
+  { label: "yf8jhln9ijb", name: "Quick Guide", value: "quick-guide", example: "zinos1c7axe", example_label: "A brief and concise instructional video" },
+  { label: "urqsoinnxb", name: "Deep Dive", value: "deep-dive", example: "9rs21lh6uj", example_label: "An in-depth analysis or exploration" },
+  { label: "8qui6i1dmaf", name: "Storyteller", value: "storyteller", example: "8087ebzu1fx", example_label: "A narrative-driven video" },
+  { label: "hs6ghotswi", name: "Angry", value: "angry", example: "ao6xouf8s9s", example_label: "A video with a passionate or intense tone" },
+  { label: "hjpc2cqcgs", name: "Comedy", value: "comedy", example: "u26noqaq76p", example_label: "A humorous or entertaining video" },
+  { label: "vxwn67y0b2p", name: "Meme", value: "meme", example: "li0xq0tyfdg", example_label: "A video with viral or internet culture elements" },
+  { label: "4zpn4hxjwy5", name: "Sarcastic", value: "sarcastic", example: "rf86n54n7a", example_label: "A video with a mocking or ironic tone" },
 ];
 
 
@@ -310,3 +336,186 @@ export function generateReferralCode(): string {
   }
   return result;
 }
+
+export const TOPICS = [
+  {
+    id: "biology",
+    name: "Biology",
+    icon: Brain,
+    suggestion: [
+      "How do cells know exactly when to divide and multiply to keep our bodies functioning properly?",
+      "What is the process of photosynthesis in plants?",
+      "How do plants convert sunlight into energy?",
+      "How does the human immune system fight off infections and diseases?",
+      "What role does DNA play in determining our physical characteristics?",
+    ],
+  },
+  {
+    id: "chemistry",
+    name: "Chemistry",
+    icon: FlaskConical,
+    suggestion: [
+      "Why do atoms form chemical bonds with each other?",
+      "How do chemical reactions occur?",
+      "What is the role of enzymes in biochemical reactions?",
+      "How do catalysts speed up chemical reactions without being consumed?",
+      "What makes some elements more reactive than others?",
+    ],
+  },
+  {
+    id: "physics",
+    name: "Physics",
+    icon: Atom,
+    suggestion: [
+      "Why do astronauts appear to float weightlessly in space when Earth's gravity still affects them?",
+      "How do electromagnetic waves travel through space?",
+      "What is the role of gravity in the formation of galaxies?",
+      "How does quantum entanglement allow particles to influence each other instantly?",
+      "What is the relationship between energy and matter according to Einstein's E=mc²?",
+    ],
+  },
+  {
+    id: "mathematics",
+    name: "Mathematics",
+    icon: Brain,
+    suggestion: [
+      "Why is the number π (pi) so important in mathematics and nature?",
+      "How do imaginary numbers help solve real-world problems?",
+      "What is the significance of the golden ratio in art and nature?",
+      "How do prime numbers contribute to modern cryptography?",
+      "Why does the Fibonacci sequence appear so frequently in nature?",
+    ],
+  },
+  {
+    id: "computer_science",
+    name: "Computer Science",
+    icon: Laptop,
+    suggestion: [
+      "How do computers store and process information using only 1s and 0s?",
+      "What makes quantum computers potentially more powerful than classical computers?",
+      "How do machine learning algorithms learn from data?",
+      "What is the significance of P vs NP in computer science?",
+      "How do encryption algorithms keep our data secure on the internet?",
+    ],
+  },
+  {
+    id: "environmental_science",
+    name: "Environmental Science",
+    icon: Atom,
+    suggestion: [
+      "How do ocean currents influence global climate patterns?",
+      "What role do microorganisms play in maintaining ecosystem balance?",
+      "How do carbon sinks help regulate atmospheric CO2 levels?",
+      "What causes the formation of different types of clouds?",
+      "How do ecosystems recover after natural disasters?",
+    ],
+  },
+  {
+    id: "astronomy",
+    name: "Astronomy",
+    icon: Stars,
+    suggestion: [
+      "What happens inside a black hole's event horizon?",
+      "How do stars produce and distribute heavy elements in the universe?",
+      "What causes the mysterious dark matter effects we observe?",
+      "How do galaxies form and evolve over billions of years?",
+      "What is the fate of our universe according to current theories?",
+    ],
+  },
+  {
+    id: "psychology",
+    name: "Psychology",
+    icon: Brain,
+    suggestion: [
+      "How does the brain create and store memories?",
+      "What influences our decision-making processes?",
+      "How do early childhood experiences shape personality?",
+      "What causes dreams and what is their purpose?",
+      "How does social interaction affect brain development?",
+    ],
+  },
+  {
+    id: "neuroscience",
+    name: "Neuroscience",
+    icon: Brain,
+    suggestion: [
+      "How do neurons communicate using electrical and chemical signals?",
+      "What happens in the brain during learning and memory formation?",
+      "How does neuroplasticity allow the brain to adapt and change?",
+      "What causes consciousness and self-awareness?",
+      "How do different brain regions coordinate complex behaviors?",
+    ],
+  },
+  {
+    id: "engineering",
+    name: "Engineering",
+    icon: FlaskConical,
+    suggestion: [
+      "How do bridges distribute and handle massive loads?",
+      "What principles make modern skyscrapers possible?",
+      "How do autonomous vehicles perceive and navigate their environment?",
+      "What makes some materials stronger than others?",
+      "How do noise-canceling headphones work?",
+    ],
+  },
+  {
+    id: "genetics",
+    name: "Genetics",
+    icon: Brain,
+    suggestion: [
+      "How do genes control the development of organisms?",
+      "What causes genetic mutations and how do they affect evolution?",
+      "How does gene editing technology like CRISPR work?",
+      "What determines which genes are expressed in different cells?",
+      "How do epigenetic changes affect gene expression?",
+    ],
+  },
+  {
+    id: "earth_science",
+    name: "Earth Science",
+    icon: Atom,
+    suggestion: [
+      "What causes earthquakes and volcanic eruptions?",
+      "How do Earth's magnetic field protect us from solar radiation?",
+      "What drives the movement of tectonic plates?",
+      "How do different rock types form and transform?",
+      "What causes the Earth's climate to change over long periods?",
+    ],
+  },
+  {
+    id: "technology",
+    name: "Technology",
+    icon: Laptop,
+    suggestion: [
+      "How does blockchain technology ensure security and trust?",
+      "What makes 5G networks faster than previous generations?",
+      "How do virtual and augmented reality systems work?",
+      "What enables cloud computing and distributed systems?",
+      "How do biometric authentication systems work?",
+    ],
+  },
+  {
+    id: "data_science",
+    name: "Data Science",
+    icon: Laptop,
+    suggestion: [
+      "How do recommendation systems predict user preferences?",
+      "What makes some machine learning models more accurate than others?",
+      "How do neural networks process and learn from data?",
+      "What techniques help identify patterns in big data?",
+      "How do natural language processing systems understand text?",
+    ],
+  },
+  {
+    id: "artificial_intelligence",
+    name: "AI",
+    icon: Brain,
+    suggestion: [
+      "How do AI systems learn from examples and improve over time?",
+      "What enables AI to recognize and process human speech?",
+      "How do AI systems generate human-like text and images?",
+      "What role does reinforcement learning play in AI development?",
+      "How do AI systems handle uncertainty and make decisions?",
+    ],
+  },
+];

@@ -5,6 +5,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Link } from 'expo-router';
 
 
 export default function HomeScreen() {
@@ -17,6 +18,8 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
+      <Link href={"/podcasts/689b7a5804a920394497d4a2"}>Podcast</Link>
+      <Link href={"/profile/689b82fb04a920394497d4a4"}>Profile</Link>
       
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
@@ -25,6 +28,8 @@ export default function HomeScreen() {
         </View>
         <HelloWave />
       </ThemedView>
+      <Link href={"/login"}>Login</Link>
+      <Link href={"/signup"}>Signup</Link>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
         <ThemedText>

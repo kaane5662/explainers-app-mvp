@@ -3,7 +3,7 @@ import { ClassValue } from "clsx";
 import { Link } from "expo-router";
 
 import { cloneElement, JSX } from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity,Text, View } from "react-native";
 
 interface CommonProps {
   variant?: Variant;
@@ -28,7 +28,7 @@ const Types: {
 type Variant = "gray" | "blue";
 
 const CommonStyles = clsx(
-  "flex items-center justify-center text-center gap-2",
+  "flex flex-row items-center justify-center text-center gap-2",
   "text-white font-medium",
   "border-2 relative",
   "disabled:opacity-50 disabled:cursor-not-allowed"
@@ -192,7 +192,11 @@ export default function SpecialButton({
           iconValue={iconLeft}
         />
       )}
-      {children}
+      <Text>{props.title}</Text>
+      <View>
+        {children}
+
+      </View>
       {iconRight && (
         <Icon
           size={size}

@@ -1,11 +1,18 @@
 import { IExplainerPodcast, IExplainerVideo } from "@/interfaces";
+import { router } from "expo-router";
 import { Circle } from "lucide-react-native";
 import moment from "moment";
-import { View,Image,Text } from "react-native";
+import { View,Image,Text, TouchableOpacity } from "react-native";
 
 export default function VideoThumbnail({video}:{video:IExplainerVideo}){
     return(
-        <View className="flex flex-col gap-4 w-full">
+        <TouchableOpacity 
+        onPress={()=>{
+            console.log(video)
+            router.push(`/reels/${video.id}`)
+        }
+            }
+        className="flex flex-col gap-4 w-full">
             <Image className="rounded-xl aspect-video" src={video.thumbnailUrl} resizeMode="cover" />
 
             <View className="flex flex-col flex-1 gap-2">
@@ -34,6 +41,6 @@ export default function VideoThumbnail({video}:{video:IExplainerVideo}){
                     <Text className="text-md text-slate-500 flex-shrink">{video.views} listens</Text>
                 </View>
             </View>
-        </View>
+        </TouchableOpacity>
     )
 }

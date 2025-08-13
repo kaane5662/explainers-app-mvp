@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { createAudioPlayer, useAudioPlayer } from 'expo-audio';
 import PodcastPlayer from '@/components/podcasts/PodcastPlayer';
+import PodcastHeader from '@/components/podcasts/PodcastHeader';
+import Generating from '@/components/explainers/Generating';
+import { ExplainerType } from '@/utils/constant';
 
 export default function DetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -34,54 +37,17 @@ export default function DetailsScreen() {
     }
   }, [id]);
 
+  if(Podcast?.generating) return(
+    <SafeAreaView>
+        <Generating explainerType={ExplainerType.PODCAST} explainer={Podcast as any}></Generating>
+    </SafeAreaView>
+  )
+
   return (
     <SafeAreaView >
 			<View className='p-8'>
 				{Podcast && (
-					<View className="flex flex-col ">
-						<View className="w-full border-2 rounded-2xl overflow-hidden h-[400px] border-gray-200 dark:border-gray-800">
-							{Podcast.thumbnailUrl ? (
-								<Image
-									className='  w-full h-full'
-									source={{ uri: Podcast.thumbnailUrl }}
-									// resizeMode="cover"
-									style={{ width: "100%", height:"100%"}}
-								/>
-							) : (
-								<View className="w-full h-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
-							)}
-						</View>
-						<Text className="text-2xl font-semibold mt-2">{Podcast.title}</Text>
-						<View className="flex flex-row gap-2 items-center">
-                    {Podcast.user.imageUrl ? (
-                        <Image
-                            className="rounded-full w-4 h-4 object-left"
-                            src={Podcast.user.imageUrl}
-                            resizeMode="cover"
-                            
-                            
-                        />
-                    ) : (
-                        <View className="rounded-full w-4 h-4 bg-blue flex items-center justify-center">
-                            <Text className="text-white text-xs font-bold">
-                                {Podcast.user.name.charAt(0)}
-                            </Text>
-                        </View>
-                    )}
-                    <Text className="text-slate-500 text-sm">{Podcast.user.name}</Text>
-            </View>
-						
-						<View className="text-md flex flex-row gap-2 mt-1">
-							<Text className="text-gray-400">
-								{moment(Podcast.created).fromNow()}
-							</Text>
-							<Text className="text-gray-400">•</Text>
-							<Text className="text-gray-400">
-								{Podcast.views} {"listens"}
-							</Text>
-						</View>
-						<PodcastPlayer podcast={Podcast}></PodcastPlayer>
-					</View>
+					<PodcastHeader podcast={Podcast}/>
 				)}
 			</View>
     </SafeAreaView>
