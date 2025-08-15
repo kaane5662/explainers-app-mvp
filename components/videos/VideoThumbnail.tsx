@@ -12,10 +12,10 @@ export default function VideoThumbnail({video}:{video:IExplainerVideo}){
             router.push(`/reels/${video.id}`)
         }
             }
-        className="flex flex-col gap-4 w-full">
-            <Image className="rounded-xl aspect-video" src={video.thumbnailUrl} resizeMode="cover" />
+        className="flex flex-col  gap-4 ">
+            <Image className="rounded-xl h-fit aspect-video" src={video.thumbnailUrl} resizeMode="cover" />
 
-            <View className="flex flex-col flex-1 gap-2">
+            <View className="flex gap-2">
                 <View className="flex flex-row gap-2 items-center">
                     {video.user.imageUrl ? (
                         <Image

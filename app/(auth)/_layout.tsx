@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { Stack, Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
@@ -8,41 +8,15 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-export default function TabLayout() {
+export default function AuthLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
+    <Stack
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: {
-          display: 'none', // Hide the tabs at the bottom
-          ...Platform.select({
-            ios: {
-              position: 'absolute',
-            },
-            default: {},
-          }),
-        },
-      }}>
-      {/* <Tabs.Screen
-        name="podcasts/[id]"
-        options={{
-          title: 'Podcast Details',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="headphones.circle.fill" color={color} />,
-        }}
-      /> */}
-      
-      {/* <Tabs.Screen
-        name="podcasts"
-        options={{
-          title: 'Podcasts',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="headphones.circle.fill" color={color} />,
-        }}
-      /> */}
-    </Tabs>
+        headerShown: false, // This hides the header for all screens in this group
+      }}
+    />
+
   );
 }

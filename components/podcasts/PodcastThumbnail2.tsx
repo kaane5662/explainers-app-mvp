@@ -12,7 +12,7 @@ export default function PodcastThumbnail2({podcast}:{podcast:IExplainerPodcast})
         className="flex flex-row gap-4 items-center w-full">
             <Image className="rounded-xl w-[75px] h-[75px]" src={podcast.thumbnailUrl} resizeMode="cover" />
 
-            <View className="flex flex-col flex-1 gap-2">
+            <View className="flex flex-col gap-2">
                 <TouchableOpacity 
                 onPress={()=>router.push(`/profile/${podcast.user.id}`)}
                 className="flex flex-row gap-2 items-center">
@@ -33,7 +33,7 @@ export default function PodcastThumbnail2({podcast}:{podcast:IExplainerPodcast})
                     )}
                     <Text className="text-slate-500 text-sm">{podcast.user.name}</Text>
                 </TouchableOpacity>
-                <Text className="text-xl w-fit font-semibold -mt-2">{podcast.title}</Text>
+                <Text className="text-xl font-semibold max-w-[85%] -mt-2" numberOfLines={2} ellipsizeMode="tail">{podcast.title}</Text>
                 <View className="flex flex-row gap-2 items-center flex-wrap">
                     <Text className="text-md text-slate-500 flex-shrink">{moment(podcast.created).fromNow()}</Text>
                     <View className="rounded-full w-1 h-1 bg-slate-500"></View>

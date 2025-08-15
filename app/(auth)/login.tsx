@@ -194,7 +194,7 @@ export default function Login() {
   return (
     <View
       className={clsx(
-        "flex-row w-full py-10 justify-center items-center",
+        "flex-row w-full py-20 justify-center items-center",
         "p-4 gap-32",
         "max-md:flex-col"
       )}
@@ -317,7 +317,7 @@ export default function Login() {
                 // mixpanel.track("signup_link_click", {
                 //   from_location: "login_page",
                 // });
-                router.push("/auth/signup");
+                router.push("/signup");
               }}
             >
             <Text className="underline text-blue">{"Sign up"}</Text>

@@ -15,11 +15,12 @@ import { PodcastThumbnail } from "../podcasts/PodcastThumbnail";
 // import { getWatchedUpToExplainerLengths } from "@utils/api/explainers";
 import { IExplainerPodcast, IExplainerVideo } from "@/interfaces";
 import React from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity,FlatList } from 'react-native';
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Loader, Search, SearchX } from 'lucide-react-native';
 import { Picker } from "@react-native-picker/picker";
 import PodcastThumbnail2 from "../podcasts/PodcastThumbnail2";
 import VideoThumbnail from "../videos/VideoThumbnail";
+
 interface IExplainer extends IExplainerVideo, IExplainerPodcast {}
 
 export default function ExplainerPagination({
@@ -35,6 +36,8 @@ export default function ExplainerPagination({
   pageNumber = 1,
   hideSortBy = false,
   customResults,
+  isShowCase= false,
+  numRows=3,
   sortExplainer
 }: {
   name: string | JSX.Element;
@@ -49,6 +52,8 @@ export default function ExplainerPagination({
   pageNumber?: number;
   hideSortBy?: boolean;
   sortExplainer?:string;
+  isShowCase?:boolean;
+  numRows?:number;
   customResults?: IExplainer[];
 }) {
  
@@ -343,13 +348,13 @@ return (
     )}
     <View className="flex-row flex-wrap gap-4">
       {!loading && Explainers.length === 0 && (
-        <View className="flex-col items-center justify-center flex-1 gap-4 min-h-100">
+        <View className="flex-col items-center  justify-center self-center w-full gap-4 min-h-100">
           <SearchX size={48} className="text-gray-400" />
           <View className="flex-col items-center gap-2">
             <Text className="text-xl font-bold text-gray-700">
-              {"Hello"}
+              {"Error 404"}
             </Text>
-            <Text className="text-gray-500 text-center">
+            <Text className="text-gray-500 text-center max-w-[65%]">
               {searchQuery ? "Try adjusting your search query" : "No explainers are available at the moment"}
             </Text>
             {/* {!hideCreateButton && !searchQuery && (
@@ -358,20 +363,50 @@ return (
           </View>
         </View>
       )}
-      <ScrollView>
-        <View className="flex flex-col gap-8">
-            {Explainers.map((explainer, index) => {
-                if(explainer.sectionAudios){
-                    return <PodcastThumbnail2
-                    key={index}
-                     podcast={explainer as any} />
-                }else{
-                    return <VideoThumbnail
-                    key={index}
-                     video={explainer as any} />
-                }
-            })}
-        </View>
+      <ScrollView showsHorizontalScrollIndicator={true} horizontal={isShowCase}>
+        {isShowCase ?(
+          
+          <FlatList
+          data={Array.from({ length: numRows || 3 }, (_, i) => i)} // Just 3 rows
+          renderItem={({item: rowIndex}) => (
+            <View className="flex-row mb-4 gap-8  items-center">
+              {Explainers
+                .filter((_, index) => index % 3 === rowIndex) // Distribute items across 3 rows
+                .map((explainer, index) => (
+                  <View key={explainer.id || index} className=" max-w-80">
+                    {explainer.sectionAudios ? (
+                      <PodcastThumbnail2 podcast={explainer as any} />
+                    ) : (
+                      <VideoThumbnail video={explainer as any} />
+                    )}
+                  </View>
+                ))}
+            </View>
+          )}
+          keyExtractor={(item) => `row-${item}`}
+        />
+              
+            
+          
+        ):(
+          <View 
+          className={clsx(" gap-8", isShowCase ? "flex gap-12 flex-4 flex-row flex-wrap items-center":"flex flex-col")}>
+              {Explainers.map((explainer, index) => {
+                  const itemClassName = isShowCase ? "w-80 h-36 " : ""; // Fixed width for horizontal
+        
+                  if(explainer.sectionAudios){
+                    return <View key={index} className={itemClassName}>
+                      <PodcastThumbnail2 podcast={explainer as any} />
+                    </View>
+                  } else {
+                    return <View key={index} className={itemClassName}>
+                      <VideoThumbnail video={explainer as any} />
+                    </View>
+                  }
+              })}
+          </View>
+
+        )}
       </ScrollView>
       {loading &&
         <Loader />

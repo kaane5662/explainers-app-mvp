@@ -18,7 +18,14 @@
           "microphonePermission": "Allow Imagine to access your microphone."
         }
       ],
-      "expo-video"
+      [
+        "expo-video",
+
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",

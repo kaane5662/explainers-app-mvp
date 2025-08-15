@@ -1,6 +1,9 @@
 import { Atom, Brain, Calculator, Code, FlaskConical, Leaf, Settings, Terminal, Gamepad, BarChart, Moon, Globe, Bot, Shield, Book, BookOpen, Monitor, Search, Wrench, Video, Headphones, Film,Loader,
   Stars,
   Laptop,
+  User,
+  DoorClosed,
+  LogOut,
 } from "lucide-react-native";
 import { JSX } from "react";
 import { ExplainerType } from "./constant";
@@ -199,11 +202,11 @@ export const ALL_CATEGORY = { id: "all",
 
 
 export const explainerTypeOptions = [
-  {
-    label:"Video",
-    value:ExplainerType.VIDEO,
-    icon: <Video size={20}></Video>
-  },
+  // {
+  //   label:"Video",
+  //   value:ExplainerType.VIDEO,
+  //   icon: <Video size={20}></Video>
+  // },
   {
     label:"Podcast",
     value:ExplainerType.PODCAST,
@@ -225,16 +228,23 @@ export const voiceOptions = [
   { label: "Taylor (male)", value: "Sadachbia", audio:"/audios/taylor-voice-preview.wav"  }
 ];
 
+export const profileDropdownSettings = [
+  { label: "Profile", icon: "user", url: `/profile` },
+  { label: "Settings", icon: "setting", url:"/settings" },
+  { label: "Logout", icon: "logout", url: "/logout" }
+];
+
+
 export const voiceThemeOptions = [
-  { label: "u22o1uirmh", value: "professional", example: "k80tuzyflbk" },
-  { label: "bkatt3wphxg", value: "casual", example: "q57pffdugzc" },
-  { label: "sv8stm3fbp", value: "educational", example: "2s8prircnqq" },
-  { label: "vfrm12s7nq", value: "mysterious", example: "bru0kb0r7t" },
-  { label: "bcgc48pge9s", value: "youthful", example: "zovdf7hvzq7" },
-  { label: "a3imhj8m5z", value: "inspirational", example: "yd6uqs47soq" },
-  { label: "pbzfzt3mu7i", value: "experimental", example: "2n26bdhvcm7" },
-  { label: "fzx76yyf4j5", value: "angry", example: "70js6arsimu" },
-  { label: "ilju4nhj2d", value: "custom", example: "" },
+  { label: "u22o1uirmh", name: "Professional", value: "professional", example: "k80tuzyflbk", example_label: "A formal and polished tone" },
+  { label: "bkatt3wphxg", name: "Casual", value: "casual", example: "q57pffdugzc", example_label: "A relaxed and informal tone" },
+  { label: "sv8stm3fbp", name: "Educational", value: "educational", example: "2s8prircnqq", example_label: "An informative and instructive tone" },
+  { label: "vfrm12s7nq", name: "Mysterious", value: "mysterious", example: "bru0kb0r7t", example_label: "An enigmatic and suspenseful tone" },
+  { label: "bcgc48pge9s", name: "Youthful", value: "youthful", example: "zovdf7hvzq7", example_label: "A lively and energetic tone" },
+  { label: "a3imhj8m5z", name: "Inspirational", value: "inspirational", example: "yd6uqs47soq", example_label: "A motivational and uplifting tone" },
+  { label: "pbzfzt3mu7i", name: "Experimental", value: "experimental", example: "2n26bdhvcm7", example_label: "An innovative and unconventional tone" },
+  { label: "fzx76yyf4j5", name: "Angry", value: "angry", example: "70js6arsimu", example_label: "A passionate and intense tone" },
+  { label: "ilju4nhj2d", name: "Custom", value: "custom", example: "", example_label: "A personalized or user-defined tone" },
 ];
 
 export const videoStyleOptions = [

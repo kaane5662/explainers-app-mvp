@@ -90,7 +90,7 @@ export default function CategorySearch() {
               {/* podcasts */}
               <View className='flex flex-col gap-4 mt-4'>
                 <Text className='text-2xl font-semibold'>Trending Podcasts</Text>
-                <View className='h-[250px]'>
+                <View className='h-[200px]'>
                   
                   <ExplainerPagination
                     pageResults={20}
@@ -100,6 +100,8 @@ export default function CategorySearch() {
                     hideSearch
                     hideCount
                     hideSort
+                    numRows={2}
+                    isShowCase
                     extraParams={{
                       searchQuery: search && search.length > 1 ? search : undefined,
                       category: selectedCategory?.id || null

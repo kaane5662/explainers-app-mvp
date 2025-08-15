@@ -80,7 +80,7 @@ export default function Explore() {
             {/* podcasts */}
             <View className='flex flex-col gap-4 mt-4'>
               <Text className='text-2xl font-semibold'>Trending Podcasts</Text>
-              <View className='h-[250px]'>
+              <View className='h-[310px]'>
                 
                 <ExplainerPagination
                   pageResults={20}
@@ -94,6 +94,7 @@ export default function Explore() {
                     searchQuery: search && search.length > 1 ? search : undefined,
                     category: selectedCategory?.id || null
                   }}
+                  isShowCase={true}
                   
                   />
                   
@@ -104,7 +105,7 @@ export default function Explore() {
             {/* reels */}
             <View className='flex flex-col gap-4 mt-4'>
               <Text className='text-2xl font-semibold'>Trending Reels</Text>
-              <View className='h-[300px]'>
+              <View className='h-[500px]'>
 
                 <ExplainerPagination
                   pageResults={20}

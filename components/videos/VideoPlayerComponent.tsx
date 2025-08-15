@@ -17,7 +17,11 @@ interface VideoPlayerComponentProps {
 }
 
 const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProps>(({ videoUri }, ref) => {
-  const player = useVideoPlayer(videoUri);
+  // console.log("Video component", videoUri)
+  const player = useVideoPlayer("https://customer-byoxbsa3xbt3c5ht.cloudflarestream.com/8b2223468882afe06f518d613ff4f4ee/manifest/video.m3u8",
+
+    player=>{player.play()}
+  );
   const playerRef = useRef<any>(null);
 
   useEffect(() => {
@@ -32,13 +36,12 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProp
   };
 
   const getCurrentTime = (): number => {
-    return playerRef.current?.getCurrentTime() || 0;
+    // console.log(player.currentTime)
+    return player.currentTime
   };
 
   const onSeek = (currentTime: number) => {
-    if (playerRef.current) {
-      playerRef.current.seek(currentTime);
-    }
+    player.currentTime = currentTime
   };
 
   const onPlayPause = (): boolean => {
@@ -61,11 +64,15 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProp
   }));
 
   return (
-    <View className={clsx('relative w-full h-full bg-black')}>
+    <View className={clsx('w-full h-full bg-black')}>
       <VideoView
-        
+        className='w-screen h-screen'
         ref={playerRef}
         player={player}
+        style={{
+          width:"100%",
+          height:"100%"
+        }}
         // className="w-full h-full"
         nativeControls={false}
       />

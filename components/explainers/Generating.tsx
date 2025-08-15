@@ -71,6 +71,14 @@ console.log("Generating rendered")
     updateTimer()
   }, [explainer.id]);
 
+  useEffect(() => {
+    const timerInterval = setInterval(() => {
+      setTime((prevTime) => Math.max(prevTime - 1, 0));
+    }, 1000);
+
+    return () => clearInterval(timerInterval);
+  }, []);
+
   return (
     <SafeAreaView>
         <View className="flex w-full p-8 flex-col gap-2">
@@ -85,7 +93,7 @@ console.log("Generating rendered")
             'flex flex-col justify-center gap-4 self-center',
             'p-8',
             // 'px-4 py-8 sm:px-8 md:px-16 lg:px-32',
-            'shadow-lg dark:shadow-2xl'
+            // 'shadow-lg dark:shadow-2xl'
             )}>
             <View className={clsx('mb-4 flex flex-col items-center')}>
             {time > 0 ? (
@@ -99,7 +107,7 @@ console.log("Generating rendered")
                         'w-fit p-1 px-3',
                         'border-2 border-gray-200 dark:border-gray-800',
                         'bg-white dark:bg-dark2',
-                        'shadow-sm'
+                        // 'shadow-sm'
                     )}>
                     {char}
                     </Text>

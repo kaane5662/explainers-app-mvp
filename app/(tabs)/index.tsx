@@ -1,67 +1,138 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet, View, Text } from 'react-native';
+import { Platform, StyleSheet, View, Text,SafeAreaView,ScrollView, ActivityIndicator } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import ExplainerPagination from '@/components/explainers/ExplainerPagination';
+import ProfileDropdown from '@/components/profile/ProfileDropdown';
+import axios, { AxiosError } from 'axios';
+import { use, useEffect, useState } from 'react';
+import { useUser } from '@/hooks/useUser';
+// import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
+
 
 
 export default function HomeScreen() {
+  const { user, loading, error, refetch } = useUser();
+  
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <Link href={"/podcasts/689b7a5804a920394497d4a2"}>Podcast</Link>
-      <Link href={"/profile/689b82fb04a920394497d4a4"}>Profile</Link>
+    // <ParallaxScrollView
+    //   headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+    //   headerImage={
+    //     <Image
+    //       source={require('@/assets/images/partial-react-logo.png')}
+    //       style={styles.reactLogo}
+    //     />
+    //   }>
+    //   <Link href={"/podcasts/689b7a5804a920394497d4a2"}>Podcast</Link>
+    //   <Link href={"/profile/689b82fb04a920394497d4a4"}>Profile</Link>
       
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <View className='p-4 text-2xl'>
-          <Text className=" text-blue2 font-bold">HEllo World</Text>
+    //   <ThemedView style={styles.titleContainer}>
+    //     <ThemedText type="title">Welcome!</ThemedText>
+    //     <View className='p-4 text-2xl'>
+    //       <Text className=" text-blue2 font-bold">HEllo World</Text>
+    //     </View>
+    //     <HelloWave />
+    //   </ThemedView>
+    //   <Link href={"/login"}>Login</Link>
+    //   <Link href={"/signup"}>Signup</Link>
+    //   <ThemedView style={styles.stepContainer}>
+    //     <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+    //     <ThemedText>
+    //       Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
+    //       Press{' '}
+    //       <ThemedText type="defaultSemiBold">
+    //         {Platform.select({
+    //           ios: 'cmd + d',
+    //           android: 'cmd + m',
+    //           web: 'F12',
+    //         })}
+    //       </ThemedText>{' '}
+    //       to open developer tools.
+    //     </ThemedText>
+    //   </ThemedView>
+    //   <ThemedView style={styles.stepContainer}>
+    //     <ThemedText type="subtitle">Step 2: Explore</ThemedText>
+    //     <ThemedText>
+    //       {`Tap the Explore tab to learn more about what's included in this starter app.`}
+    //     </ThemedText>
+    //   </ThemedView>
+    //   <ThemedView style={styles.stepContainer}>
+    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
+    //     <ThemedText>
+    //       {`When you're ready, run `}
+    //       <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
+    //       <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
+    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
+    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+    //     </ThemedText>
+    //   </ThemedView>
+    // </ParallaxScrollView>
+    <SafeAreaView>
+      <ScrollView>
+        <View className='flex flex-col p-4 gap-2'>
+          
+              
+            {!user? (
+              <ActivityIndicator color={"blue"}></ActivityIndicator>
+            ):(
+              <View className='flex flex-row gap-4 items-center'>
+                <ProfileDropdown user={user}></ProfileDropdown>
+                <Text className='text-slate-700'>Welcome {user.name}</Text>
+              </View>
+            )}
+            
+          
+          <View className='flex flex-col mt-4 gap-4'>
+            <Text className='font-semibold text-2xl'>Keep Listening</Text>
+            <View className='h-[300px]'>
+
+              <ExplainerPagination
+              pageResults={20}
+              name={''}
+              apiRoute={ "/explainers"}
+              sortExplainer='podcasts'
+              hideSearch
+              hideCount
+              hideSort
+              isShowCase
+              // extraParams={{
+              //   searchQuery: search && search.length > 1 ? search : undefined,
+              //   category: selectedCategory?.id || null
+              // }}
+              
+              />
+            </View>
+          </View>
+          <View className='flex flex-col gap-4 mt-4'>
+            <Text className='font-semibold text-2xl'>For You</Text>
+            <View className=''>
+
+              <ExplainerPagination
+              pageResults={20}
+              name={''}
+              apiRoute={ "/user/for-you"}
+              // sortExplainer='podcasts'
+              hideSearch
+              hideCount
+              hideSort
+              // isShowCase
+              // extraParams={{
+              //   searchQuery: search && search.length > 1 ? search : undefined,
+              //   category: selectedCategory?.id || null
+              // }}
+              
+              />
+            </View>
+          </View>
         </View>
-        <HelloWave />
-      </ThemedView>
-      <Link href={"/login"}>Login</Link>
-      <Link href={"/signup"}>Signup</Link>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

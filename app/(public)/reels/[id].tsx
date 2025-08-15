@@ -68,14 +68,16 @@ export default function ReelsContent() {
     } else {
       setLoading(true);
     }
+    // console.log("fetching reel")
     try {
-      console.log("Fetching shorts",id)
+      // console.log("Fetching shorts",id)
       let video = null
       if(!initialized){
         video = (await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/videos/${id}`,{withCredentials:true})).data.explainer
         console.log("Stream url",video.videoUrl)
       } 
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/shorts`, { likes, dislikes, initialized }, { withCredentials: true });
+      // console.log("In video")
     //   console.log(res.)
       setShorts((prev) => [...prev, ...(video ? [video, ...res.data.shorts] : res.data.shorts)]);
       if (!initialized) setInitialized(true);
@@ -109,10 +111,10 @@ export default function ReelsContent() {
 //   }, [shortIndex]);
 
   useEffect(() => {
+    getShorts(true);
     if (!loading && !isPreloading && shorts.length > 0 && shortIndex >= shorts.length - 3) {
-      getShorts(true);
     }
-  }, [shortIndex, shorts, loading, isPreloading]);
+  }, [shortIndex, shorts]);
 
   const onLike = async () => {
     const short = shorts[shortIndex];
@@ -205,7 +207,8 @@ export default function ReelsContent() {
   };
 
   return (
-    <View className={clsx('flex justify-center items-center w-full h-full')}>
+    <View className={clsx('flex justify-center items-center w-full h-screen')}>
+      {/* <Text>Hello</Text> */}
       {/* {sharePopup && shorts[shortIndex] && (
         <ShareVideo
           loggedIn={loggedIn}
@@ -217,7 +220,7 @@ export default function ReelsContent() {
         />
       )} */}
       
-      <View className={clsx('h-full w-full relative bg-slate-50 bg-opacity-15 flex flex-col items-center justify-center')}>
+      <View className={clsx('h-full w-full relative bg-opacity-15 flex flex-col ')}>
         {/* {commentsPopup && shorts[shortIndex] && (
           <Animated.View
             style={[
@@ -234,183 +237,189 @@ export default function ReelsContent() {
 
         {loading && (
           <View className={clsx('absolute w-full h-full items-center justify-center flex bg-black')}>
-            <Loader className="text-blue animate-spin" />
+            <Loader color={"cyan"} size={20} className="text-blue animate-spin" />
           </View>
         )}
 
         {shorts && shorts.length > 0 && !loading && (
           <ScrollView
-            className={clsx('h-full w-full')}
+            // className={clsx('h-full w-full')}
             onScroll={handleScroll}
             scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
           >
-            {shorts.map((shortItem, index) => (
-              <Animated.View
-                className={clsx('h-full w-full flex flex-col items-center justify-center relative')}
-                key={shortItem.id}
-                style={[
-                  
-                  {
-                    opacity: scrollY.interpolate({
-                      inputRange: [index * 100 - 50, index * 100, index * 100 + 50],
-                      outputRange: [0.7, 1, 0.7],
-                      extrapolate: 'clamp',
-                    }),
-                    transform: [
-                      {
-                        scale: scrollY.interpolate({
-                          inputRange: [index * 100 - 50, index * 100, index * 100 + 50],
-                          outputRange: [0.95, 1, 0.95],
-                          extrapolate: 'clamp',
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                {index === shortIndex && (
-                    <View className='w-full h-full'>
+            <View className='w-full h-full'>
+              {/* {console.log(shorts)} */}
+              {shorts.map((shortItem, index) => (
+                <Animated.View
+                  className={clsx('h-full w-full relative')}
+                  key={index}
+                  // style={[
+                    
+                  //   {
+                  //     opacity: scrollY.interpolate({
+                  //       inputRange: [index * 100 - 50, index * 100, index * 100 + 50],
+                  //       outputRange: [0.7, 1, 0.7],
+                  //       extrapolate: 'clamp',
+                  //     }),
+                  //     transform: [
+                  //       {
+                  //         scale: scrollY.interpolate({
+                  //           inputRange: [index * 100 - 50, index * 100, index * 100 + 50],
+                  //           outputRange: [0.95, 1, 0.95],
+                  //           extrapolate: 'clamp',
+                  //         }),
+                  //       },
+                  //     ],
+                  //   },
+                  // ]}
+                >
+                  {/* {index === shortIndex && (
+                    
+                  )} */}
+                      <View className='w-full h-screen'>
 
-                        <VideoPlayerComponent
-                            ref={playerRef}
-                            // onDurationUpdate={setCurrentTime}
-                            // hideControls={true} 
-                            // video={shortItem as IExplainerVideo} 
-                            videoUri={shortItem?.videoUrl} 
-                        />
-                    </View>
-                  
-                )}
+                          <VideoPlayerComponent
+                              ref={playerRef}
+                              // onDurationUpdate={setCurrentTime}
+                              // hideControls={true} 
+                              // video={shortItem as IExplainerVideo} 
+                              videoUri={shortItem?.videoUrl} 
+                          />
+                      </View>
 
-                <View className="flex justify-between text-white h-full flex-col gap-4 z-10 absolute bottom-0 p-2">
-                  <Animated.View
-                    style={{
-                      opacity: isPlaying ? 1 : 0,
-                    }}
-                    className="h-full place-self-center z-10 absolute w-full flex items-center justify-center"
-                  >
-                    <TouchableOpacity
-                      className="p-4 bg-blue rounded-full shadow-lg"
-                      onPress={() => {
-                        if (!playerRef.current) return;
-                        let paused = playerRef.current.onPlayPause();
-                        setPaused(paused);
-                        setIsPlaying(true);
+                  <View className="flex justify-between text-white h-full flex-col gap-4 z-10 absolute bottom-0 p-2">
+                    <Animated.View
+                      style={{
+                        opacity: isPlaying ? 1 : 0,
                       }}
+                      className="h-full place-self-center z-10 absolute w-full flex items-center justify-center"
                     >
-                      {paused ? <Play className="text-white" /> : <Pause className="text-white" />}
-                    </TouchableOpacity>
-                  </Animated.View>
+                      <TouchableOpacity
+                        className="p-4 bg-blue rounded-full shadow-lg"
+                        onPress={() => {
+                          if (!playerRef.current) return;
+                          let paused = playerRef.current.onPlayPause();
+                          setPaused(paused);
+                          setIsPlaying(true);
+                        }}
+                      >
+                        {paused ? <Play color={"white"} className="text-white" /> : <Pause color={"white"} className="text-white" />}
+                      </TouchableOpacity>
+                    </Animated.View>
 
-                  <View className="flex flex-col gap-4 z-10 self-start">
-                    <TouchableOpacity
-                      onPress={() => router.push('/')}
-                      className="bg-green-500 flex flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-green-600"
-                    >
-                      <ChevronLeft className="drop-shadow-xl" />
-                      <Text className="drop-shadow-xl">Back</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* <View className="flex flex-col gap-4">
-                    <View className="flex flex-row gap-12 justify-between z-10">
-                      <View className="flex flex-col gap-2 mt-auto">
-                        <TouchableOpacity
-                          onPress={() => router.push(`/profile/${shortItem.user.id}`)}
-                          className="flex gap-2 hover:opacity-70 duration-300 text-sm items-center"
-                        >
-                          {shortItem.user.imageUrl ? (
-                            <Image source={{ uri: shortItem.user.imageUrl }} className="h-6 w-6 rounded-full" />
-                          ) : (
-                            <View className="rounded-full bg-blue h-6 w-6 flex justify-center items-center">
-                              <Text>{shortItem.user.name.charAt(0)}</Text>
-                            </View>
-                          )}
-                          <Text>{shortItem.user.name}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => router.push(`/videos/${shortItem.id}`)}>
-                          <Text className="text-lg hover:opacity-70 duration-300 max-lg:text-md font-semibold">
-                            {shortItem.title}
-                          </Text>
-                        </TouchableOpacity>
-                        <Text className="text-sm overflow-x-auto">{shortItem.tags?.map((t) => '#' + t).join(' ')}</Text>
-                      </View>
-
-                      <View className="flex flex-col items-center gap-4">
-                        <TouchableOpacity
-                          style={[
-                            likes.some((l) => l.id === shortItem.id) ? { backgroundColor: 'blue' } : null,
-                          ]}
-                          className="flex items-center flex-col text-sm p-2 rounded-full duration-300"
-                          onPress={index === shortIndex ? onLike : undefined}
-                        >
-                          <ThumbsUp className={`drop-shadow-xl shadow-black ${likes.some((l) => l.id === shortItem.id) ? 'fill-blue' : ''}`} />
-                          <Text className={`drop-shadow-xl shadow-black ${likes.some((l) => l.id === shortItem.id) ? 'text-blue' : ''}`}>Like</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          className="flex items-center flex-col text-sm p-2 rounded-full duration-300 hover:text-red2"
-                          onPress={index === shortIndex ? onDislike : undefined}
-                        >
-                          <ThumbsDown className="drop-shadow-xl shadow-black" />
-                          <Text className="drop-shadow-xl shadow-black">Dislike</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          className="bg-green-500 flex items-center flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-green-600"
-                          onPress={() => index === shortIndex && setSharePopup(true)}
-                        >
-                          <Share className="drop-shadow-xl shadow-black" />
-                          <Text className="drop-shadow-xl shadow-black">Share</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          className="bg-yellow-500 flex items-center flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-yellow-600"
-                          onPress={() => index === shortIndex && setCommentsPopup(true)}
-                        >
-                          <MessageCircle className="drop-shadow-xl shadow-black" />
-                          <Text className="drop-shadow-xl shadow-black">Comment</Text>
-                        </TouchableOpacity>
-                      </View>
+                    <View className="flex flex-col gap-4 z-10 self-start">
+                      <TouchableOpacity
+                        onPress={() => router.push('/')}
+                        className="bg-green-500 flex flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-green-600"
+                      >
+                        <ChevronLeft color={"white"} className="drop-shadow-xl" />
+                        <Text className="drop-shadow-xl text-white">Back</Text>
+                      </TouchableOpacity>
                     </View>
-
-                    {index === shortIndex && (
-                      <View className="w-full h-fit z-10">
-                        <View className="rounded-md bottom-0 left-0 w-full bg-white/25 h-1.5">
-                          <View
-                            style={{
-                              width: `${(currentTime / (shortItem.totalDuration || 0)) * 100}%`,
-                            }}
-                            className="bg-blue rounded-md h-full relative"
+                    
+                    <View className="flex flex-col gap-4">
+                      {/* video info */}
+                      <View className="flex flex-row gap-12 justify-between z-10">
+                        <View className="flex flex-col gap-2 mt-auto">
+                          <TouchableOpacity
+                            onPress={() => router.push(`/profile/${shortItem.user.id}`)}
+                            className="flex flex-row gap-2 hover:opacity-70 duration-300 text-sm items-center"
                           >
+                            {shortItem.user.imageUrl ? (
+                              <Image source={{ uri: shortItem.user.imageUrl }} className="h-6 w-6 rounded-full" />
+                            ) : (
+                              <View className="rounded-full bg-blue h-6 w-6 flex justify-center items-center">
+                                <Text>{shortItem.user.name.charAt(0)}</Text>
+                              </View>
+                            )}
+                            <Text className='text-white'>{shortItem.user.name}</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => router.push(`/videos/${shortItem.id}`)}>
+                            <Text className="text-lg text-white hover:opacity-70 duration-300 max-lg:text-md font-semibold">
+                              {shortItem.title}
+                            </Text>
+                          </TouchableOpacity>
+                          <Text className="text-sm text-slate-300 overflow-x-auto">
+                            {shortItem.tags && shortItem.tags.length > 0 ? shortItem.tags.map((t) => `#${t}`).join(' ') : 'No tags available'}
+                          </Text>
+                        </View>
+                        {/* controls */}
+                        {/* <View className="flex flex-col items-center gap-4">
+                          <TouchableOpacity
+                            style={[
+                              likes.some((l) => l.id === shortItem.id) ? { backgroundColor: 'blue' } : null,
+                            ]}
+                            className="flex items-center flex-col text-sm p-2 rounded-full duration-300"
+                            onPress={index === shortIndex ? onLike : undefined}
+                          >
+                            <ThumbsUp className={`drop-shadow-xl shadow-black ${likes.some((l) => l.id === shortItem.id) ? 'fill-blue' : ''}`} />
+                            <Text className={`drop-shadow-xl shadow-black ${likes.some((l) => l.id === shortItem.id) ? 'text-blue' : ''}`}>Like</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            className="flex items-center flex-col text-sm p-2 rounded-full duration-300 hover:text-red2"
+                            onPress={index === shortIndex ? onDislike : undefined}
+                          >
+                            <ThumbsDown className="drop-shadow-xl shadow-black" />
+                            <Text className="drop-shadow-xl shadow-black">Dislike</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            className="bg-green-500 flex items-center flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-green-600"
+                            onPress={() => index === shortIndex && setSharePopup(true)}
+                          >
+                            <Share className="drop-shadow-xl shadow-black" />
+                            <Text className="drop-shadow-xl shadow-black">Share</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            className="bg-yellow-500 flex items-center flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-yellow-600"
+                            onPress={() => index === shortIndex && setCommentsPopup(true)}
+                          >
+                            <MessageCircle className="drop-shadow-xl shadow-black" />
+                            <Text className="drop-shadow-xl shadow-black">Comment</Text>
+                          </TouchableOpacity>
+                        </View> */}
+                      </View>
+
+                      {index === shortIndex && (
+                        <View className="w-full h-fit z-10 p-2">
+                          <View className="rounded-md bottom-0 left-0 w-full  bg-white/25 h-2">
                             <View
                               style={{
-                                transform: [{ translateX: 50 }],
+                                width: `${( (playerRef.current?.getCurrentTime() || 1) / (shortItem.totalDuration || 0)) * 100}%`,
                               }}
-                              className="absolute right-0 overflow-visible top-0 w-3 h-full bg-white rounded-sm"
+                              className="bg-blue rounded-md h-full relative"
+                            >
+                              <View
+                                style={{
+                                  transform: [{ translateX: 20 }],
+                                }}
+                                className="absolute right-0 overflow-visible top-0 w-3 h-full bg-white rounded-sm"
+                              />
+                            </View>
+                            <Slider
+                              // style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }}
+                              minimumValue={0}
+                              maximumValue={shortItem.totalDuration || 0}
+                              value={currentTime}
+                              onSlidingComplete={(newTime) => {
+                                setCurrentTime(newTime);
+                                playerRef.current?.onSeek(newTime);
+                              }}
+                              minimumTrackTintColor="#0000FF"
+                              maximumTrackTintColor="#FFFFFF"
+                              thumbTintColor="#FFFFFF"
                             />
                           </View>
-                          <Slider
-                            style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }}
-                            minimumValue={0}
-                            maximumValue={shortItem.totalDuration || 0}
-                            value={currentTime}
-                            onSlidingComplete={(newTime) => {
-                              setCurrentTime(newTime);
-                              playerRef.current?.onSeek(newTime);
-                            }}
-                            minimumTrackTintColor="#0000FF"
-                            maximumTrackTintColor="#FFFFFF"
-                            thumbTintColor="#FFFFFF"
-                          />
                         </View>
-                      </View>
-                    )}
-                  </View> */}
-                </View>
-              </Animated.View>
-            ))}
+                      )}
+                    </View>
+                  </View>
+                </Animated.View>
+              ))}
+            </View>
           </ScrollView>
         )}
       </View>
