@@ -4,14 +4,14 @@ import Slider, { SliderComponent } from "@react-native-community/slider";
 import { useAudioPlayer, AudioSource, useAudioPlayerStatus, setAudioModeAsync } from "expo-audio";
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
 import { useEffect, useRef } from "react";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 import tailwindConfig  from "@/tailwind.config";
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 
 
-export default function PodcastPlayer({podcast}:{podcast:IExplainerPodcast}){
+export default function PodcastPlayer({podcast, onSkipPodcast}:{podcast:IExplainerPodcast, onSkipPodcast:CallableFunction}){
     const durationInS = podcast.sectionAudios[0].duration/1000
     const sliderRef = useRef<Slider>()
     // console.log(podcast.sectionAudios[0].streamUrl)
@@ -34,9 +34,13 @@ export default function PodcastPlayer({podcast}:{podcast:IExplainerPodcast}){
             await setAudioModeAsync({
             
             playsInSilentMode: true,
+            shouldPlayInBackground:true,
+            
+            
             
             });
             console.log('Audio mode configured successfully');
+            player.play()
         } catch (error) {
             console.log('Error configuring audio mode:', error);
         }
@@ -47,7 +51,7 @@ export default function PodcastPlayer({podcast}:{podcast:IExplainerPodcast}){
         // return()=>{
         //     player.remove()
         // }
-    },[])
+    },[podcast])
 
     const onPlayPause = async ()=>{
         if(player.playing){
@@ -84,8 +88,10 @@ export default function PodcastPlayer({podcast}:{podcast:IExplainerPodcast}){
                 <Text className=" text-sm text-slate-400">{formatDuration(durationInS)}</Text>
             </View>
             <View className=" gap-20 mt-2  self-center flex flex-row items-center">
-                <SkipBack fill={"black"}/>
-                <View className=" bg-blue rounded-full p-4">
+                <TouchableOpacity className=" active:bg-slate-300 rounded-full p-2" onPress={()=>onSkipPodcast(-1)}>
+                    <SkipBack fill={"black"}/>
+                </TouchableOpacity>
+                <TouchableOpacity className=" bg-blue rounded-full p-4">
                     {player.playing?(
                         <Pause
                         className=""
@@ -98,8 +104,10 @@ export default function PodcastPlayer({podcast}:{podcast:IExplainerPodcast}){
                     )}
                     
 
-                </View>
-                <SkipForward fill={"black"}/>
+                </TouchableOpacity>
+                <TouchableOpacity className="p-2 active:bg-slate-300 rounded-full" onPress={()=>onSkipPodcast(1)}>
+                    <SkipForward fill={"black"}/>
+                </TouchableOpacity>
             </View>
         </View>
     )

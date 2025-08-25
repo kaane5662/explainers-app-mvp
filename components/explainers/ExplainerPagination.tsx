@@ -70,7 +70,7 @@ export default function ExplainerPagination({
   // const [explainerType,setExplainerType] = useState("podcasts")
   const sortTypes = [
     {label:"All", value:"all"},
-    {label:"Videos", value:"videos"},
+    {label:"Reels", value:"reels"},
     {label:"Podcasts", value:"podcasts"}
   ]
 

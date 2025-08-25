@@ -111,7 +111,7 @@ export default function Explore() {
                   pageResults={20}
                   name={''}
                   apiRoute={ !selectedCategory ? "/explainers":`/explainers/category`}
-                  sortExplainer='videos'
+                  sortExplainer='reels'
                   hideSearch
                   hideCount
                   extraParams={{

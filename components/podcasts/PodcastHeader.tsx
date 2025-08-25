@@ -1,8 +1,9 @@
 import { IExplainerPodcast } from '@/interfaces';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 import PodcastPlayer from '@/components/podcasts/PodcastPlayer';
 import clsx from 'clsx';
+import { router } from 'expo-router';
 
 export default function PodcastHeader({ podcast, hideControls=false }: { podcast: IExplainerPodcast, hideControls?:boolean }) {
   return (
@@ -25,8 +26,10 @@ export default function PodcastHeader({ podcast, hideControls=false }: { podcast
         )}
       </View>
       <Text className="mt-2 text-2xl font-semibold">{podcast.title}</Text>
-      <View className="flex flex-row items-center gap-2">
-        {podcast.user.imageUrl ? (
+      <TouchableOpacity 
+      onPress={()=>router.push(`/profile/${podcast.user.id}`)}
+      className="flex flex-row items-center gap-2">
+        {podcast.user?.imageUrl ? (
           <Image
             className="h-4 w-4 rounded-full object-left"
             source={{ uri: podcast.user.imageUrl }}
@@ -38,7 +41,7 @@ export default function PodcastHeader({ podcast, hideControls=false }: { podcast
           </View>
         )}
         <Text className="text-sm text-slate-500">{podcast.user.name}</Text>
-      </View>
+      </TouchableOpacity>
 
       <View className="text-md mt-1 flex flex-row gap-2">
         <Text className="text-gray-400">{moment(podcast.created).fromNow()}</Text>
@@ -47,9 +50,9 @@ export default function PodcastHeader({ podcast, hideControls=false }: { podcast
           {podcast.views} {'listens'}
         </Text>
       </View>
-      {!hideControls &&(
+      {/* {!hideControls &&(
         <PodcastPlayer podcast={podcast}></PodcastPlayer>
-      )}
+      )} */}
     </View>
   );
 }

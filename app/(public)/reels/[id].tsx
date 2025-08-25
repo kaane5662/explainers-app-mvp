@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, Animated, Easing, } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, Animated, Easing, Dimensions, } from 'react-native';
 import clsx from 'clsx';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader } from 'lucide-react-native';
@@ -7,6 +7,11 @@ import axios from 'axios';
 import { IExplainerVideo } from '@/interfaces';
 import VideoPlayerComponent, { VideoPlayerRef } from '@/components/videos/VideoPlayerComponent';
 import Slider from '@react-native-community/slider';
+import tailwindConfig from '@/tailwind.config';
+import VideoContent from '@/components/videos/VideoContent';
+const { width, height } = Dimensions.get('window');
+
+const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 // import Video from 'react-native-video';
 // import { toast } from 'react-toastify';
@@ -56,9 +61,10 @@ export default function ReelsContent() {
   
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const playerRef = useRef<VideoPlayerRef | null>(null);
-  const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollY = new Animated.Value(0)
   const lastScrollTime = useRef<number>(0);
   const accumulatedDelta = useRef<number>(0);
+  // const scrollY = new Animated.Value(0);
   const scrollCooldown = 500; // 500ms cooldown between video changes
   const k = 8;
 
@@ -71,15 +77,22 @@ export default function ReelsContent() {
     // console.log("fetching reel")
     try {
       // console.log("Fetching shorts",id)
-      let video = null
-      if(!initialized){
-        video = (await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/videos/${id}`,{withCredentials:true})).data.explainer
-        console.log("Stream url",video.videoUrl)
-      } 
+
+      if(initialized){
+        let videoReq = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/videos/${id}`,{withCredentials:true})
+        let video = videoReq.data.explainer
+        // console.log("video",video)
+        setShorts((prev)=>[...prev,video])
+        // console.log("Stream url",video.videoUrl)
+      }
+      
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/shorts`, { likes, dislikes, initialized }, { withCredentials: true });
+        // console.log("video",video)
+      setShorts((prev) => [...prev,...res.data.shorts]);
+      
       // console.log("In video")
     //   console.log(res.)
-      setShorts((prev) => [...prev, ...(video ? [video, ...res.data.shorts] : res.data.shorts)]);
+      
       if (!initialized) setInitialized(true);
     } catch (err: any) {
         console.log(err)
@@ -114,7 +127,7 @@ export default function ReelsContent() {
     getShorts(true);
     if (!loading && !isPreloading && shorts.length > 0 && shortIndex >= shorts.length - 3) {
     }
-  }, [shortIndex, shorts]);
+  }, [shortIndex, shorts, id]);
 
   const onLike = async () => {
     const short = shorts[shortIndex];
@@ -182,32 +195,22 @@ export default function ReelsContent() {
     }
   };
 
-  const scrollToIndex = (index: number) => {
-    Animated.timing(scrollY, {
-      toValue: index * 100, // Assuming each video takes 100 units of height
-      duration: 500,
-      easing: Easing.inOut(Easing.ease),
-      useNativeDriver: true,
-    }).start(() => {
-      setIsTransitioning(false);
-    });
-  };
 
-  const handleScroll = (event: any) => {
-    const offsetY = event.nativeEvent.contentOffset.y;
-    const newIndex = Math.round(offsetY / 100); // Assuming each video takes 100 units of height
-    if (newIndex !== shortIndex && newIndex >= 0 && newIndex < shorts.length) {
-      const now = Date.now();
-      if (now - lastScrollTime.current > scrollCooldown) {
-        lastScrollTime.current = now;
-        onFinishWatching();
-        setShortIndex(newIndex);
-      }
+  const handleScrollEnd = (event: any) => {
+    const contentOffsetY = event.nativeEvent.contentOffset.y;
+    const newIndex = Math.round(contentOffsetY / height); // Use Math.round for snapping
+    console.log("Vars", contentOffsetY, height);
+    console.log("Switching index", newIndex);
+    if (newIndex !== shortIndex) {
+      setShortIndex(newIndex);
+      console.log('Current video index:', newIndex);
+      // Here you can pause previous video and play current video
+      // pauseVideo(currentVideoIndex);
+      // playVideo(newIndex);
     }
   };
-
   return (
-    <View className={clsx('flex justify-center items-center w-full h-screen')}>
+    <View className={clsx('')}>
       {/* <Text>Hello</Text> */}
       {/* {sharePopup && shorts[shortIndex] && (
         <ShareVideo
@@ -220,7 +223,7 @@ export default function ReelsContent() {
         />
       )} */}
       
-      <View className={clsx('h-full w-full relative bg-opacity-15 flex flex-col ')}>
+      <View className={clsx('h-full w-full bg-opacity-15 flex flex-col ')}>
         {/* {commentsPopup && shorts[shortIndex] && (
           <Animated.View
             style={[
@@ -242,185 +245,145 @@ export default function ReelsContent() {
         )}
 
         {shorts && shorts.length > 0 && !loading && (
-          <ScrollView
-            // className={clsx('h-full w-full')}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
+          <Animated.ScrollView
+            scrollEventThrottle={1} // Adjusted to 16ms for smoother scrolling
             showsVerticalScrollIndicator={false}
+            pagingEnabled
+            style={{
+              width:"100%",
+              height:"100%"
+            }}
+            // snapToInterval={height}
+            snapToAlignment={'center'}
+            decelerationRate="fast"
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+              { useNativeDriver: true }
+            )}
+            onMomentumScrollEnd={handleScrollEnd}
           >
-            <View className='w-full h-full'>
-              {/* {console.log(shorts)} */}
-              {shorts.map((shortItem, index) => (
-                <Animated.View
-                  className={clsx('h-full w-full relative')}
-                  key={index}
-                  // style={[
-                    
-                  //   {
-                  //     opacity: scrollY.interpolate({
-                  //       inputRange: [index * 100 - 50, index * 100, index * 100 + 50],
-                  //       outputRange: [0.7, 1, 0.7],
-                  //       extrapolate: 'clamp',
-                  //     }),
-                  //     transform: [
-                  //       {
-                  //         scale: scrollY.interpolate({
-                  //           inputRange: [index * 100 - 50, index * 100, index * 100 + 50],
-                  //           outputRange: [0.95, 1, 0.95],
-                  //           extrapolate: 'clamp',
-                  //         }),
-                  //       },
-                  //     ],
-                  //   },
-                  // ]}
-                >
-                  {/* {index === shortIndex && (
-                    
-                  )} */}
-                      <View className='w-full h-screen'>
+              {shorts.map((shortItem, index) => {
+                const inputRange = [
+                  (index - 1) * height,
+                  index * height,
+                  (index + 1) * height,
+                ];
+      
+                const opacity = scrollY.interpolate({
+                  inputRange,
+                  outputRange: [0.5, 1, 0.5],
+                  extrapolate: 'clamp',
+                });
+      
+                const scale = scrollY.interpolate({
+                  inputRange,
+                  outputRange: [0.8, 1, 0.8],
+                  extrapolate: 'clamp',
+                });
+                return(
+                  <Animated.View
+                    className={clsx('w-screen relative')}
+                    style={{
+                      height: height,
+                      maxHeight: height,
+                      minHeight: height
+                    }}
+                    key={index}
+                    //       {
+                    //         scale: scrollY.interpolate({
+                    //           inputRange: [index * 100 - 50, index * 100, index * 100 + 50],
+                    //           outputRange: [0.95, 1, 0.95],
+                    //           extrapolate: 'clamp',
+                    //         }),
+                    //       },
+                    //     ],
+                    //   },
+                    // ]}
+                  >
+                    {/* {index === shortIndex && (
+                      
+                    )} */}
+                    <View className='w-full h-full bg-black'>
+                        {shortIndex == index ?(
 
                           <VideoPlayerComponent
                               ref={playerRef}
                               // onDurationUpdate={setCurrentTime}
                               // hideControls={true} 
                               // video={shortItem as IExplainerVideo} 
+                              
                               videoUri={shortItem?.videoUrl} 
                           />
-                      </View>
-
-                  <View className="flex justify-between text-white h-full flex-col gap-4 z-10 absolute bottom-0 p-2">
-                    <Animated.View
-                      style={{
-                        opacity: isPlaying ? 1 : 0,
-                      }}
-                      className="h-full place-self-center z-10 absolute w-full flex items-center justify-center"
-                    >
-                      <TouchableOpacity
-                        className="p-4 bg-blue rounded-full shadow-lg"
-                        onPress={() => {
-                          if (!playerRef.current) return;
-                          let paused = playerRef.current.onPlayPause();
-                          setPaused(paused);
-                          setIsPlaying(true);
-                        }}
-                      >
-                        {paused ? <Play color={"white"} className="text-white" /> : <Pause color={"white"} className="text-white" />}
-                      </TouchableOpacity>
-                    </Animated.View>
-
-                    <View className="flex flex-col gap-4 z-10 self-start">
-                      <TouchableOpacity
-                        onPress={() => router.push('/')}
-                        className="bg-green-500 flex flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-green-600"
-                      >
-                        <ChevronLeft color={"white"} className="drop-shadow-xl" />
-                        <Text className="drop-shadow-xl text-white">Back</Text>
-                      </TouchableOpacity>
-                    </View>
-                    
-                    <View className="flex flex-col gap-4">
-                      {/* video info */}
-                      <View className="flex flex-row gap-12 justify-between z-10">
-                        <View className="flex flex-col gap-2 mt-auto">
-                          <TouchableOpacity
-                            onPress={() => router.push(`/profile/${shortItem.user.id}`)}
-                            className="flex flex-row gap-2 hover:opacity-70 duration-300 text-sm items-center"
+                        ):(
+                          <View
+                          className=' bg-black'
+                          style={{
+                            width:"100%",
+                            height:"100%",
+                            minHeight:"100%"
+                          }}
                           >
-                            {shortItem.user.imageUrl ? (
-                              <Image source={{ uri: shortItem.user.imageUrl }} className="h-6 w-6 rounded-full" />
-                            ) : (
-                              <View className="rounded-full bg-blue h-6 w-6 flex justify-center items-center">
-                                <Text>{shortItem.user.name.charAt(0)}</Text>
-                              </View>
-                            )}
-                            <Text className='text-white'>{shortItem.user.name}</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => router.push(`/videos/${shortItem.id}`)}>
-                            <Text className="text-lg text-white hover:opacity-70 duration-300 max-lg:text-md font-semibold">
-                              {shortItem.title}
-                            </Text>
-                          </TouchableOpacity>
-                          <Text className="text-sm text-slate-300 overflow-x-auto">
-                            {shortItem.tags && shortItem.tags.length > 0 ? shortItem.tags.map((t) => `#${t}`).join(' ') : 'No tags available'}
-                          </Text>
-                        </View>
-                        {/* controls */}
-                        {/* <View className="flex flex-col items-center gap-4">
-                          <TouchableOpacity
-                            style={[
-                              likes.some((l) => l.id === shortItem.id) ? { backgroundColor: 'blue' } : null,
-                            ]}
-                            className="flex items-center flex-col text-sm p-2 rounded-full duration-300"
-                            onPress={index === shortIndex ? onLike : undefined}
-                          >
-                            <ThumbsUp className={`drop-shadow-xl shadow-black ${likes.some((l) => l.id === shortItem.id) ? 'fill-blue' : ''}`} />
-                            <Text className={`drop-shadow-xl shadow-black ${likes.some((l) => l.id === shortItem.id) ? 'text-blue' : ''}`}>Like</Text>
-                          </TouchableOpacity>
-
-                          <TouchableOpacity
-                            className="flex items-center flex-col text-sm p-2 rounded-full duration-300 hover:text-red2"
-                            onPress={index === shortIndex ? onDislike : undefined}
-                          >
-                            <ThumbsDown className="drop-shadow-xl shadow-black" />
-                            <Text className="drop-shadow-xl shadow-black">Dislike</Text>
-                          </TouchableOpacity>
-
-                          <TouchableOpacity
-                            className="bg-green-500 flex items-center flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-green-600"
-                            onPress={() => index === shortIndex && setSharePopup(true)}
-                          >
-                            <Share className="drop-shadow-xl shadow-black" />
-                            <Text className="drop-shadow-xl shadow-black">Share</Text>
-                          </TouchableOpacity>
-
-                          <TouchableOpacity
-                            className="bg-yellow-500 flex items-center flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-yellow-600"
-                            onPress={() => index === shortIndex && setCommentsPopup(true)}
-                          >
-                            <MessageCircle className="drop-shadow-xl shadow-black" />
-                            <Text className="drop-shadow-xl shadow-black">Comment</Text>
-                          </TouchableOpacity>
-                        </View> */}
-                      </View>
-
-                      {index === shortIndex && (
-                        <View className="w-full h-fit z-10 p-2">
-                          <View className="rounded-md bottom-0 left-0 w-full  bg-white/25 h-2">
-                            <View
-                              style={{
-                                width: `${( (playerRef.current?.getCurrentTime() || 1) / (shortItem.totalDuration || 0)) * 100}%`,
-                              }}
-                              className="bg-blue rounded-md h-full relative"
-                            >
-                              <View
-                                style={{
-                                  transform: [{ translateX: 20 }],
-                                }}
-                                className="absolute right-0 overflow-visible top-0 w-3 h-full bg-white rounded-sm"
-                              />
-                            </View>
-                            <Slider
-                              // style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }}
-                              minimumValue={0}
-                              maximumValue={shortItem.totalDuration || 0}
-                              value={currentTime}
-                              onSlidingComplete={(newTime) => {
-                                setCurrentTime(newTime);
-                                playerRef.current?.onSeek(newTime);
-                              }}
-                              minimumTrackTintColor="#0000FF"
-                              maximumTrackTintColor="#FFFFFF"
-                              thumbTintColor="#FFFFFF"
-                            />
                           </View>
-                        </View>
-                      )}
+                        )}
                     </View>
-                  </View>
-                </Animated.View>
-              ))}
-            </View>
-          </ScrollView>
+
+                    <View className="flex text-white flex-col gap-4 z-[100000000] absolute bottom-0 p-2">
+                      {/* <Animated.View
+                        
+                        className="h-full place-self-center z-10 absolute w-full flex items-center justify-center"
+                      >
+                        <TouchableOpacity
+                          className="p-4 bg-blue rounded-full shadow-lg"
+                          onPress={() => {
+                            if (!playerRef.current) return;
+                            let paused = playerRef.current.onPlayPause();
+                            setPaused(paused);
+                            setIsPlaying(true);
+                          }}
+                        >
+                          {paused ? <Play color={"white"} className="text-white" /> : <Pause color={"white"} className="text-white" />}
+                        </TouchableOpacity>
+                      </Animated.View> */}
+
+                      {/* <View className="flex flex-col gap-4 z-10 self-start">
+                        <TouchableOpacity
+                          onPress={() => router.push('/')}
+                          className="bg-green-500 flex flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-green-600"
+                        >
+                          <ChevronLeft color={"white"} className="drop-shadow-xl" />
+                          <Text className="drop-shadow-xl text-white">Back</Text>
+                        </TouchableOpacity>
+                      </View> */}
+                      <VideoContent dislikes={dislikes} likes={likes} shortItem={shortItem} index={index} shortIndex={shortIndex}></VideoContent>
+                      
+                      
+                          
+                            
+                              
+                          <Slider
+                            style={{ zIndex:100000000000 }}
+                            minimumValue={0}
+                            maximumValue={shortItem.totalDuration || 0}
+                            value={currentTime}
+                            onSlidingComplete={(newTime) => {
+                              setCurrentTime(newTime);
+                              playerRef.current?.onSeek(newTime);
+                            }}
+                            thumbTintColor={tailwindColors.blue}
+                            minimumTrackTintColor={tailwindColors.blue}
+                            // maximumTrackTintColor="blue"
+                            step={1}
+                          />
+                        
+                    
+                    
+                    </View>
+                  </Animated.View>
+                )
+
+            })}
+            
+          </Animated.ScrollView>
         )}
       </View>
     </View>

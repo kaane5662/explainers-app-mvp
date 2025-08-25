@@ -14,11 +14,12 @@ export interface VideoPlayerRef {
 
 interface VideoPlayerComponentProps {
   videoUri: string;
+  // isPreloading:boolean
 }
 
 const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProps>(({ videoUri }, ref) => {
   // console.log("Video component", videoUri)
-  const player = useVideoPlayer("https://customer-byoxbsa3xbt3c5ht.cloudflarestream.com/8b2223468882afe06f518d613ff4f4ee/manifest/video.m3u8",
+  const player = useVideoPlayer(videoUri,
 
     player=>{player.play()}
   );
@@ -71,7 +72,8 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProp
         player={player}
         style={{
           width:"100%",
-          height:"100%"
+          height:"100%",
+          zIndex:10
         }}
         // className="w-full h-full"
         nativeControls={false}
