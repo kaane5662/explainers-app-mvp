@@ -16,24 +16,45 @@ import PodcastBottomContent from '@/components/podcasts/PodcastBottomContent';
 export default function DetailsScreen() {
   const { id } = useLocalSearchParams();
   const [loading,setLoading] = useState(false)
-  const [podcasts,setPodcasts] = useState<IExplainerPodcast[]>()
+  const [podcasts,setPodcasts] = useState<IExplainerPodcast[]>([])
   const [podcast,setPodcast] = useState<IExplainerPodcast>()
   const [currentPodcastIndex,setCurrentPodcastIndex] = useState(0)
   const [canChange,setCanChange] = useState(true)
 	const player = useAudioPlayer()
+
+  // recc stuff
+  const [likes,setLikes] = useState([])
+  const [dislikes,setDislikes] = useState([])
+  const [initialized,setInitialized] = useState(false)
+
+
   const fetchPodcastDetails = async () => {
     setLoading(true)
     try {
-      const podcastPromise =  axios.get(`${process.env.EXPO_PUBLIC_API_URL}/podcasts/${id}`);
-      const reccsPromise = axios.get(`${process.env.EXPO_PUBLIC_API_URL}/explainers/${id}/recommendations?explainerType=${ExplainerType.PODCAST}&type=podcast`)
-      const [podcast, reccs] = await Promise.all([podcastPromise,reccsPromise])
-      
-      setPodcast(podcast.data.explainer)
-      // console.log("Reccs",reccs.data.explainers.map((r)=>(r.id || "hahaha")))
-      // console.log(response.data);
-      let temp = [podcast.data.explainer, ...reccs.data.explainers]
-			setPodcasts(temp)
-      console.log(temp[1])
+
+      if(!initialized){
+        const podcastPromise =  axios.get(`${process.env.EXPO_PUBLIC_API_URL}/podcasts/${id}`);
+        const reccsPromise = axios.get(`${process.env.EXPO_PUBLIC_API_URL}/explainers/${id}/recommendations?explainerType=${ExplainerType.PODCAST}&type=podcast`)
+        const [podcast, reccs] = await Promise.all([podcastPromise,reccsPromise])
+        
+        setPodcast(podcast.data.explainer)
+        // console.log("Reccs",reccs.data.explainers.map((r)=>(r.id || "hahaha")))
+        // console.log(response.data);
+        setInitialized(true)
+        let temp = [podcast.data.explainer, ...reccs.data.explainers]
+        setPodcasts(temp)
+        console.log(temp[1])
+      }else{
+        const enagagedRecs= await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/explainers/reccomendations`,{
+          likes: likes,
+          dislikes: dislikes,
+          type: "podcast",
+          initialized:true
+          
+        },{withCredentials:true})
+        setLikes([])
+        setPodcasts(prev=> [...prev, ...enagagedRecs.data.explainers])
+      }
         // setPodcast(response.dataP)
     } catch (error) {
       console.error('Error fetching podcast details:', error);
@@ -48,7 +69,7 @@ export default function DetailsScreen() {
       setCanChange(false)
       const newIndex = currentPodcastIndex + direction;
       if (newIndex >= 0 && newIndex < podcasts.length-1) {
-        console.log("Podcast",podcasts[newIndex])
+        // console.log("Podcast",podcasts[newIndex])
         setCurrentPodcastIndex(newIndex);
         // setPodcast(podcasts[newIndex]);
       }
@@ -56,12 +77,30 @@ export default function DetailsScreen() {
     }
   };
 
+  const onLike= ()=>{
+    console.log("Liked")
+    setLikes(prev=>[...prev,{
+      categoryId: podcasts[currentPodcastIndex].categoryId,
+      tags: podcasts[currentPodcastIndex].tags,
+      title: podcasts[currentPodcastIndex].title
+    }])
+  }
+  const onDislike= ()=>{
+    setDislikes(prev=>[...prev,{
+      categoryId: podcasts[currentPodcastIndex].categoryId,
+      tags: podcasts[currentPodcastIndex].tags,
+      title: podcasts[currentPodcastIndex].title
+    }])
+  }
+  
+
 
   useEffect(() => {
-    if (id) {
+    if (currentPodcastIndex+3 >= podcasts.length && !loading) {
+      console.log("Refetching")
       fetchPodcastDetails();
     }
-  }, [id]);
+  }, [id, currentPodcastIndex]);
 
 
   if(podcast?.generating) return(
@@ -78,7 +117,7 @@ export default function DetailsScreen() {
             <PodcastHeader podcast={podcasts[currentPodcastIndex]}/>
             {/* {console.log(podcasts[1])} */}
             <PodcastPlayer onSkipPodcast={switchPodcast} podcast={podcasts[currentPodcastIndex]}></PodcastPlayer>
-            <PodcastBottomContent podcast={podcasts[currentPodcastIndex]}></PodcastBottomContent>
+            <PodcastBottomContent onDislike={onDislike} onLike={onLike} podcast={podcasts[currentPodcastIndex]}></PodcastBottomContent>
           </View>
 				)}
 			</View>

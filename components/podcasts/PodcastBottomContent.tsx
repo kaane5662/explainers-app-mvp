@@ -1,11 +1,11 @@
 import { IExplainerPodcast } from "@/interfaces";
-import { BookCheck, Heart, MessageCircle, Notebook, Search, Share2 } from "lucide-react-native";
+import { BookCheck, Heart, MessageCircle, Notebook, Search, Share2, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import CommentsPopup from "../explainers/Comments";
 import axios from "axios";
 
-export default function PodcastBottomContent({podcast}:{podcast:IExplainerPodcast}){
+export default function PodcastBottomContent({podcast, onLike, onDislike}:{podcast:IExplainerPodcast, onLike:CallableFunction, onDislike:CallableFunction}){
     const [commentsPopup, setCommentsPopup] = useState(false)
     const [transcript,setTranscript] = useState()
 
@@ -44,7 +44,7 @@ export default function PodcastBottomContent({podcast}:{podcast:IExplainerPodcas
         const fetchTranscript = async () => {
             try {
               const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/podcasts/${podcast.id}/transcript`);
-              console.log(response.data)
+            //   console.log(response.data)
               setTranscript(response.data.transcript.join("\n"));
             } catch (error) {
               console.error('Error fetching comments:', error);
@@ -68,9 +68,12 @@ export default function PodcastBottomContent({podcast}:{podcast:IExplainerPodcas
                 <TouchableOpacity>
                     <Share2 size={20}/>
                 </TouchableOpacity>
-                <TouchableOpacity className=" ml-auto">
+                <TouchableOpacity onPress={()=>onLike()} className=" ml-auto">
                     <Heart  size={20}/>
                 </TouchableOpacity>
+                {/* <TouchableOpacity onPress={()=>onDislike()} className=" ml-auto">
+                    <X  size={20}/>
+                </TouchableOpacity> */}
 
             </View>
             {transcript &&(

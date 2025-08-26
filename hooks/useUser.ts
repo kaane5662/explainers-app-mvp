@@ -26,7 +26,8 @@ export function useUser() {
       const data = res.data as IUser;
       setUser(data);
     } catch (err: any) {
-        if(err.response.status == 404){
+        if(err.response.status == 404 || err.response.status == 403){
+            console.log('replaice')
             return router.replace("/auth-landing")
         }
       setError(err.message || "Unknown error");

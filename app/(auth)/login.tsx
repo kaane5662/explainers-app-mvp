@@ -129,7 +129,7 @@ export default function Login() {
     try {
       setLoading(true);
       setError(null);
-
+      console.log("hello click event?")
       const token = tokenOverride || turnstileToken;
 
       // Verify Turnstile token exists
@@ -159,7 +159,7 @@ export default function Login() {
       });
 
       const data = await res.json();
-
+      console.log("yo data/")
       if (res.ok) {
         // Track successful client-side login
         // mixpanel.track("login_success_client", {

@@ -105,7 +105,7 @@ export default function Explore() {
             {/* reels */}
             <View className='flex flex-col gap-4 mt-4'>
               <Text className='text-2xl font-semibold'>Trending Reels</Text>
-              <View className='h-[500px]'>
+              <View className='h-[600px]'>
 
                 <ExplainerPagination
                   pageResults={20}

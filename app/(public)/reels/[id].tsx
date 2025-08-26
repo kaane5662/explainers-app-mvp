@@ -9,6 +9,7 @@ import VideoPlayerComponent, { VideoPlayerRef } from '@/components/videos/VideoP
 import Slider from '@react-native-community/slider';
 import tailwindConfig from '@/tailwind.config';
 import VideoContent from '@/components/videos/VideoContent';
+import { ExplainerType } from '@/utils/constant';
 const { width, height } = Dimensions.get('window');
 
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
@@ -48,9 +49,7 @@ export default function ReelsContent() {
   const router = useRouter();
   const [shortIndex, setShortIndex] = useState<number>(0);
   const [shorts, setShorts] = useState<IExplainerVideo[]>([]);
-  const [likes, setLikes] = useState<IExplainerVideo[]>([]);
-  const [initialized, setInitialized] = useState<boolean>(false);
-  const [dislikes, setDislikes] = useState<IExplainerVideo[]>([]);
+  
   const [sharePopup, setSharePopup] = useState<boolean>(false);
   const [commentsPopup, setCommentsPopup] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -68,41 +67,53 @@ export default function ReelsContent() {
   const scrollCooldown = 500; // 500ms cooldown between video changes
   const k = 8;
 
+  const [likes, setLikes] = useState<IExplainerVideo[]>([]);
+  const [initialized, setInitialized] = useState<boolean>(false);
+  const [dislikes, setDislikes] = useState<IExplainerVideo[]>([]);
+
   const getShorts = async (isPreload = false) => {
-    if (isPreload) {
-      setIsPreloading(true);
-    } else {
-      setLoading(true);
-    }
+    // if (isPreload) {
+    //   setIsPreloading(true);
+    // } else {
+    //   setLoading(true);
+    // }
     // console.log("fetching reel")
     try {
       // console.log("Fetching shorts",id)
-
-      if(initialized){
-        let videoReq = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/videos/${id}`,{withCredentials:true})
-        let video = videoReq.data.explainer
-        // console.log("video",video)
-        setShorts((prev)=>[...prev,video])
-        // console.log("Stream url",video.videoUrl)
+      setLoading(true)
+      if(!initialized){
+        console.log("What are you doing gang")
+        const reelsPromise =  axios.get(`${process.env.EXPO_PUBLIC_API_URL}/videos/${id}`);
+        const reccsPromise = axios.get(`${process.env.EXPO_PUBLIC_API_URL}/explainers/${id}/recommendations?explainerType=${ExplainerType.VIDEO}&type=reel`)
+        const [video, reccs] = await Promise.all([reelsPromise,reccsPromise])
+        console.log("Reccs",reccs.data)
+        
+        // setV(podcast.data.explainer)
+        // console.log("Reccs",reccs.data.explainers.map((r)=>(r.id || "hahaha")))
+        // console.log(response.data);
+        setInitialized(true)
+        let temp = [video.data.explainer, ...reccs.data.explainers]
+        setShorts(temp)
+        console.log(temp[1])
+      }else{
+        console.log("engagement stuff")
+        const enagagedRecs= await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/explainers/reccomendations`,{
+          likes: likes,
+          dislikes: dislikes,
+          type: "reel",
+          initialized:true
+          
+        },{withCredentials:true})
+        setLikes([])
+        console.log(enagagedRecs.data.explainers)
+        setShorts(prev=> [ ...enagagedRecs.data.explainers])
       }
       
-      const res = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/shorts`, { likes, dislikes, initialized }, { withCredentials: true });
-        // console.log("video",video)
-      setShorts((prev) => [...prev,...res.data.shorts]);
-      
-      // console.log("In video")
-    //   console.log(res.)
-      
-      if (!initialized) setInitialized(true);
     } catch (err: any) {
         console.log(err)
     //   toast.error(err.response.data.message);
     } finally {
-      if (isPreload) {
-        setIsPreloading(false);
-      } else {
-        setLoading(false);
-      }
+      setLoading(false)
     }
   };
 
@@ -124,13 +135,15 @@ export default function ReelsContent() {
 //   }, [shortIndex]);
 
   useEffect(() => {
-    getShorts(true);
-    if (!loading && !isPreloading && shorts.length > 0 && shortIndex >= shorts.length - 3) {
+    if (!loading && shortIndex+2 >= shorts.length) {
+      console.log("Fetching")
+      getShorts();
     }
-  }, [shortIndex, shorts, id]);
+  }, [shortIndex, id]);
 
   const onLike = async () => {
     const short = shorts[shortIndex];
+    console.log("liking")
     if (short) {
       if (likes.some((l) => l.id === short.id)) {
         setLikes((prevLikes) => prevLikes.filter((like) => like.id !== short.id));
@@ -143,6 +156,7 @@ export default function ReelsContent() {
           title: short.title,
           tags: short.tags,
           id: short.id,
+          categoryId:short.categoryId,
           sections: short.sections || '',
         },
       ]);
@@ -187,6 +201,7 @@ export default function ReelsContent() {
           title: short.title,
           tags: short.tags,
           id: short.id,
+          categoryId:short.categoryId,
           sections: short.sections || '',
         },
       ]);
@@ -327,7 +342,7 @@ export default function ReelsContent() {
                         )}
                     </View>
 
-                    <View className="flex text-white flex-col gap-4 z-[100000000] absolute bottom-0 p-2">
+                    <View className="flex text-white w-full flex-col gap-4 z-[100000000] absolute bottom-0 p-2">
                       {/* <Animated.View
                         
                         className="h-full place-self-center z-10 absolute w-full flex items-center justify-center"
@@ -354,7 +369,7 @@ export default function ReelsContent() {
                           <Text className="drop-shadow-xl text-white">Back</Text>
                         </TouchableOpacity>
                       </View> */}
-                      <VideoContent dislikes={dislikes} likes={likes} shortItem={shortItem} index={index} shortIndex={shortIndex}></VideoContent>
+                      <VideoContent onDislike={onDislike} onLike={onLike} dislikes={dislikes} likes={likes} shortItem={shortItem} index={index} shortIndex={shortIndex}></VideoContent>
                       
                       
                           

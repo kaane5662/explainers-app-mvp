@@ -5,14 +5,17 @@ import clsx from 'clsx';
 import { router, useLocalSearchParams, useRouter } from 'expo-router';
 import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader } from 'lucide-react-native';
 
-export default function VideoContent({ shortItem, shortIndex, index, likes,dislikes,onLike,onDislike }: { shortItem: IExplainerVideo,shortIndex:number, index:number }) {
+export default function VideoContent({ shortItem, shortIndex, index, likes,dislikes,onLike,onDislike }: { shortItem: IExplainerVideo,shortIndex:number, index:number, onLike:CallableFunction, onDislike:CallableFunction }) {
   return (
     
-      <View className="z-10 flex flex-col gap-4">
+      <View className="z-10 flex flex-col gap-4 w-full" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
         {/* controls */}
-        <View className="flex flex-col ml-auto gap-4">
+        <View className="flex flex-col ml-auto gap-4" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
           <TouchableOpacity
-            style={[likes.some((l) => l.id === shortItem.id) ? { backgroundColor: 'blue' } : null]}
+            style={[
+              likes.some((l) => l.id === shortItem.id) ? { backgroundColor: 'blue' } : null,
+              { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }
+            ]}
             className="flex flex-col items-center gap-2 rounded-full p-2 text-sm duration-300"
             onPress={index === shortIndex ? onLike : undefined}>
             <ThumbsUp
@@ -27,13 +30,15 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
 
           <TouchableOpacity
             className="flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:text-red2"
-            onPress={index === shortIndex ? onDislike : undefined}>
+            onPress={index === shortIndex ? onDislike : undefined}
+            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
             <ThumbsDown color={"white"} className="shadow-black drop-shadow-xl" />
             {/* <Text className="shadow-black text-white drop-shadow-xl">Dislike</Text> */}
           </TouchableOpacity>
 
           <TouchableOpacity
             className="bg-green-500 hover:bg-green-600 flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:opacity-70"
+            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}
             // onPress={() => index === shortIndex && setSharePopup(true)}>
             >
             <Share color={"white"} className="shadow-black drop-shadow-xl" />
@@ -42,6 +47,7 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
 
           <TouchableOpacity
             className="bg-yellow-500 hover:bg-yellow-600 flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:opacity-70"
+            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}
             // onPress={() => index === shortIndex && setCommentsPopup(true)}>
             >
             <MessageCircle color={"white"} className="shadow-black drop-shadow-xl" />
@@ -49,10 +55,11 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
           </TouchableOpacity>
         </View>
         {/* video info */}
-        <View className="flex flex-col gap-2">
+        <View className="flex flex-col gap-2" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
           <TouchableOpacity
             onPress={() => router.push(`/profile/${shortItem.user.id}`)}
-            className="flex flex-row items-center gap-2 text-sm duration-300 hover:opacity-70">
+            className="flex flex-row items-center gap-2 text-sm duration-300 hover:opacity-70"
+            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
             {shortItem.user.imageUrl ? (
               <Image source={{ uri: shortItem.user.imageUrl }} className="h-6 w-6 rounded-full" />
             ) : (
@@ -62,12 +69,12 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
             )}
             <Text className="text-white">{shortItem.user.name}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push(`/videos/${shortItem.id}`)}>
+          <TouchableOpacity onPress={() => router.push(`/videos/${shortItem.id}`)} style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
             <Text className="max-lg:text-md text-lg font-semibold text-white duration-300 hover:opacity-70">
               {shortItem.title}
             </Text>
           </TouchableOpacity>
-          <Text className="overflow-x-auto text-sm text-slate-300">
+          <Text className="overflow-x-auto text-sm text-slate-100" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
             {shortItem.tags && shortItem.tags.length > 0
               ? shortItem.tags.map((t) => `#${t}`).join(' ')
               : 'No tags available'}
