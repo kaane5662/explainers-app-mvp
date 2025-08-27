@@ -53,6 +53,7 @@ export default function DetailsScreen() {
           
         },{withCredentials:true})
         setLikes([])
+        setDislikes([])
         setPodcasts(prev=> [...prev, ...enagagedRecs.data.explainers])
       }
         // setPodcast(response.dataP)
@@ -77,21 +78,82 @@ export default function DetailsScreen() {
     }
   };
 
-  const onLike= ()=>{
-    console.log("Liked")
-    setLikes(prev=>[...prev,{
-      categoryId: podcasts[currentPodcastIndex].categoryId,
-      tags: podcasts[currentPodcastIndex].tags,
-      title: podcasts[currentPodcastIndex].title
-    }])
-  }
-  const onDislike= ()=>{
-    setDislikes(prev=>[...prev,{
-      categoryId: podcasts[currentPodcastIndex].categoryId,
-      tags: podcasts[currentPodcastIndex].tags,
-      title: podcasts[currentPodcastIndex].title
-    }])
-  }
+  const onLike = async () => {
+    const podcast = podcasts[currentPodcastIndex];
+    console.log("liking")
+    if (podcast) {
+      if (likes.some((l) => l.id === podcast.id)) {
+        setLikes((prevLikes) => prevLikes.filter((like) => like.id !== podcast.id));
+        // await likeVideo(short.id);
+        return;
+      }
+      setLikes((prev) => [
+        ...prev,
+        {
+          title: podcast.title,
+          tags: podcast.tags,
+          id: podcast.id,
+          categoryId:podcast.categoryId || "uhh",
+          sections: podcast.sections || '',
+        },
+      ]);
+      axios.get(`${process.env.EXPO_PUBLIC_API_URL}/podcasts/${podcast.id}/like`,{withCredentials:true})
+        .then((res) => {
+          console.log(res.data.message)
+        })
+        .catch((error) => {
+          // console.error(error);
+        });
+    //   await likeVideo(short.id);
+    }
+  };
+
+  // const onFinishWatching = async () => {
+  //   const short = shorts[shortIndex];
+  //   if (!playerRef.current) return;
+  //   if (playerRef.current?.getCurrentTime() >= 5) {
+  //     setLikes((prev) => [
+  //       ...prev,
+  //       {
+  //         title: short.title,
+  //         tags: short.tags,
+  //         id: short.id,
+  //         sections: short.sections || '',
+  //       },
+  //     ]);
+  //   } else {
+  //     if (likes.some((l) => l.id === short.id)) return;
+  //     if (dislikes.some((l) => l.id === short.id)) return;
+  //     setDislikes((prev) => [
+  //       ...prev,
+  //       {
+  //         title: short.title,
+  //         tags: short.tags,
+  //         id: short.id,
+  //         sections: short.sections || '',
+  //       },
+  //     ]);
+  //   }
+  // };
+
+  const onDislike = async () => {
+    const podcast = podcasts[currentPodcastIndex];
+    if (podcast) {
+      setDislikes((prev) => [
+        ...prev,
+        {
+          title: podcast.title,
+          tags: podcast.tags,
+          id: podcast.id,
+          categoryId:podcast.categoryId,
+          sections: podcast.sections || '',
+        },
+      ]);
+      // setShortIndex(shortIndex + 1);
+      // scrollViewRef.current?.scrollTo({ y: (shortIndex + 1) * height, animated: true });
+    //   toast.info("We'll try not recommend you content similar");
+    }
+  };
   
 
 
@@ -117,7 +179,7 @@ export default function DetailsScreen() {
             <PodcastHeader podcast={podcasts[currentPodcastIndex]}/>
             {/* {console.log(podcasts[1])} */}
             <PodcastPlayer onSkipPodcast={switchPodcast} podcast={podcasts[currentPodcastIndex]}></PodcastPlayer>
-            <PodcastBottomContent onDislike={onDislike} onLike={onLike} podcast={podcasts[currentPodcastIndex]}></PodcastBottomContent>
+            <PodcastBottomContent likes={likes} onDislike={onDislike} onLike={onLike} podcast={podcasts[currentPodcastIndex]}></PodcastBottomContent>
           </View>
 				)}
 			</View>

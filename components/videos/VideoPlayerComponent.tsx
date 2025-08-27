@@ -1,6 +1,6 @@
 // import React, { useRef, useState } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import React, { useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
+import React, { useRef, useImperativeHandle, forwardRef, useEffect, use } from 'react';
 // import { View } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import clsx from 'clsx';
@@ -14,10 +14,11 @@ export interface VideoPlayerRef {
 
 interface VideoPlayerComponentProps {
   videoUri: string;
+  onTimeChange:CallableFunction
   // isPreloading:boolean
 }
 
-const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProps>(({ videoUri }, ref) => {
+const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProps>(({ videoUri, onTimeChange }, ref) => {
   // console.log("Video component", videoUri)
   const player = useVideoPlayer(videoUri,
 
@@ -38,10 +39,12 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProp
 
   const getCurrentTime = (): number => {
     // console.log(player.currentTime)
-    return player.currentTime
+    // console.log("returing")
+    return playerRef.current
   };
 
   const onSeek = (currentTime: number) => {
+    
     player.currentTime = currentTime
   };
 
@@ -63,6 +66,10 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProp
     onSeek,
     onPlayPause,
   }));
+
+  useEffect(()=>{
+    onTimeChange(player.currentTime)
+  },[player.currentTime])
 
   return (
     <View className={clsx('w-full h-full bg-black')}>

@@ -5,24 +5,42 @@ import clsx from 'clsx';
 import { router, useLocalSearchParams, useRouter } from 'expo-router';
 import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader } from 'lucide-react-native';
 
+import tailwindConfig  from "@/tailwind.config";
+import ShareExplainer from '../popups/ShareExplainer';
+import { ExplainerType } from '@/utils/constant';
+const tailwindColors = tailwindConfig.theme?.extend?.colors;
+
 export default function VideoContent({ shortItem, shortIndex, index, likes,dislikes,onLike,onDislike }: { shortItem: IExplainerVideo,shortIndex:number, index:number, onLike:CallableFunction, onDislike:CallableFunction }) {
+
+  const [sharePopup,setSharePopup] = useState(false)
   return (
-    
+
       <View className="z-10 flex flex-col gap-4 w-full" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
+
+        {sharePopup &&(
+          <ShareExplainer explainer={shortItem as any} onClose={()=>setSharePopup(false)} visible={sharePopup} explainerType={ExplainerType.VIDEO}></ShareExplainer>
+        )}
+
         {/* controls */}
         <View className="flex flex-col ml-auto gap-4" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
           <TouchableOpacity
             style={[
-              likes.some((l) => l.id === shortItem.id) ? { backgroundColor: 'blue' } : null,
               { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }
             ]}
             className="flex flex-col items-center gap-2 rounded-full p-2 text-sm duration-300"
             onPress={index === shortIndex ? onLike : undefined}>
             <ThumbsUp
-                color={"white"}
+                color={likes.some((l) => l.id === shortItem.id)? tailwindColors.blue:"white"}
+                fill={likes.some((l) => l.id === shortItem.id)? tailwindColors.blue:""}
+              style={
+                likes.some((l) => l.id === shortItem.id) ? { color: tailwindColors.blue} : null
+              }
               className={`shadow-black text-white drop-shadow-xl ${likes.some((l) => l.id === shortItem.id) ? 'fill-blue' : ''}`}
             />
             <Text
+              style={
+                likes.some((l) => l.id === shortItem.id) ? { color: tailwindColors.blue } : null
+              }
               className={`shadow-black text-white drop-shadow-xl ${likes.some((l) => l.id === shortItem.id) ? 'text-blue' : ''}`}>
               100
             </Text>
@@ -37,6 +55,7 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
           </TouchableOpacity>
 
           <TouchableOpacity
+          onPress={()=>setSharePopup(true)}
             className="bg-green-500 hover:bg-green-600 flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:opacity-70"
             style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}
             // onPress={() => index === shortIndex && setSharePopup(true)}>
@@ -46,6 +65,7 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
           </TouchableOpacity>
 
           <TouchableOpacity
+            
             className="bg-yellow-500 hover:bg-yellow-600 flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:opacity-70"
             style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}
             // onPress={() => index === shortIndex && setCommentsPopup(true)}>

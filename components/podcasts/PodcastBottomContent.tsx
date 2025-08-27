@@ -1,12 +1,19 @@
-import { IExplainerPodcast } from "@/interfaces";
+import { IExplainerPodcast, ILike } from "@/interfaces";
 import { BookCheck, Heart, MessageCircle, Notebook, Search, Share2, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import CommentsPopup from "../explainers/Comments";
 import axios from "axios";
+import ShareExplainer from "../popups/ShareExplainer";
+import { ExplainerType } from "@/utils/constant";
 
-export default function PodcastBottomContent({podcast, onLike, onDislike}:{podcast:IExplainerPodcast, onLike:CallableFunction, onDislike:CallableFunction}){
+
+import tailwindConfig from "@/tailwind.config";
+const tailwindColors = tailwindConfig.theme?.extend?.colors;
+
+export default function PodcastBottomContent({podcast, onLike, onDislike, likes}:{podcast:IExplainerPodcast, onLike:CallableFunction, onDislike:CallableFunction,likes:ILike[]}){
     const [commentsPopup, setCommentsPopup] = useState(false)
+    const [sharePopup, setSharePopup] = useState(false)
     const [transcript,setTranscript] = useState()
 
 
@@ -58,18 +65,23 @@ export default function PodcastBottomContent({podcast, onLike, onDislike}:{podca
             {commentsPopup &&(
                 <CommentsPopup explainer={podcast as any} onClose={()=>setCommentsPopup(false)} visible={commentsPopup}></CommentsPopup>
             )}
-            <View className="flex flex-row opacity-50  items-center gap-6">
+            {sharePopup &&(
+                <ShareExplainer explainerType={ExplainerType.PODCAST} visible={sharePopup} onClose={()=>setSharePopup(false)} explainer={podcast as any}></ShareExplainer>
+            )}
+            <View className="flex flex-row items-center gap-6">
                 
                 <TouchableOpacity
                 onPress={()=>setCommentsPopup(true)}
                 >
                     <MessageCircle size={20}/>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity
+                onPress={()=>setSharePopup(true)}
+                >
                     <Share2 size={20}/>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>onLike()} className=" ml-auto">
-                    <Heart  size={20}/>
+                    <Heart size={20} color={likes.some((l) => l.id === podcast.id) ? tailwindColors.blue : "black"} fill={likes.some((l) => l.id === podcast.id) ? tailwindColors.blue : "none"} />
                 </TouchableOpacity>
                 {/* <TouchableOpacity onPress={()=>onDislike()} className=" ml-auto">
                     <X  size={20}/>

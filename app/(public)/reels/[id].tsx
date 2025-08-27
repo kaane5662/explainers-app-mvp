@@ -117,6 +117,17 @@ export default function ReelsContent() {
     }
   };
 
+  const onView = ()=>{
+    console.log("viewing")
+    axios.get(`${process.env.EXPO_PUBLIC_API_URL}/videos/${shorts[shortIndex].id}/view`,{withCredentials:true})
+        .then((res) => {
+          console.log(res.data.message)
+        })
+        .catch((error) => {
+          // console.error(error);
+        });
+  }
+
 //   useEffect(() => {
 //     // if (shorts[shortIndex] && playerRef.current && playerRef.current.getCurrentTime() >= 5) {
 //     //   setLikes((prev) => [
@@ -160,6 +171,13 @@ export default function ReelsContent() {
           sections: short.sections || '',
         },
       ]);
+      axios.get(`${process.env.EXPO_PUBLIC_API_URL}/videos/${shorts[shortIndex].id}/like`,{withCredentials:true})
+        .then((res) => {
+          console.log(res.data.message)
+        })
+        .catch((error) => {
+          // console.error(error);
+        });
     //   await likeVideo(short.id);
     }
   };
@@ -205,11 +223,15 @@ export default function ReelsContent() {
           sections: short.sections || '',
         },
       ]);
-      setShortIndex(shortIndex + 1);
+      // setShortIndex(shortIndex + 1);
+      // scrollViewRef.current?.scrollTo({ y: (shortIndex + 1) * height, animated: true });
     //   toast.info("We'll try not recommend you content similar");
     }
   };
 
+  const onTimeChange = async (t:number)=>{
+    setCurrentTime(t)
+  }
 
   const handleScrollEnd = (event: any) => {
     const contentOffsetY = event.nativeEvent.contentOffset.y;
@@ -219,6 +241,7 @@ export default function ReelsContent() {
     if (newIndex !== shortIndex) {
       setShortIndex(newIndex);
       console.log('Current video index:', newIndex);
+      onView()
       // Here you can pause previous video and play current video
       // pauseVideo(currentVideoIndex);
       // playVideo(newIndex);
@@ -322,6 +345,7 @@ export default function ReelsContent() {
                         {shortIndex == index ?(
 
                           <VideoPlayerComponent
+                            onTimeChange={setCurrentTime}
                               ref={playerRef}
                               // onDurationUpdate={setCurrentTime}
                               // hideControls={true} 
@@ -379,9 +403,11 @@ export default function ReelsContent() {
                             style={{ zIndex:100000000000 }}
                             minimumValue={0}
                             maximumValue={shortItem.totalDuration || 0}
-                            value={currentTime}
+                            value={currentTime} // Use a state variable to track current time
+                            onValueChange={(newTime) => {
+                             setCurrentTime(newTime) // Update current time every second
+                            }}
                             onSlidingComplete={(newTime) => {
-                              setCurrentTime(newTime);
                               playerRef.current?.onSeek(newTime);
                             }}
                             thumbTintColor={tailwindColors.blue}
