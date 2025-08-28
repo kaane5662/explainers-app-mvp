@@ -12,6 +12,7 @@ export default function ProfileScreen() {
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<IUser | null>(null);
+  const [followed,setFollowed] = useState(false)
   const availableOptions: {
     id: string;
     label: string;
@@ -40,12 +41,23 @@ export default function ProfileScreen() {
       const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/profile/${id}`);
       console.log(response.data.profile)
       setProfile(response.data.profile);
+      setFollowed(response.data.profile.followed)
 
     } catch (error) {
       console.error('Error fetching user profile:', error);
     } finally {
       setLoading(false);
     }
+  };
+  const followUser = async () => {
+    // setLoading(true);
+    try {
+      const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/profile/${id}/follow`);
+      setFollowed(!followed)
+
+    } catch (error) {
+      console.error('Error fetching user profile:', error.response.data.error);
+    } 
   };
 
   useEffect(() => {
@@ -88,6 +100,12 @@ export default function ProfileScreen() {
             <MapPin size={18} />
             {profile.group || "New York"}, {profile.country || "US"}{" "}
           </Text>
+          <View className='mt-6 gap-2 flex justify-center items-center flex-col'>
+            <Text>{profile.follower_count} Followers</Text>
+            <TouchableOpacity className={clsx("p-3 px-8 rounded-full", followed ? "bg-slate-300":"bg-blue")}onPress={()=>followUser()}>
+              <Text className={clsx(followed ? "text-black":"text-white")}>{followed ? "Followed":"Follow"}</Text>
+            </TouchableOpacity>
+          </View>
           <View className="flex gap-0 flex-col">
             
 

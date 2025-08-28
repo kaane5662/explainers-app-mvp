@@ -48,6 +48,27 @@ export default function TabLayout() {
         }}
       />
       {/* <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
+        }}
+      /> */}
+      {/* <Tabs.Screen
+        name="following"
+        options={{
+          title: 'Following',
+          tabBarButton: () => null, // Hide the tab by rendering nothing
+        }}
+      /> */}
+      {/* <Tabs.Screen
+        name="following"
+        options={{
+          title: 'Following',
+          tabBarIcon: () => null, // No icon for this tab
+        }}
+      /> */}
+      {/* <Tabs.Screen
         name="podcasts"
         options={{
           title: 'Podcasts',

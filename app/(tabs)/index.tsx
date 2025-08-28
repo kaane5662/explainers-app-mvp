@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet, View, Text,SafeAreaView,ScrollView, ActivityIndicator } from 'react-native';
+import { Platform, StyleSheet, View, Text,SafeAreaView,ScrollView, ActivityIndicator, Touchable, TouchableOpacity } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -11,6 +11,7 @@ import ProfileDropdown from '@/components/profile/ProfileDropdown';
 import axios, { AxiosError } from 'axios';
 import { use, useEffect, useState } from 'react';
 import { useUser } from '@/hooks/useUser';
+import { BadgeCent, Coins, Settings, Users } from 'lucide-react-native';
 // import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
 
 
@@ -82,7 +83,19 @@ export default function HomeScreen() {
             ):(
               <View className='flex flex-row gap-4 items-center'>
                 <ProfileDropdown user={user}></ProfileDropdown>
-                <Text className='text-slate-700'>Welcome {user.name}</Text>
+                <View className='flex flex-col gap-1'>
+                  <Text className='text-slate-700 font-semibold'>Welcome {user.name}</Text>
+                  <Text className='text-slate-500 text-sm'>{user.credits} credits</Text>
+                  
+                </View>
+                <View className='ml-auto flex flex-row gap-2 opacity-50'>
+                  <TouchableOpacity onPress={()=>router.push("(tabs)/following")}>
+                    <Users size={24}></Users>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=>router.push("/(settings)")}>
+                    <Settings size={24}/>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
             
@@ -100,10 +113,10 @@ export default function HomeScreen() {
               hideCount
               hideSort
               isShowCase
-              // extraParams={{
-              //   searchQuery: search && search.length > 1 ? search : undefined,
-              //   category: selectedCategory?.id || null
-              // }}
+              extraParams={{
+                sortBy:"created",
+                sortOrder:"desc"
+              }}
               
               />
             </View>

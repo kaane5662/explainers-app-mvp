@@ -23,6 +23,7 @@ export const SESSION_OPTIONS = {
 export const plans = {
   free: {
     credits: 0,
+    name: "Free",
     minDuration: 0,
     maxDuration: 120, // 2 minutes in seconds
     maxPerDay: {
@@ -46,11 +47,13 @@ export const plans = {
         price: 0,
       },
     },
+    features_eng: [],
   },
   basic: {
     credits: 10,
     minDuration: 120, // 2 minutes in seconds
     maxDuration: 600, // 10 minutes in seconds,
+    name: "Basic",
     maxPerDay: {
       video: 2,
       podcast: 20,
@@ -74,11 +77,20 @@ export const plans = {
         price: 84,
       },
     },
+    features_eng: [
+      "Transform complex topics into memorable visuals",
+      "Accelerate learning with 10 engaging videos monthly",
+      "Deep-dive explanations up to 10 minutes",
+      "Improve retention with AI-powered storytelling",
+      "Perfect for students and professionals",
+      "2 videos per day limit",
+    ],
   },
   premium: {
     credits: 100,
     minDuration: 600, // 10 minutes in seconds
     maxDuration: 1800, // 30 minutes in seconds
+    name: "Premium",
     maxPerDay: {
       video: 20,
       podcast: 40,
@@ -102,6 +114,14 @@ export const plans = {
         price: 168,
       },
     },
+    features_eng: [
+      "Master any subject with unlimited visual learning",
+      "Create 100 comprehensive explanations monthly",
+      "Extended 30-minute deep-learning sessions",
+      "Advanced memory techniques with visual storytelling",
+      "Perfect for educators, researchers & lifelong learners",
+      "20 videos per day limit",
+    ],
   },
 };
 

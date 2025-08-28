@@ -87,6 +87,7 @@ export interface IUser {
         created: Date;
     }>;
     explainerVideos?: IExplainerVideo;
+    isOnboarding?:boolean;
     explainerPodcasts?: IExplainerPodcast;
 }
 

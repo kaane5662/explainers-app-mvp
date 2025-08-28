@@ -1,5 +1,5 @@
-import { IExplainerPodcast, ILike } from "@/interfaces";
-import { BookCheck, Heart, MessageCircle, Notebook, Search, Share2, X } from "lucide-react-native";
+import { IExplainer, IExplainerPodcast, ILike } from "@/interfaces";
+import { BookCheck, EllipsisVertical, Heart, MessageCircle, Notebook, Search, Share2, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import CommentsPopup from "../explainers/Comments";
@@ -9,11 +9,13 @@ import { ExplainerType } from "@/utils/constant";
 
 
 import tailwindConfig from "@/tailwind.config";
+import ExplainerSettings from "../popups/ExplainerSettings";
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 export default function PodcastBottomContent({podcast, onLike, onDislike, likes}:{podcast:IExplainerPodcast, onLike:CallableFunction, onDislike:CallableFunction,likes:ILike[]}){
     const [commentsPopup, setCommentsPopup] = useState(false)
     const [sharePopup, setSharePopup] = useState(false)
+    const [explainerSettingsPopup, setExplainerSettingsPopup] = useState(false)
     const [transcript,setTranscript] = useState()
 
 
@@ -68,6 +70,9 @@ export default function PodcastBottomContent({podcast, onLike, onDislike, likes}
             {sharePopup &&(
                 <ShareExplainer explainerType={ExplainerType.PODCAST} visible={sharePopup} onClose={()=>setSharePopup(false)} explainer={podcast as any}></ShareExplainer>
             )}
+            {explainerSettingsPopup &&(
+                <ExplainerSettings visible={explainerSettingsPopup} onClose={()=>setExplainerSettingsPopup(false)} explainer={podcast as IExplainer}/>
+            )}
             <View className="flex flex-row items-center gap-6">
                 
                 <TouchableOpacity
@@ -82,6 +87,9 @@ export default function PodcastBottomContent({podcast, onLike, onDislike, likes}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>onLike()} className=" ml-auto">
                     <Heart size={20} color={likes.some((l) => l.id === podcast.id) ? tailwindColors.blue : "black"} fill={likes.some((l) => l.id === podcast.id) ? tailwindColors.blue : "none"} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>setExplainerSettingsPopup(true)} className="">
+                    <EllipsisVertical size={20} />
                 </TouchableOpacity>
                 {/* <TouchableOpacity onPress={()=>onDislike()} className=" ml-auto">
                     <X  size={20}/>

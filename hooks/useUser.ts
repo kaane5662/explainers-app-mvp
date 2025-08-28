@@ -3,7 +3,7 @@
 
 import { IUser } from "@/interfaces";
 import axios from "axios";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
 import { useState, useEffect, useCallback } from "react";
 
 
@@ -11,6 +11,7 @@ export function useUser() {
   const [user, setUser] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pathname = usePathname()
 
   // Fetch user from API or local storage
   const fetchUser = useCallback(async () => {
@@ -22,9 +23,12 @@ export function useUser() {
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/user`, { withCredentials: true });
       console.log("user hook status", res.status)
       if (res.status !== 200) throw new Error(`Failed to fetch user: ${res.statusText}`);
-      
       const data = res.data as IUser;
+      if(user?.isOnboarding && pathname != "/onboarding"){
+        router.replace("/onboarding")
+      }
       setUser(data);
+      console.log(data)
     } catch (err: any) {
         if(err.response.status == 404 || err.response.status == 403){
             console.log('replaice')

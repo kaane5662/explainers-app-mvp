@@ -116,7 +116,7 @@ export default function CategorySearch() {
               {/* reels */}
               <View className='flex flex-col gap-4 mt-4'>
                 <Text className='text-2xl font-semibold'>Trending Reels</Text>
-                <View className='h-[300px]'>
+                <View className='h-[600px]'>
   
                   <ExplainerPagination
                     pageResults={20}

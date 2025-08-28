@@ -262,6 +262,7 @@ export const videoStyleOptions = [
 
 
 
+
 // export const explainerTypeOptions = [
 //   {
 //     label:"w9qmclfwe1i",
@@ -300,7 +301,7 @@ export const onboardingOptionsById = {
     { label: "3snsgcuozps", description: "Not sure", value: "notSure" },
   ],
   subjects: VIDEO_CATEGORIES.map((v) => ({
-    label: v.name,
+    label: v.label,
     description: v.description,
     value: v.id,
   })),
@@ -529,3 +530,5 @@ export const TOPICS = [
     ],
   },
 ];
+
+
