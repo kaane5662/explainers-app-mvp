@@ -6,8 +6,6 @@ import {
   voiceThemeOptions,
 } from '@/utils/common';
 import { ExplainerType, lengths } from '@/utils/constant';
-import axios from 'axios';
-import { router } from 'expo-router';
 import { ChevronDown, ChevronUp, Clock, Sparkles } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import {
@@ -22,102 +20,18 @@ import {
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BlurView } from 'expo-blur';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import {
+  glassCardStyle,
+  glassInputStyle,
+  glassButtonStyle,
+  numberBadgeStyle,
+} from '../../styles/createStyles';
+import GlassCard from '../../components/common/GlassCard';
+import { useCreateExplainer } from '../../hooks/useCreateExplainer';
 
 const suggestions = TOPICS.sort(() => Math.random() - 0.5).slice(0, 4);
 const suggestionId = (topicId: string, random: string) => `${topicId}-${random.slice(0, 8)}`;
-
-// Enhanced Glassmorphism Components
-const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
-
-// Enhanced glassmorphism style constants with better blur effects
-const glassCardStyle = {
-  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  borderWidth: 1.5,
-  borderColor: 'rgba(255, 255, 255, 0.9)',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.12,
-  shadowRadius: 16,
-  elevation: 8, // Android shadow
-};
-
-const glassInputStyle = {
-  backgroundColor: 'rgba(255, 255, 255, 0.5)',
-  borderWidth: 1.5,
-  borderColor: 'rgba(255, 255, 255, 0.8)',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.06,
-  shadowRadius: 8,
-};
-
-// Button styles with proper border visibility and clipping
-const glassButtonStyle = (isSelected: boolean, borderRadius: number = 12) => ({
-  backgroundColor: isSelected ? 'rgba(99, 135, 255, 0.2)' : 'rgba(255, 255, 255, 0.6)',
-  borderWidth: 2,
-  borderColor: isSelected ? 'rgba(99, 135, 255, 0.5)' : 'rgba(255, 255, 255, 0.8)',
-  shadowColor: isSelected ? '#6387FF' : '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: isSelected ? 0.15 : 0.08,
-  shadowRadius: isSelected ? 6 : 4,
-  elevation: isSelected ? 4 : 2,
-  borderRadius,
-  overflow: 'hidden',
-});
-
-const numberBadgeStyle = {
-  width: 32,
-  height: 32,
-  borderRadius: 16,
-  backgroundColor: 'rgba(99, 135, 255, 0.15)',
-  borderWidth: 1.5,
-  borderColor: 'rgba(99, 135, 255, 0.3)',
-  alignItems: 'center' as const,
-  justifyContent: 'center' as const,
-  marginRight: 12,
-  shadowColor: '#6387FF',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-};
-
-// Enhanced Glass Card Component
-const GlassCard = ({
-  children,
-  style = {},
-  intensity = 30,
-  tint = 'light' as const,
-  borderRadius = 20,
-}: {
-  children: React.ReactNode;
-  style?: any;
-  intensity?: number;
-  tint?: 'light' | 'dark';
-  borderRadius?: number;
-}) => {
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: withSpring(scale.value, { damping: 15, stiffness: 200 }) }],
-  }));
-
-  return (
-    <AnimatedBlurView
-      intensity={intensity}
-      tint={tint}
-      style={[
-        {
-          borderRadius,
-          marginBottom: 20,
-        },
-        animatedStyle,
-        style,
-      ]}>
-      <View style={{ ...glassCardStyle, padding: 20, borderRadius }}>{children}</View>
-    </AnimatedBlurView>
-  );
-};
 
 export default function CreateScreen() {
   const [type, setType] = useState(ExplainerType.REEL);
@@ -126,12 +40,11 @@ export default function CreateScreen() {
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [length, setLength] = useState(lengths[0].length);
   const [description, setDescription] = useState('');
-  const [backgroundColor] = useState('#ffffff');
-  const [textColor] = useState('#000000');
   const [numPodcastVoices, setNumPodcastVoices] = useState(1);
   const [podcastVoices, setPodcastVoices] = useState<string[]>([voiceOptions[0].value]);
   const [, setIsVoiceDropdownOpen] = useState<boolean[]>([false]);
-  const [loading, setLoading] = useState(false);
+
+  const { createExplainer, loading } = useCreateExplainer();
 
   const suggestionCards = useMemo(
     () =>
@@ -142,54 +55,17 @@ export default function CreateScreen() {
     []
   );
 
-  async function handleCreate() {
-    const route = type === ExplainerType.PODCAST ? 'podcasts' : 'videos';
-    setLoading(true);
-    try {
-      const videoThemeWithColors =
-        type === ExplainerType.VIDEO
-          ? `${videoTheme}${videoTheme ? ', ' : ''}${backgroundColor ? `Background: ${backgroundColor}, ` : ''}${textColor ? `text: ${textColor}` : ''}`
-          : '';
-
-      const res = await axios.post(
-        `${process.env.EXPO_PUBLIC_API_URL}/${route}/create`,
-        {
-          description,
-          ...(type === ExplainerType.REEL
-            ? {
-                length: 0.5,
-              }
-            : { length }),
-          locale: 'en',
-          websearchEnabled: webSearchEnabled,
-          imageSearchEnabled: useImages,
-          ...(type === ExplainerType.PODCAST
-            ? {
-                voice: podcastVoices[0] || voiceOptions[0].value,
-                theme: videoTheme,
-                generateAudio: true,
-                podcastVoices,
-                numPodcastVoices,
-              }
-            : {}),
-          ...(type === ExplainerType.REEL
-            ? {
-                theme: videoThemeWithColors,
-                videoRatio: '9:16',
-              }
-            : {}),
-        },
-        { withCredentials: true }
-      );
-      router.push(`/${route}/${res.data.id}`);
-    } catch (error: any) {
-      console.log(error);
-      if (error?.response?.status === 403) {
-        console.log('You have run out of credits');
-      }
-    } finally {
-      setLoading(false);
-    }
+  function handleCreate() {
+    createExplainer({
+      type,
+      videoTheme,
+      length,
+      description,
+      webSearchEnabled,
+      useImages,
+      podcastVoices,
+      numPodcastVoices,
+    });
   }
 
   return (
