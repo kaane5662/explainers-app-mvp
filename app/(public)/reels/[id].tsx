@@ -2,14 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Animated, Easing, Dimensions, } from 'react-native';
 import clsx from 'clsx';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader } from 'lucide-react-native';
+import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader, EllipsisVertical } from 'lucide-react-native';
 import axios from 'axios';
-import { IExplainerVideo } from '@/interfaces';
+import { IExplainer, IExplainerVideo } from '@/interfaces';
 import VideoPlayerComponent, { VideoPlayerRef } from '@/components/videos/VideoPlayerComponent';
 import Slider from '@react-native-community/slider';
 import tailwindConfig from '@/tailwind.config';
 import VideoContent from '@/components/videos/VideoContent';
 import { ExplainerType } from '@/utils/constant';
+import ExplainerSettings from '@/components/popups/ExplainerSettings';
 const { width, height } = Dimensions.get('window');
 
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
@@ -57,6 +58,7 @@ export default function ReelsContent() {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [paused, setPaused] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
   
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const playerRef = useRef<VideoPlayerRef | null>(null);
@@ -393,6 +395,8 @@ export default function ReelsContent() {
                           <Text className="drop-shadow-xl text-white">Back</Text>
                         </TouchableOpacity>
                       </View> */}
+                      
+                      
                       <VideoContent onDislike={onDislike} onLike={onLike} dislikes={dislikes} likes={likes} shortItem={shortItem} index={index} shortIndex={shortIndex}></VideoContent>
                       
                       

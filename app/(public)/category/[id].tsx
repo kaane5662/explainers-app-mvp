@@ -116,7 +116,7 @@ export default function CategorySearch() {
               {/* reels */}
               <View className='flex flex-col gap-4 mt-4'>
                 <Text className='text-2xl font-semibold'>Trending Reels</Text>
-                <View className='h-[600px]'>
+                <View className='h-[410px] max-w'>
   
                   <ExplainerPagination
                     pageResults={20}
@@ -129,12 +129,39 @@ export default function CategorySearch() {
                       searchQuery: search && search.length > 1 ? search : undefined,
                       category: selectedCategory?.id || null
                     }}
+                    isShowCase
+                    numRows={1}
+                    showcaseWidth="max-w-[310px]"
                     hideSort
                     
                     />
                     
                 </View>
                   
+                
+              </View>
+              {/* search */}
+              <View className='flex flex-col gap-4 mt-8 mb-32'>
+                <Text className='text-2xl font-semibold'>Search {selectedCategory.label}</Text>
+                
+  
+                  <ExplainerPagination
+                    pageResults={20}
+                    name={''}
+                    apiRoute={ !selectedCategory ? "/explainers":`/explainers/category`}
+                    sortExplainer='all'
+                    // hideSearch
+                    hideCount
+                    extraParams={{
+                      // searchQuery: search && search.length > 1 ? search : undefined,
+                      category: selectedCategory?.id || null
+                    }}
+                    // hideSort
+                    hideSortBy
+                    
+                    />
+                    
+               
                 
               </View>
               

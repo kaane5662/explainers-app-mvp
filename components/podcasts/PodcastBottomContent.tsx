@@ -71,7 +71,7 @@ export default function PodcastBottomContent({podcast, onLike, onDislike, likes}
                 <ShareExplainer explainerType={ExplainerType.PODCAST} visible={sharePopup} onClose={()=>setSharePopup(false)} explainer={podcast as any}></ShareExplainer>
             )}
             {explainerSettingsPopup &&(
-                <ExplainerSettings visible={explainerSettingsPopup} onClose={()=>setExplainerSettingsPopup(false)} explainer={podcast as IExplainer}/>
+                <ExplainerSettings explainerType={ExplainerType.PODCAST} visible={explainerSettingsPopup} onClose={()=>setExplainerSettingsPopup(false)} explainer={podcast as IExplainer}/>
             )}
             <View className="flex flex-row items-center gap-6">
                 
