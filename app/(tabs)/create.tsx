@@ -1,4 +1,3 @@
-import tailwindConfig from '@/tailwind.config';
 import {
   explainerTypeOptions,
   TOPICS,
@@ -8,7 +7,6 @@ import {
 } from '@/utils/common';
 import { ExplainerType, lengths } from '@/utils/constant';
 import axios from 'axios';
-import cx from 'clsx';
 import { router } from 'expo-router';
 import { ChevronDown, ChevronUp, Clock, Sparkles } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
@@ -23,32 +21,118 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
-const tailwindColors = tailwindConfig.theme?.extend?.colors;
-const primaryBlue = (tailwindColors as any)?.blue || '#6387FF';
+import { BlurView } from 'expo-blur';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 const suggestions = TOPICS.sort(() => Math.random() - 0.5).slice(0, 4);
 const suggestionId = (topicId: string, random: string) => `${topicId}-${random.slice(0, 8)}`;
+
+// Enhanced Glassmorphism Components
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
+
+// Enhanced glassmorphism style constants with better blur effects
+const glassCardStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  borderWidth: 1.5,
+  borderColor: 'rgba(255, 255, 255, 0.9)',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 16,
+  elevation: 8, // Android shadow
+};
+
+const glassInputStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  borderWidth: 1.5,
+  borderColor: 'rgba(255, 255, 255, 0.8)',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.06,
+  shadowRadius: 8,
+};
+
+// Button styles with proper border visibility and clipping
+const glassButtonStyle = (isSelected: boolean, borderRadius: number = 12) => ({
+  backgroundColor: isSelected ? 'rgba(99, 135, 255, 0.2)' : 'rgba(255, 255, 255, 0.6)',
+  borderWidth: 2,
+  borderColor: isSelected ? 'rgba(99, 135, 255, 0.5)' : 'rgba(255, 255, 255, 0.8)',
+  shadowColor: isSelected ? '#6387FF' : '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: isSelected ? 0.15 : 0.08,
+  shadowRadius: isSelected ? 6 : 4,
+  elevation: isSelected ? 4 : 2,
+  borderRadius,
+  overflow: 'hidden',
+});
+
+const numberBadgeStyle = {
+  width: 32,
+  height: 32,
+  borderRadius: 16,
+  backgroundColor: 'rgba(99, 135, 255, 0.15)',
+  borderWidth: 1.5,
+  borderColor: 'rgba(99, 135, 255, 0.3)',
+  alignItems: 'center' as const,
+  justifyContent: 'center' as const,
+  marginRight: 12,
+  shadowColor: '#6387FF',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+};
+
+// Enhanced Glass Card Component
+const GlassCard = ({
+  children,
+  style = {},
+  intensity = 30,
+  tint = 'light' as const,
+  borderRadius = 20,
+}: {
+  children: React.ReactNode;
+  style?: any;
+  intensity?: number;
+  tint?: 'light' | 'dark';
+  borderRadius?: number;
+}) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: withSpring(scale.value, { damping: 15, stiffness: 200 }) }],
+  }));
+
+  return (
+    <AnimatedBlurView
+      intensity={intensity}
+      tint={tint}
+      style={[
+        {
+          borderRadius,
+          marginBottom: 20,
+        },
+        animatedStyle,
+        style,
+      ]}>
+      <View style={{ ...glassCardStyle, padding: 20, borderRadius }}>{children}</View>
+    </AnimatedBlurView>
+  );
+};
+
 export default function CreateScreen() {
   const [type, setType] = useState(ExplainerType.REEL);
   const [videoTheme, setVideoTheme] = useState(videoStyleOptions[0].example_label);
-  // const [videoTheme,setVideoTheme] = useState(videoStyleOptions[0].example_label)
   const [useImages, setUseImages] = useState(false);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
-
   const [length, setLength] = useState(lengths[0].length);
   const [description, setDescription] = useState('');
-
-  // video/reel specifc states
   const [backgroundColor] = useState('#ffffff');
   const [textColor] = useState('#000000');
-
-  // Podcast specific states
-  // const [podcastThemePreset] = useState('');
   const [numPodcastVoices, setNumPodcastVoices] = useState(1);
   const [podcastVoices, setPodcastVoices] = useState<string[]>([voiceOptions[0].value]);
-  // const [customPodcastTheme] = useState(false);
   const [, setIsVoiceDropdownOpen] = useState<boolean[]>([false]);
   const [loading, setLoading] = useState(false);
+
   const suggestionCards = useMemo(
     () =>
       suggestions.map((topic) => ({
@@ -57,23 +141,11 @@ export default function CreateScreen() {
       })),
     []
   );
+
   async function handleCreate() {
-    // console.log("Create params", createParams);
-    // if (!isLoggedIn) {
-    //   router.push("/auth/signup");
-    //   return;
-    // }
-
-    // Validate that description is not empty
-    // if (!description?.trim()) {
-    //   toast.error(tran("bm13g2exhst"));
-    //   return;
-    // }
-
     const route = type === ExplainerType.PODCAST ? 'podcasts' : 'videos';
     setLoading(true);
     try {
-      // Construct theme with colors for videos
       const videoThemeWithColors =
         type === ExplainerType.VIDEO
           ? `${videoTheme}${videoTheme ? ', ' : ''}${backgroundColor ? `Background: ${backgroundColor}, ` : ''}${textColor ? `text: ${textColor}` : ''}`
@@ -88,14 +160,9 @@ export default function CreateScreen() {
                 length: 0.5,
               }
             : { length }),
-          // length,
           locale: 'en',
           websearchEnabled: webSearchEnabled,
           imageSearchEnabled: useImages,
-          //   ...(type == ExplainerType.VIDEO ? {
-          //     theme: videoThemeWithColors,
-          //     videoRatio: videoRatio
-          //   } : {}),
           ...(type === ExplainerType.PODCAST
             ? {
                 voice: podcastVoices[0] || voiceOptions[0].value,
@@ -107,7 +174,6 @@ export default function CreateScreen() {
             : {}),
           ...(type === ExplainerType.REEL
             ? {
-                // isReel:true,
                 theme: videoThemeWithColors,
                 videoRatio: '9:16',
               }
@@ -115,197 +181,378 @@ export default function CreateScreen() {
         },
         { withCredentials: true }
       );
-      //   if(isOnboarding && onVideoCreated){
-      //     onVideoCreated({explainerType:type,explainerId:res.data.id});
-      //   }else{
-      // }
       router.push(`/${route}/${res.data.id}`);
-
-      //   mixpanel.track("generate_content_completed", {
-      //     content_type: "video",
-      //     topic: currentTopicId || "no_topic",
-      //     topic_name: currentTopicId
-      //       ? TOPICS.find((t) => t.id === currentTopicId)?.name || "No Topic"
-      //       : "No Topic",
-      //     content_id: res.data.id,
-      //     generation_time_ms: Date.now() - startTime,
-      //     prompt_length: description?.length || 0,
-      //     is_web_search: webSearchEnabled,
-      //   });
     } catch (error: any) {
       console.log(error);
       if (error?.response?.status === 403) {
         console.log('You have run out of credits');
-        // if(isOnboarding && onVideoCreated){
-        //   onVideoCreated({explainerId:"no_credits", explainerType:null})
-        // }else{
-        //   setShowPaywall(true);
-        // }
       }
-      //   toast.error(error?.response?.data?.error || tran("vbm266q7s8"));
-      //   mixpanel.track("generate_content_error", {
-      //     content_type: "video",
-      //     topic: currentTopicId || "no_topic",
-      //     topic_name: currentTopicId
-      //       ? TOPICS.find((t) => t.id === currentTopicId)?.name || "No Topic"
-      //       : "No Topic",
-      //     error_message: error?.response?.data?.error || "Error generating video",
-      //     prompt_length: description?.length || 0,
-      //   });
     } finally {
-      // setLengthPopup(false);
       setLoading(false);
     }
   }
 
-  // const [enablePicker,setEnablePicker]
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <View className="flex flex-col gap-4 p-4 ">
-          <View className="flex flex-col items-center gap-1">
-            <Text className="text-3xl font-bold text-slate-800">Create Event</Text>
-            <Text className="text-center text-slate-500">Imagine an explainer on any topic</Text>
-          </View>
+    <View className="flex-1" style={{ backgroundColor: '#f8fafc' }}>
+      {/* Enhanced multi-layer background with better depth */}
+      <View
+        className="absolute inset-0"
+        style={{
+          backgroundColor: '#f1f5f9',
+        }}
+      />
+      <View
+        className="absolute inset-0"
+        style={{
+          backgroundColor: '#e2e8f0',
+          opacity: 0.7,
+        }}
+      />
+      <View
+        className="absolute inset-0"
+        style={{
+          backgroundColor: '#cbd5e1',
+          opacity: 0.4,
+        }}
+      />
 
-          <View className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <Text className="mb-2 text-slate-500">Event Name</Text>
-            <TextInput
-              value={description}
-              onChangeText={(t) => setDescription(t)}
-              multiline={true}
-              className="h-[120px] rounded-xl bg-slate-100 p-3 text-slate-800"
-              placeholder="Enter a topic"
-            />
-            <ScrollView horizontal className="mt-2">
-              <View className="flex flex-row gap-2">
+      {/* Subtle gradient overlay for enhanced depth */}
+      <View
+        className="absolute inset-0"
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.5)',
+        }}
+      />
+
+      {/* Additional blur layer for enhanced glassmorphism */}
+      <BlurView
+        intensity={8}
+        tint="light"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          opacity: 0.3,
+        }}
+      />
+
+      <SafeAreaView className="flex-1">
+        <ScrollView className="flex-1 px-6 py-4" showsVerticalScrollIndicator={false}>
+          {/* Header Section */}
+          <GlassCard intensity={35} borderRadius={24} style={{ marginBottom: 24 }}>
+            <View className="items-center">
+              <Animated.View
+                style={[
+                  {
+                    width: 64,
+                    height: 64,
+                    borderRadius: 32,
+                    backgroundColor: 'rgba(99, 135, 255, 0.15)',
+                    borderWidth: 2,
+                    borderColor: 'rgba(99, 135, 255, 0.3)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 16,
+                    shadowColor: '#6387FF',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 8,
+                  },
+                ]}>
+                <Sparkles size={28} color="#6387FF" />
+              </Animated.View>
+              <Text
+                className="mb-2 text-center text-3xl font-bold text-slate-800"
+                style={{
+                  textShadowColor: 'rgba(255,255,255,0.8)',
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 3,
+                }}>
+                Create an Explainer
+              </Text>
+              <Text className="text-center text-lg text-slate-600">
+                Imagine an explainer on any topic
+              </Text>
+            </View>
+          </GlassCard>
+
+          {/* Topic Input Section */}
+          <GlassCard intensity={32}>
+            <View className="mb-4 flex-row items-center">
+              <Animated.View style={[numberBadgeStyle]}>
+                <Text className="font-bold text-blue">1</Text>
+              </Animated.View>
+              <Text className="text-xl font-semibold text-slate-800">Choose your topic</Text>
+            </View>
+
+            <BlurView intensity={15} tint="light" style={{ borderRadius: 16, marginBottom: 16 }}>
+              <View style={{ ...glassInputStyle, borderRadius: 16, overflow: 'hidden' }}>
+                <TextInput
+                  value={description}
+                  onChangeText={(t) => setDescription(t)}
+                  multiline={true}
+                  style={{
+                    height: 120,
+                    padding: 16,
+                    color: '#1e293b',
+                    fontSize: 16,
+                    textAlignVertical: 'top',
+                  }}
+                  placeholder="Enter a topic you'd like explained..."
+                  placeholderTextColor="rgba(71, 85, 105, 0.6)"
+                />
+              </View>
+            </BlurView>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View className="flex-row gap-3">
                 {suggestionCards.map(({ topic, random }) => (
                   <TouchableOpacity
-                    onPress={() => setDescription(random)}
                     key={suggestionId(topic.id, random)}
-                    className="flex w-[220px] flex-col gap-1 rounded-xl bg-slate-100 p-3">
-                    <Text className="font-semibold text-slate-700">{topic.name}</Text>
-                    <Text className="text-sm text-slate-500">{random}</Text>
+                    onPress={() => setDescription(random)}
+                    style={{ width: 200, borderRadius: 12, overflow: 'hidden' }}>
+                    <BlurView intensity={20} tint="light" style={{ borderRadius: 12 }}>
+                      <View
+                        style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                          borderWidth: 1,
+                          borderColor: 'rgba(255, 255, 255, 0.7)',
+                          padding: 16,
+                          borderRadius: 12,
+                          overflow: 'hidden',
+                        }}>
+                        <Text className="mb-2 text-base font-bold text-slate-800">
+                          {topic.name}
+                        </Text>
+                        <Text className="text-sm leading-5 text-slate-600">{random}</Text>
+                      </View>
+                    </BlurView>
                   </TouchableOpacity>
                 ))}
               </View>
             </ScrollView>
-          </View>
+          </GlassCard>
 
-          <View className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <Text className="mb-2 text-slate-500">Explainer Type</Text>
-            <View className="flex flex-row items-center gap-2">
-              {explainerTypeOptions.map((t) => (
-                <TouchableOpacity
-                  key={String(t.value)}
-                  onPress={() => setType(t.value)}
-                  className={cx(
-                    'flex-row items-center gap-2 rounded-xl border px-4 py-2',
-                    t.value === type
-                      ? 'border-blue bg-blue text-white'
-                      : 'border-slate-200 bg-slate-100'
-                  )}>
-                  {t.icon}
-                  <Text
-                    className={cx('text-sm', t.value === type ? 'text-white' : 'text-slate-700')}>
-                    {t.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <Text className="mb-2 text-slate-500">Length</Text>
-            <View className="flex flex-row flex-wrap items-center gap-3">
-              {lengths.map((l) => (
-                <TouchableOpacity
-                  key={l.plan}
-                  onPress={() => setLength(l.length)}
-                  className={cx(
-                    'flex-row items-center gap-2 rounded-xl border px-3 py-2',
-                    l.length === length ? 'border-blue bg-blue' : 'border-slate-200 bg-slate-100'
-                  )}>
-                  <Text className={cx(l.length === length ? 'text-white' : 'text-slate-700')}>
-                    {l.label}
-                  </Text>
-                  <Clock size={15} color={l.length === length ? 'white' : '#64748b'}></Clock>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {type === ExplainerType.REEL && (
-            <View className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <Text className="mb-2 text-slate-500">Reel Style</Text>
-              <ScrollView horizontal>
-                <View className="flex flex-row items-center gap-2">
-                  {videoStyleOptions.map((o) => (
-                    <TouchableOpacity
-                      key={o.value}
-                      onPress={() => setVideoTheme(o.example_label)}
-                      className={cx(
-                        'rounded-full border px-3 py-1',
-                        videoTheme === o.example_label
-                          ? 'border-blue bg-blue'
-                          : 'border-slate-200 bg-slate-100'
-                      )}>
-                      <Text
-                        className={cx(
-                          videoTheme === o.example_label ? 'text-white' : 'text-slate-700'
-                        )}>
-                        {o.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+          {/* Explainer Type Section */}
+          <BlurView intensity={25} tint="light" style={{ borderRadius: 20, marginBottom: 20 }}>
+            <View style={{ ...glassCardStyle, padding: 20, borderRadius: 20, overflow: 'hidden' }}>
+              <View className="mb-4 flex-row items-center">
+                <View style={numberBadgeStyle}>
+                  <Text className="font-bold text-blue">2</Text>
                 </View>
-              </ScrollView>
-              <TextInput
-                multiline
-                value={videoTheme}
-                onChangeText={(t) => setVideoTheme(t)}
-                className="mt-3 h-[100px] rounded-xl bg-slate-100 p-3 text-slate-800"
-                placeholder="Enter a style"
-              />
+                <Text className="text-xl font-semibold text-slate-800">Explainer Type</Text>
+              </View>
+
+              <View className="flex-row gap-3">
+                {explainerTypeOptions.map((t) => (
+                  <TouchableOpacity
+                    key={String(t.value)}
+                    onPress={() => setType(t.value)}
+                    className="flex-1"
+                    style={{ borderRadius: 16, overflow: 'hidden' }}>
+                    <BlurView
+                      intensity={t.value === type ? 30 : 15}
+                      tint="light"
+                      style={{ borderRadius: 16 }}>
+                      <View
+                        style={{
+                          ...glassButtonStyle(t.value === type),
+                          padding: 16,
+                          alignItems: 'center',
+                          gap: 8,
+                          borderRadius: 16,
+                          overflow: 'hidden',
+                        }}>
+                        {t.icon}
+                        <Text
+                          className={`text-center font-semibold ${t.value === type ? 'text-blue' : 'text-slate-700'}`}>
+                          {t.label}
+                        </Text>
+                      </View>
+                    </BlurView>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
+          </BlurView>
+
+          {/* Length Section */}
+          <BlurView intensity={25} tint="light" style={{ borderRadius: 20, marginBottom: 20 }}>
+            <View style={{ ...glassCardStyle, padding: 20, borderRadius: 20, overflow: 'hidden' }}>
+              <View className="mb-4 flex-row items-center">
+                <View style={numberBadgeStyle}>
+                  <Text className="font-bold text-blue">3</Text>
+                </View>
+                <Text className="text-xl font-semibold text-slate-800">Length</Text>
+              </View>
+
+              <View className="flex-row flex-wrap gap-3">
+                {lengths.map((l) => (
+                  <TouchableOpacity
+                    key={l.plan}
+                    onPress={() => setLength(l.length)}
+                    className="min-w-[100px] flex-1"
+                    style={{ borderRadius: 12, overflow: 'hidden' }}>
+                    <BlurView
+                      intensity={l.length === length ? 30 : 15}
+                      tint="light"
+                      style={{ borderRadius: 12 }}>
+                      <View
+                        style={{
+                          ...glassButtonStyle(l.length === length),
+                          padding: 12,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 8,
+                          borderRadius: 12,
+                          overflow: 'hidden',
+                        }}>
+                        <Clock size={16} color={l.length === length ? '#6387FF' : '#64748b'} />
+                        <Text
+                          className={`text-center font-medium ${l.length === length ? 'text-blue' : 'text-slate-700'}`}>
+                          {l.label}
+                        </Text>
+                      </View>
+                    </BlurView>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </BlurView>
+
+          {/* Reel Style Section */}
+          {type === ExplainerType.REEL && (
+            <BlurView intensity={25} tint="light" style={{ borderRadius: 20, marginBottom: 20 }}>
+              <View
+                style={{ ...glassCardStyle, padding: 20, borderRadius: 20, overflow: 'hidden' }}>
+                <View className="mb-4 flex-row items-center">
+                  <View style={numberBadgeStyle}>
+                    <Text className="font-bold text-blue">4</Text>
+                  </View>
+                  <Text className="text-xl font-semibold text-slate-800">Reel Style</Text>
+                </View>
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+                  <View className="flex-row gap-2">
+                    {videoStyleOptions.map((o) => (
+                      <TouchableOpacity
+                        key={o.value}
+                        onPress={() => setVideoTheme(o.example_label)}
+                        style={{ borderRadius: 20, overflow: 'hidden' }}>
+                        <BlurView
+                          intensity={videoTheme === o.example_label ? 25 : 15}
+                          tint="light"
+                          style={{ borderRadius: 20 }}>
+                          <View
+                            style={{
+                              ...glassButtonStyle(videoTheme === o.example_label),
+                              paddingHorizontal: 16,
+                              paddingVertical: 8,
+                              borderRadius: 20,
+                              overflow: 'hidden',
+                            }}>
+                            <Text
+                              className={`font-medium ${videoTheme === o.example_label ? 'text-blue' : 'text-slate-700'}`}>
+                              {o.name}
+                            </Text>
+                          </View>
+                        </BlurView>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+
+                <BlurView intensity={15} tint="light" style={{ borderRadius: 16 }}>
+                  <View style={{ ...glassInputStyle, borderRadius: 16, overflow: 'hidden' }}>
+                    <TextInput
+                      multiline
+                      value={videoTheme}
+                      onChangeText={(t) => setVideoTheme(t)}
+                      style={{
+                        height: 100,
+                        padding: 16,
+                        color: '#1e293b',
+                        fontSize: 16,
+                        textAlignVertical: 'top',
+                      }}
+                      placeholder="Enter a custom style..."
+                      placeholderTextColor="rgba(71, 85, 105, 0.6)"
+                    />
+                  </View>
+                </BlurView>
+              </View>
+            </BlurView>
           )}
 
+          {/* Podcast Style Section */}
           {type === ExplainerType.PODCAST && (
-            <View className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <Text className="mb-2 text-slate-500">Podcast Style</Text>
-              <ScrollView horizontal>
-                <View className="flex flex-row items-center gap-2">
-                  {voiceThemeOptions.map((o) => (
-                    <TouchableOpacity
-                      key={o.value}
-                      onPress={() => setVideoTheme(o.example_label)}
-                      className={cx(
-                        'rounded-full border px-3 py-1',
-                        videoTheme === o.example_label
-                          ? 'border-blue bg-blue'
-                          : 'border-slate-200 bg-slate-100'
-                      )}>
-                      <Text
-                        className={cx(
-                          videoTheme === o.example_label ? 'text-white' : 'text-slate-700'
-                        )}>
-                        {o.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+            <BlurView intensity={25} tint="light" style={{ borderRadius: 20, marginBottom: 20 }}>
+              <View
+                style={{ ...glassCardStyle, padding: 20, borderRadius: 20, overflow: 'hidden' }}>
+                <View className="mb-4 flex-row items-center">
+                  <View style={numberBadgeStyle}>
+                    <Text className="font-bold text-blue">4</Text>
+                  </View>
+                  <Text className="text-xl font-semibold text-slate-800">Podcast Style</Text>
                 </View>
-              </ScrollView>
-              <TextInput
-                multiline
-                value={videoTheme}
-                onChangeText={(t) => setVideoTheme(t)}
-                className="mt-3 h-[100px] rounded-xl bg-slate-100 p-3 text-slate-800"
-                placeholder="Enter a style"
-              />
 
-              <View className="mt-4">
-                <Text className="mb-2 text-slate-500">Podcast Speakers</Text>
-                <View className="flex flex-row gap-3">
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+                  <View className="flex-row gap-2">
+                    {voiceThemeOptions.map((o) => (
+                      <TouchableOpacity
+                        key={o.value}
+                        onPress={() => setVideoTheme(o.example_label)}
+                        style={{ borderRadius: 20, overflow: 'hidden' }}>
+                        <BlurView
+                          intensity={videoTheme === o.example_label ? 25 : 15}
+                          tint="light"
+                          style={{ borderRadius: 20 }}>
+                          <View
+                            style={{
+                              ...glassButtonStyle(videoTheme === o.example_label),
+                              paddingHorizontal: 16,
+                              paddingVertical: 8,
+                              borderRadius: 20,
+                              overflow: 'hidden',
+                            }}>
+                            <Text
+                              className={`font-medium ${videoTheme === o.example_label ? 'text-blue' : 'text-slate-700'}`}>
+                              {o.name}
+                            </Text>
+                          </View>
+                        </BlurView>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+
+                <BlurView
+                  intensity={15}
+                  tint="light"
+                  style={{ borderRadius: 16, marginBottom: 16 }}>
+                  <View style={glassInputStyle}>
+                    <TextInput
+                      multiline
+                      value={videoTheme}
+                      onChangeText={(t) => setVideoTheme(t)}
+                      style={{
+                        height: 100,
+                        padding: 16,
+                        color: '#1e293b',
+                        fontSize: 16,
+                        textAlignVertical: 'top',
+                      }}
+                      placeholder="Enter a custom style..."
+                      placeholderTextColor="rgba(71, 85, 105, 0.6)"
+                    />
+                  </View>
+                </BlurView>
+
+                <Text className="mb-3 text-lg font-semibold text-slate-800">Podcast Speakers</Text>
+                <View className="mb-4 flex-row gap-3">
                   {Array.from({ length: 2 }).map((_, i) => (
                     <TouchableOpacity
                       key={i}
@@ -320,25 +567,31 @@ export default function CreateScreen() {
                           return newVoices.slice(0, i + 1);
                         });
                       }}
-                      className={cx(
-                        'w-[90px] items-center rounded-xl border px-2 py-2',
-                        numPodcastVoices === i + 1
-                          ? 'border-blue bg-blue'
-                          : 'border-slate-200 bg-slate-100'
-                      )}>
-                      <Text
-                        className={cx(
-                          'text-center',
-                          numPodcastVoices === i + 1 ? 'text-white' : 'text-slate-700'
-                        )}>
-                        {i + 1}
-                      </Text>
+                      style={{ width: 90, borderRadius: 12, overflow: 'hidden' }}>
+                      <BlurView
+                        intensity={numPodcastVoices === i + 1 ? 25 : 15}
+                        tint="light"
+                        style={{ borderRadius: 12 }}>
+                        <View
+                          style={{
+                            ...glassButtonStyle(numPodcastVoices === i + 1),
+                            padding: 12,
+                            alignItems: 'center',
+                            borderRadius: 12,
+                            overflow: 'hidden',
+                          }}>
+                          <Text
+                            className={`text-center font-semibold ${numPodcastVoices === i + 1 ? 'text-blue' : 'text-slate-700'}`}>
+                            {i + 1}
+                          </Text>
+                        </View>
+                      </BlurView>
                     </TouchableOpacity>
                   ))}
                 </View>
 
-                <Text className="mt-3 text-slate-500">Podcast Voices</Text>
-                <View className="mt-2 flex flex-row gap-2">
+                <Text className="mb-3 text-lg font-semibold text-slate-800">Podcast Voices</Text>
+                <View className="flex-row gap-2">
                   {Array.from({ length: numPodcastVoices }).map((_, i) => (
                     <SelectDropdown
                       key={`voice-${i}`}
@@ -348,80 +601,130 @@ export default function CreateScreen() {
                           prev.map((v, index2) => (index2 === i ? selectedItem.value : v))
                         );
                       }}
-                      renderButton={(selectedItem, isOpened) => {
-                        return (
-                          <View className="flex flex-row items-center rounded-xl border border-slate-200 bg-slate-100 p-2">
-                            <Text className="mr-8 text-slate-600">
-                              {(selectedItem && selectedItem.label) || 'Select a voice'}
+                      renderButton={(selectedItem, isOpened) => (
+                        <BlurView intensity={15} tint="light" style={{ borderRadius: 12 }}>
+                          <View
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                              borderWidth: 1,
+                              borderColor: 'rgba(255, 255, 255, 0.6)',
+                              padding: 12,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              minWidth: 140,
+                              borderRadius: 12,
+                              overflow: 'hidden',
+                            }}>
+                            <Text className="mr-2 flex-1 text-slate-700">
+                              {(selectedItem && selectedItem.label) || 'Select voice'}
                             </Text>
-                            {isOpened ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                            {isOpened ? (
+                              <ChevronUp size={16} color="#64748b" />
+                            ) : (
+                              <ChevronDown size={16} color="#64748b" />
+                            )}
                           </View>
-                        );
-                      }}
-                      renderItem={(item, index, isSelected) => {
-                        return (
-                          <View className={cx('p-2', isSelected && 'bg-blue')}>
-                            <Text className={cx('text-slate-700', isSelected && 'text-white')}>
-                              {item.label}
-                            </Text>
-                          </View>
-                        );
-                      }}
+                        </BlurView>
+                      )}
+                      renderItem={(item, index, isSelected) => (
+                        <View
+                          style={{
+                            padding: 12,
+                            backgroundColor: isSelected ? 'rgba(99, 135, 255, 0.1)' : 'transparent',
+                          }}>
+                          <Text style={{ color: isSelected ? '#4f46e5' : '#64748b' }}>
+                            {item.label}
+                          </Text>
+                        </View>
+                      )}
                       showsVerticalScrollIndicator={false}
-                      dropdownStyle={{ borderRadius: 12 }}
+                      dropdownStyle={{
+                        borderRadius: 12,
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 8,
+                      }}
                     />
                   ))}
                 </View>
               </View>
-            </View>
+            </BlurView>
           )}
 
-          <View className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <View className="flex flex-row gap-4">
-              <View className="flex flex-row items-center gap-2">
-                <Switch
-                  style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
-                  value={useImages}
-                  onValueChange={setUseImages}
-                  trackColor={{ false: '#e2e8f0', true: primaryBlue }}
-                  thumbColor={useImages ? '#ffffff' : '#64748b'}
-                />
-                <Text className="text-sm text-slate-600">Use Images</Text>
-              </View>
-              <View className="flex flex-row items-center gap-2">
-                <Switch
-                  style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
-                  value={webSearchEnabled}
-                  onValueChange={setWebSearchEnabled}
-                  trackColor={{ false: '#e2e8f0', true: primaryBlue }}
-                  thumbColor={webSearchEnabled ? '#ffffff' : '#64748b'}
-                />
-                <Text className="text-sm text-slate-600">Use Web Search</Text>
+          {/* Options Section */}
+          <BlurView intensity={25} tint="light" style={{ borderRadius: 20, marginBottom: 20 }}>
+            <View style={{ ...glassCardStyle, padding: 20, borderRadius: 20, overflow: 'hidden' }}>
+              <Text className="mb-4 text-lg font-semibold text-slate-800">Advanced Options</Text>
+              <View className="flex-row gap-6">
+                <View className="flex-row items-center gap-3">
+                  <Switch
+                    style={{ transform: [{ scaleX: 0.9 }, { scaleY: 0.9 }] }}
+                    value={useImages}
+                    onValueChange={setUseImages}
+                    trackColor={{
+                      false: 'rgba(203,213,225,0.5)',
+                      true: 'rgba(99, 135, 255, 0.3)',
+                    }}
+                    thumbColor={useImages ? '#6387FF' : 'rgba(148,163,184,0.8)'}
+                  />
+                  <Text className="font-medium text-slate-700">Use Images</Text>
+                </View>
+                <View className="flex-row items-center gap-3">
+                  <Switch
+                    style={{ transform: [{ scaleX: 0.9 }, { scaleY: 0.9 }] }}
+                    value={webSearchEnabled}
+                    onValueChange={setWebSearchEnabled}
+                    trackColor={{
+                      false: 'rgba(203,213,225,0.5)',
+                      true: 'rgba(99, 135, 255, 0.3)',
+                    }}
+                    thumbColor={webSearchEnabled ? '#6387FF' : 'rgba(148,163,184,0.8)'}
+                  />
+                  <Text className="font-medium text-slate-700">Web Search</Text>
+                </View>
               </View>
             </View>
-          </View>
+          </BlurView>
 
+          {/* Create Button */}
           <TouchableOpacity
             onPress={handleCreate}
-            className={cx(
-              'mb-32 flex flex-row items-center justify-center gap-3 rounded-full p-4',
-              {
-                'bg-blue': !loading,
-                'bg-blue/30': loading,
-              }
-            )}
-            disabled={loading}>
-            {loading ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <>
-                <Sparkles color={'white'} />
-                <Text className="text-lg font-semibold text-white">Create</Text>
-              </>
-            )}
+            disabled={loading}
+            className="mb-8"
+            style={{ borderRadius: 25, overflow: 'hidden' }}>
+            <BlurView intensity={30} tint="light" style={{ borderRadius: 25 }}>
+              <View
+                style={{
+                  backgroundColor: loading ? 'rgba(99, 135, 255, 0.4)' : 'rgba(99, 135, 255, 0.8)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(99, 135, 255, 0.9)',
+                  padding: 18,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 12,
+                  shadowColor: '#6387FF',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 12,
+                  borderRadius: 25,
+                  overflow: 'hidden',
+                }}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <Sparkles size={24} color="white" />
+                )}
+                <Text className="text-xl font-bold text-white">
+                  {loading ? 'Creating...' : 'Create Explainer'}
+                </Text>
+              </View>
+            </BlurView>
           </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
