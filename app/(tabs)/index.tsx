@@ -89,7 +89,7 @@ export default function HomeScreen() {
                   
                 </View>
                 <View className='ml-auto flex flex-row gap-2 opacity-50'>
-                  <TouchableOpacity onPress={()=>router.push("(tabs)/following")}>
+                  <TouchableOpacity onPress={()=>router.push("(platform)/following")}>
                     <Users size={24}></Users>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={()=>router.push("/(settings)")}>

@@ -38,7 +38,8 @@ export default function ExplainerPagination({
   customResults,
   isShowCase= false,
   numRows=3,
-  sortExplainer
+  sortExplainer,
+  showcaseWidth
 }: {
   name: string | JSX.Element;
   apiRoute?: string;
@@ -55,6 +56,7 @@ export default function ExplainerPagination({
   isShowCase?:boolean;
   numRows?:number;
   customResults?: IExplainer[];
+  showcaseWidth?:string
 }) {
  
   const resultsPerPage = pageResults || 3;
@@ -113,14 +115,6 @@ export default function ExplainerPagination({
   /**
    * Updates the search query state when the input value changes
    */
-  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    
-    // Clear results and set loading state if text is typed and we're not showing custom results
-    if (e.target.value.trim() && !customResults) {
-      setLoading(true);
-    }
-  };
 
   /**
    * Triggers the search action when the Enter key is pressed
@@ -284,6 +278,21 @@ return (
           </View>
           {(!hideSearch || !hideSort) && (
             <View className="flex-row flex-wrap gap-2 w-full">
+              
+              {!hideSearch && (
+                <View className="w-70 mb-0 gap-4 flex-row items-center rounded-2xl px-3 py-1 bg-slate-200">
+                  <TouchableOpacity onPress={handleSearch}>
+                    <Search size={16} className="p-2 text-gray-400" />
+                  </TouchableOpacity>
+                  <TextInput
+                    onChangeText={(t)=>setSearchQuery(t)}
+                    onSubmitEditing={()=>fetchExplainers(searchQuery)}
+                    value={searchQuery}
+                    placeholder={"Search"}
+                    className="flex-1 text-md bg-transparent py-2"
+                  />
+                </View>
+              )}
               {!hideSort && (
                 <View className="flex-row items-center rounded-lg gap-4">
                   <View className='flex flex-row gap-2 mt-4 py-2'>
@@ -327,20 +336,6 @@ return (
                   )}
                 </View>
               )}
-              {!hideSearch && (
-                <View className="w-70 flex-row items-center rounded-lg px-3 py-2 bg-white border border-gray-300">
-                  <TextInput
-                    onChangeText={handleSearchInput}
-                    onSubmitEditing={handleSearch}
-                    value={searchQuery}
-                    placeholder={"Search"}
-                    className="flex-1 text-sm bg-transparent py-2"
-                  />
-                  <TouchableOpacity onPress={handleSearch}>
-                    <Search size={20} className="p-2 text-gray-400" />
-                  </TouchableOpacity>
-                </View>
-              )}
             </View>
           )}
         </View>
@@ -373,7 +368,7 @@ return (
               {Explainers
                 .filter((_, index) => index % 3 === rowIndex) // Distribute items across 3 rows
                 .map((explainer, index) => (
-                  <View key={explainer.id || index} className=" max-w-80">
+                  <View key={explainer.id || index} className={clsx(showcaseWidth ? showcaseWidth: "max-w-80")}>
                     {explainer.sectionAudios ? (
                       <PodcastThumbnail2 podcast={explainer as any} />
                     ) : (

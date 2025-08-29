@@ -68,6 +68,7 @@ export default function Explore() {
                   hideSearch
                   hideCount
                   hideSortBy
+                  
                   // hideSort
                 />
               </View>
@@ -105,7 +106,7 @@ export default function Explore() {
             {/* reels */}
             <View className='flex flex-col gap-4 mt-4'>
               <Text className='text-2xl font-semibold'>Trending Reels</Text>
-              <View className='h-[600px]'>
+              <View className='h-[410px]'>
 
                 <ExplainerPagination
                   pageResults={20}
@@ -119,6 +120,9 @@ export default function Explore() {
                     category: selectedCategory?.id || null
                   }}
                   hideSort
+                  isShowCase
+                  numRows={1}
+                  showcaseWidth="max-w-[310px]"
                   
                   />
                   

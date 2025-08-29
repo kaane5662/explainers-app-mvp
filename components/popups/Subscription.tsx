@@ -5,6 +5,7 @@ import { plans } from '@/utils/constant';
 import { Check, Rocket, X } from 'lucide-react-native';
 import clsx from 'clsx';
 import tailwindConfig from '@/tailwind.config';
+import * as WebBrowser from "expo-web-browser";
 
 interface Plan {
   name: string;
@@ -74,8 +75,9 @@ const SubscriptionModal: React.FC<{ visible: boolean; onClose: () => void }> = (
       { annualPlan:isAnnual, plan: chosenPlan, isOnboarding },
       { withCredentials: true }
     )
-    .then((res) => {
-      window.location.href = res.data.sessionUrl;
+    .then(async(res) => {
+      console.log("data",res.data)
+      await WebBrowser.openBrowserAsync(res.data.sessionUrl)
     })
     .catch(error => console.error('Error upgrading plan:', error));
   };

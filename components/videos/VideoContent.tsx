@@ -1,18 +1,20 @@
-import { IExplainerVideo } from '@/interfaces';
+import { IExplainer, IExplainerVideo } from '@/interfaces';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Animated, Easing, Dimensions, } from 'react-native';
 import clsx from 'clsx';
 import { router, useLocalSearchParams, useRouter } from 'expo-router';
-import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader } from 'lucide-react-native';
+import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader, EllipsisVertical } from 'lucide-react-native';
 
 import tailwindConfig  from "@/tailwind.config";
 import ShareExplainer from '../popups/ShareExplainer';
 import { ExplainerType } from '@/utils/constant';
+import ExplainerSettings from '../popups/ExplainerSettings';
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 export default function VideoContent({ shortItem, shortIndex, index, likes,dislikes,onLike,onDislike }: { shortItem: IExplainerVideo,shortIndex:number, index:number, onLike:CallableFunction, onDislike:CallableFunction }) {
 
   const [sharePopup,setSharePopup] = useState(false)
+  const [explainerSettings,setExplainerSettings] = useState(false)
   return (
 
       <View className="z-10 flex flex-col gap-4 w-full" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
@@ -20,6 +22,7 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
         {sharePopup &&(
           <ShareExplainer explainer={shortItem as any} onClose={()=>setSharePopup(false)} visible={sharePopup} explainerType={ExplainerType.VIDEO}></ShareExplainer>
         )}
+        <ExplainerSettings explainerType={ExplainerType.REEL} onClose={()=>setExplainerSettings(false)} visible={explainerSettings} explainer={shortItem as IExplainer}></ExplainerSettings>
 
         {/* controls */}
         <View className="flex flex-col ml-auto gap-4" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
@@ -72,6 +75,11 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
             >
             <MessageCircle color={"white"} className="shadow-black drop-shadow-xl" />
             {/* <Text className="shadow-black text-white drop-shadow-xl">Comment</Text> */}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>setExplainerSettings(true)}  
+          style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}
+          className='bg-yellow-500 hover:bg-yellow-600 flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:opacity-70'>
+            <EllipsisVertical color="white"/>
           </TouchableOpacity>
         </View>
         {/* video info */}
