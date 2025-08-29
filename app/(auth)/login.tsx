@@ -34,8 +34,8 @@ function PasswordInput({
           value={value || ""}
           onChangeText={onChange}
           className={clsx(
-            "w-full p-2 pr-10 rounded-lg",
-            "border-2 border-slate-200 dark:border-slate-600",
+            "w-full p-4 border-2 border-slate-200 pr-10 rounded-2xl",
+            "",
             "bg-white dark:bg-dark2",
             "text-black dark:text-white",
             // "focus:outline-none focus:ring-2 focus:ring-blue/20",
@@ -200,20 +200,22 @@ export default function Login() {
       )}
     >
       <View className={clsx(
-        "flex-col gap-4 items-center",
-        "p-0 md:p-4 w-full max-w-[500px]",
+        "flex-col gap-4 ",
+        "p-0 md:p-4 w-full ",
       )}>
-        <Sparkles
-          size={40}
-          color={tailwindConfig.theme?.extend?.colors.blue}
-          className="text-blue2 dark:text-blue rounded-xl shadow-md p-2"
-        />
-        <View className="flex flex-col items-center gap-2">
+        <View className=" rounded-2xl items-center justify-center h-12 w-12 bg-blue">
+
+          <Sparkles
+            size={24}
+            color={"white"}
+          />
+        </View>
+        <View className="flex flex-col gap-2">
             <Text className="text-4xl font-semibold">
-            {"Log in"}
+            Welcome Back
             </Text>
-            <Text className="text-slate-500 dark:text-slate-400 ">
-            {"Welcome back, please enter details"}
+            <Text className="text-slate-500 text-xl  ">          
+            Ready to create your next explainer?
             </Text>
 
         </View>
@@ -224,7 +226,7 @@ export default function Login() {
             <TextInput
               onChangeText={(t)=>setEmail(t)}
               className={clsx(
-                "p-2 rounded-lg border-2 border-slate-200 dark:border-slate-600",
+                "p-4 border-2 border-slate-200 rounded-2xl ",
                 "bg-white dark:bg-dark2",
                 "text-black dark:text-white",
                 // "focus:outline-none focus:ring-2 focus:ring-blue/20",
@@ -235,12 +237,12 @@ export default function Login() {
           </View>
 
           <PasswordInput
-            label={"Enter your password"}
+            label={"Password"}
             value={password}
             show={showPassword}
             onToggle={() => setShowPassword(!showPassword)}
             onChange={setPassword}
-            placeholder={"Password"}
+            placeholder={"Enter your password"}
           />
 
           {error && (
@@ -303,8 +305,8 @@ export default function Login() {
             </View>
           )}
 
-          <TouchableOpacity className=" w-full border-slate-300 rounded-full border-2 p-4" onPress={handleGoogleSignIn}>
-            <Text className=" text-center font-semibold ">{"Sign in with Google"}</Text>
+          <TouchableOpacity className=" w-full bg-slate-200 rounded-full  p-4" onPress={handleGoogleSignIn}>
+            <Text className=" text-center ">{"Sign in with Google"}</Text>
           </TouchableOpacity>
 
           <View className=" mt-2 self-center flex flex-row items-center font-medium">

@@ -11,7 +11,7 @@ import ProfileDropdown from '@/components/profile/ProfileDropdown';
 import axios, { AxiosError } from 'axios';
 import { use, useEffect, useState } from 'react';
 import { useUser } from '@/hooks/useUser';
-import { BadgeCent, Coins, Settings, Users } from 'lucide-react-native';
+import { BadgeCent, Coins, Heart, Settings, Users } from 'lucide-react-native';
 // import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
 
 
@@ -89,6 +89,9 @@ export default function HomeScreen() {
                   
                 </View>
                 <View className='ml-auto flex flex-row gap-2 opacity-50'>
+                  <TouchableOpacity onPress={()=>router.push("(platform)/engagement")}>
+                    <Heart size={24}></Heart>
+                  </TouchableOpacity>
                   <TouchableOpacity onPress={()=>router.push("(platform)/following")}>
                     <Users size={24}></Users>
                   </TouchableOpacity>
@@ -107,7 +110,7 @@ export default function HomeScreen() {
               <ExplainerPagination
               pageResults={20}
               name={''}
-              apiRoute={ "/explainers"}
+              apiRoute={ "/explainers/user-history"}
               sortExplainer='podcasts'
               hideSearch
               hideCount

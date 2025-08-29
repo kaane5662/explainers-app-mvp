@@ -203,7 +203,7 @@ export default function ExplainerPagination({
     }
 
     try {
-      setExplainers([]);
+      // setExplainers([]);
       setLoading(true);
       console.log(sortBy);
       
@@ -234,7 +234,7 @@ export default function ExplainerPagination({
       );
       console.log("Success")
       // console.log(response.data.explainers)
-      setExplainers(prev=>response.data.explainers);
+      setExplainers(prev=>[...prev,...response.data.explainers]);
       getExplainersWatchTime(response.data.explainers)
       setPollExplainers?.(response.data.explainers);
       
@@ -262,6 +262,24 @@ export default function ExplainerPagination({
   }, [page, apiRoute, extraParams, sortType]);
 
 
+  const handleScrollY = ({ nativeEvent }: { nativeEvent: any }) => {
+    console.log(nativeEvent)
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    const isNearEnd = layoutMeasurement.height + contentOffset.y >= contentSize.height - 10;
+    if (isNearEnd) {
+        console.log("is near end")
+        setPage(prev=>pageNumber+1)
+    }
+  };
+  const handleScrollX = ({ nativeEvent }: { nativeEvent: any }) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    const isNearEnd = layoutMeasurement.width + contentOffset.x >= contentSize.width - 10;
+    if (isNearEnd) {
+        console.log("is near end")
+        setPage(prev=>pageNumber+1)
+    }
+  };
+  
 
 return (
   <ScrollView className="flex-col px-2 h-full w-full">
@@ -358,7 +376,9 @@ return (
           </View>
         </View>
       )}
-      <ScrollView showsHorizontalScrollIndicator={true} horizontal={isShowCase}>
+      <ScrollView 
+      onScroll={isShowCase ? handleScrollX:handleScrollY}
+      showsHorizontalScrollIndicator={true} horizontal={isShowCase}>
         {isShowCase ?(
           
           <FlatList
@@ -368,7 +388,7 @@ return (
               {Explainers
                 .filter((_, index) => index % 3 === rowIndex) // Distribute items across 3 rows
                 .map((explainer, index) => (
-                  <View key={explainer.id || index} className={clsx(showcaseWidth ? showcaseWidth: "max-w-80")}>
+                  <View key={index} className={clsx(showcaseWidth ? showcaseWidth: "max-w-80")}>
                     {explainer.sectionAudios ? (
                       <PodcastThumbnail2 podcast={explainer as any} />
                     ) : (
@@ -407,11 +427,11 @@ return (
         <Loader />
       }
     </View>
-    <Pagination
+    {/* <Pagination
       currentPage={page}
       totalPages={totalPages}
       onPageChange={setPage}
-    />
+    /> */}
   </ScrollView>
 );
 }

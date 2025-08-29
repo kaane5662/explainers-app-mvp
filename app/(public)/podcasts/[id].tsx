@@ -72,11 +72,23 @@ export default function DetailsScreen() {
       if (newIndex >= 0 && newIndex < podcasts.length-1) {
         // console.log("Podcast",podcasts[newIndex])
         setCurrentPodcastIndex(newIndex);
+        viewPodcast(podcasts[newIndex].id)
         // setPodcast(podcasts[newIndex]);
       }
       setTimeout(()=>setCanChange(true),500)
     }
   };
+
+  const viewPodcast = async (podcastId:string)=>{
+    console.log(podcastId)
+    axios.get(`${process.env.EXPO_PUBLIC_API_URL}/podcasts/${podcastId}/view`,{withCredentials:true})
+    .then((res) => {
+      console.log(res.data.message)
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
 
   const onLike = async () => {
     const podcast = podcasts[currentPodcastIndex];
