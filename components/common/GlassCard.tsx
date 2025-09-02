@@ -1,24 +1,41 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
-import { glassCardStyle } from '../../styles/createStyles';
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
+
+const glassSurfaceStyle = (borderRadius: number, surfaceOpacity: number) => ({
+  backgroundColor: `rgba(255, 255, 255, ${surfaceOpacity})`,
+  borderWidth: 1,
+  borderColor: 'rgba(255, 255, 255, 0.35)',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 16,
+  elevation: 8,
+  borderRadius,
+  overflow: 'hidden' as const,
+  padding: 20,
+});
+
+type Props = {
+  children: React.ReactNode;
+  style?: any;
+  intensity?: number;
+  tint?: 'light' | 'dark' | 'default' | undefined;
+  borderRadius?: number;
+  surfaceOpacity?: number; // 0..1 glass fill behind content
+};
 
 const GlassCard = ({
   children,
   style = {},
-  intensity = 30,
-  tint = 'light' as const,
+  intensity = 24,
+  tint = 'light',
   borderRadius = 20,
-}: {
-  children: React.ReactNode;
-  style?: any;
-  intensity?: number;
-  tint?: 'light' | 'dark';
-  borderRadius?: number;
-}) => {
+  surfaceOpacity = 0.25,
+}: Props) => {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -29,15 +46,11 @@ const GlassCard = ({
     <AnimatedBlurView
       intensity={intensity}
       tint={tint}
-      style={[
-        {
-          borderRadius,
-          marginBottom: 20,
-        },
-        animatedStyle,
-        style,
-      ]}>
-      <View style={{ ...glassCardStyle, padding: 20, borderRadius }}>{children}</View>
+      experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
+      blurReductionFactor={Platform.OS === 'android' ? 4 : undefined}
+      style={[{ borderRadius, overflow: 'hidden' }, animatedStyle, style]}>
+      {/* Subtle internal surface to control translucency */}
+      <View style={glassSurfaceStyle(borderRadius, surfaceOpacity)}>{children}</View>
     </AnimatedBlurView>
   );
 };

@@ -1,14 +1,3 @@
-export const glassCardStyle = {
-  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  borderWidth: 1.5,
-  borderColor: 'rgba(255, 255, 255, 0.9)',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.12,
-  shadowRadius: 16,
-  elevation: 8, // Android shadow
-};
-
 export const glassInputStyle = {
   backgroundColor: 'rgba(255, 255, 255, 0.5)',
   borderWidth: 1.5,
@@ -46,4 +35,9 @@ export const numberBadgeStyle = {
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.1,
   shadowRadius: 4,
+};
+
+export const backgroundStyle = {
+  flex: 1,
+  backgroundColor: '#f0f8ff', // AliceBlue - a very subtle blue
 };
