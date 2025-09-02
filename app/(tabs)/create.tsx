@@ -66,7 +66,7 @@ export default function CreateScreen() {
 
   return (
     <ImageBackground
-      source={require('../../assets/images/create-bg.jpg')}
+      source={require('../../assets/images/create-bg-2.jpg')}
       style={{ flex: 1 }}
       resizeMode="cover">
       <SafeAreaView className="flex-1">
