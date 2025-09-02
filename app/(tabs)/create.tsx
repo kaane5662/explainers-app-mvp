@@ -17,6 +17,7 @@ import {
   ScrollView,
   Switch,
   ActivityIndicator,
+  ImageBackground,
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BlurView } from 'expo-blur';
@@ -69,53 +70,15 @@ export default function CreateScreen() {
   }
 
   return (
-    <View className="flex-1" style={{ backgroundColor: '#f8fafc' }}>
-      {/* Enhanced multi-layer background with better depth */}
-      <View
-        className="absolute inset-0"
-        style={{
-          backgroundColor: '#f1f5f9',
-        }}
-      />
-      <View
-        className="absolute inset-0"
-        style={{
-          backgroundColor: '#e2e8f0',
-          opacity: 0.7,
-        }}
-      />
-      <View
-        className="absolute inset-0"
-        style={{
-          backgroundColor: '#cbd5e1',
-          opacity: 0.4,
-        }}
-      />
-
-      {/* Subtle gradient overlay for enhanced depth */}
-      <View
-        className="absolute inset-0"
-        style={{
-          backgroundColor: 'rgba(255,255,255,0.5)',
-        }}
-      />
-
-      {/* Additional blur layer for enhanced glassmorphism */}
-      <BlurView
-        intensity={8}
-        tint="light"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          opacity: 0.3,
-        }}
-      />
-
+    <ImageBackground
+      source={require('../../assets/images/create-bg.jpg')}
+      style={{ flex: 1 }}
+      resizeMode="cover">
       <SafeAreaView className="flex-1">
-        <ScrollView className="flex-1 px-6 py-4" showsVerticalScrollIndicator={false}>
+        <ScrollView
+          className="flex-1 px-6 py-4"
+          contentContainerStyle={{ paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}>
           {/* Header Section */}
           <GlassCard intensity={35} borderRadius={24} style={{ marginBottom: 24 }}>
             <View className="items-center">
@@ -601,6 +564,6 @@ export default function CreateScreen() {
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </ImageBackground>
   );
 }
