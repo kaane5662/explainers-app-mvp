@@ -9,18 +9,25 @@ import tailwindConfig  from "@/tailwind.config";
 import ShareExplainer from '../popups/ShareExplainer';
 import { ExplainerType } from '@/utils/constant';
 import ExplainerSettings from '../popups/ExplainerSettings';
+import Comments from '../explainers/Comments';
+import { useUser } from '@/hooks/useUser';
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 export default function VideoContent({ shortItem, shortIndex, index, likes,dislikes,onLike,onDislike }: { shortItem: IExplainerVideo,shortIndex:number, index:number, onLike:CallableFunction, onDislike:CallableFunction }) {
 
   const [sharePopup,setSharePopup] = useState(false)
+  const [commentsPopup,setCommentsPopup] = useState(false)
   const [explainerSettings,setExplainerSettings] = useState(false)
+  const {user} = useUser()
   return (
 
       <View className="z-10 flex flex-col gap-4 w-full" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
 
         {sharePopup &&(
           <ShareExplainer explainer={shortItem as any} onClose={()=>setSharePopup(false)} visible={sharePopup} explainerType={ExplainerType.VIDEO}></ShareExplainer>
+        )}
+        {commentsPopup &&(
+          <Comments user={user} id={shortItem.id} isPodcast={false} onClose={()=>setCommentsPopup(false)} visible={commentsPopup}/>
         )}
         <ExplainerSettings explainerType={ExplainerType.REEL} onClose={()=>setExplainerSettings(false)} visible={explainerSettings} explainer={shortItem as IExplainer}></ExplainerSettings>
 
@@ -71,6 +78,7 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
             
             className="bg-yellow-500 hover:bg-yellow-600 flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:opacity-70"
             style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}
+            onPress={()=>setCommentsPopup(true)}
             // onPress={() => index === shortIndex && setCommentsPopup(true)}>
             >
             <MessageCircle color={"white"} className="shadow-black drop-shadow-xl" />

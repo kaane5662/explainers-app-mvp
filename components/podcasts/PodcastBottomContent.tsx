@@ -10,12 +10,15 @@ import { ExplainerType } from "@/utils/constant";
 
 import tailwindConfig from "@/tailwind.config";
 import ExplainerSettings from "../popups/ExplainerSettings";
+import Comments from "../explainers/Comments";
+import { useUser } from "@/hooks/useUser";
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 export default function PodcastBottomContent({podcast, onLike, onDislike, likes}:{podcast:IExplainerPodcast, onLike:CallableFunction, onDislike:CallableFunction,likes:ILike[]}){
     const [commentsPopup, setCommentsPopup] = useState(false)
     const [sharePopup, setSharePopup] = useState(false)
     const [explainerSettingsPopup, setExplainerSettingsPopup] = useState(false)
+    const {user} = useUser()
     const [transcript,setTranscript] = useState()
 
 
@@ -65,7 +68,7 @@ export default function PodcastBottomContent({podcast, onLike, onDislike, likes}
     return(
         <View className="flex flex-col gap-2 mt-8">
             {commentsPopup &&(
-                <CommentsPopup explainer={podcast as any} onClose={()=>setCommentsPopup(false)} visible={commentsPopup}></CommentsPopup>
+                <Comments user={user} id={podcast.id} isPodcast={true} onClose={()=>setCommentsPopup(false)} visible={commentsPopup}/>
             )}
             {sharePopup &&(
                 <ShareExplainer explainerType={ExplainerType.PODCAST} visible={sharePopup} onClose={()=>setSharePopup(false)} explainer={podcast as any}></ShareExplainer>
