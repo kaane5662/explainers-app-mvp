@@ -2,15 +2,21 @@ import { IUser } from '@/interfaces';
 import axios from 'axios';
 import clsx from 'clsx';
 import { router } from 'expo-router';
-import { ArrowLeft, Save, User, Mail, AtSign } from 'lucide-react-native';
+import { ArrowLeft, Save, User, Mail, AtSign, Edit, SaveIcon, DeleteIcon, TrashIcon, Trash2Icon } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
+import { generateRandomString } from '@/utils/common';
+
+
 
 export default function ProfileSettingsScreen() {
   const [user, setUser] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [imageUri,setImageUri] = useState<string|null>(null);
+  const [imageType,setImageType] = useState<string|null>(null)
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -65,12 +71,113 @@ export default function ProfileSettingsScreen() {
     }
   };
 
+
+
   const hasChanges = () => {
     return (
       formData.name !== (user?.name || '') ||
       formData.username !== (user?.username || '') ||
       formData.email !== (user?.email || '')
     );
+  };
+
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+      
+    });
+
+    console.log(result.assets);
+
+    if(result.canceled) return
+    let image = result.assets[0]
+    if(!image.mimeType || !image.uri) return
+    setImageType(image.mimeType)
+    setImageUri(image.uri)
+    // console.log(image)
+
+
+  };
+
+  const uploadImage = async () => {
+    
+    if(!imageUri) return
+    try {
+      const res = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/user/uploadimage?filetype=${imageType}`,
+        {},
+        { withCredentials: true }
+      );
+      if (!res.data.url) throw new Error("Failed to get presigned url");
+
+      const { url, fields } = res.data;
+      const formData = new FormData();
+      console.log("here image stuff",imageUri,imageType)
+      Object.entries(fields).forEach(([key, value]) => {
+        formData.append(key, value as string);
+      });
+      
+      if(!user)return
+      formData.append("file", {
+        uri: imageUri, // e.g. "file:///.../image.jpg"
+        name: `profile-${user.id}-${generateRandomString(8)}`,
+        type: imageType || "image/jpeg",
+      } as any);
+
+      await fetch(url, {
+        method: "POST",
+        body: formData,
+        // mode: "no-cors",
+      });
+      setImageUri(null)
+      setUser({...user,imageUrl:imageUri})
+      Alert.alert(
+        "Image Saved",
+        "Your image has been successfully saved.",
+      );
+
+      // setSrc(undefined);
+      // location.reload();
+      // toast.success(tran("58kxu1bp56"));
+    } catch (error: any) {
+      // toast.error(error.message || tran("uzrlaqokq8"));
+      console.error(error)
+    } finally {
+      // setUploading(false);
+    }
+  };
+
+  const deletePrompt = () => {
+    Alert.alert(
+      "Delete Confirmation",
+      "Are you sure you want to delete this image?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteImage(),
+          style: "destructive",
+        },
+      ],
+      { cancelable: true }
+    );
+  }
+  const deleteImage = () => {
+    axios
+    .delete(`${process.env.EXPO_PUBLIC_API_URL}/user/uploadimage`, { withCredentials: true }).then(()=>{
+      setUser({...user,imageUrl:undefined} as any)
+    })
+      
+      
+      
   };
 
   if (loading) {
@@ -120,24 +227,55 @@ export default function ProfileSettingsScreen() {
         {/* Profile Form */}
         <View className="px-6 py-6">
           {/* Profile Picture Section */}
-          <View className="bg-white rounded-xl p-6 mb-6 border border-slate-200">
-            <View className="items-center">
-              {user?.imageUrl ? (
-                <Image className='w-24 h-24' src={user.imageUrl}>
+          <View className="bg-white items-center h-fit rounded-xl p-6 mb-6 border border-slate-200">
+            
+            <View 
+            
+            className=" relative w-24 h-24 ">
+              <TouchableOpacity 
+              onPress={pickImage}
+              className='  z-[1000000000] w-full h-full bg-black/30 rounded-full absolute'>
+                <View className=' absolute top-4 right-2'>
+                  <Edit size={22} color={"white"}/>
+                </View>
+
+                
+              </TouchableOpacity>
+              {imageUri||user?.imageUrl  ? (
+                <Image className='w-full h-full rounded-full' src={imageUri || user?.imageUrl}>
 
                 </Image>
               ):(
-                <View className="w-24 h-24 bg-blue rounded-full items-center justify-center mb-4">
+                <View className="w-full h-full bg-blue rounded-full  items-center justify-center mb-4">
                   <Text className="text-white text-4xl font-bold">
                     {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                   </Text>
                 </View>
 
               )}
-              <Text className="text-slate-600 text-center">
-                Profile picture coming soon
-              </Text>
+              
             </View>
+            {imageUri ?(
+              <TouchableOpacity 
+              onPress={uploadImage}
+              className="bg-blue p-3 w-fit px-6 w-fit flex-row gap-2 items-center  mt-4 rounded-xl text-center">
+                <SaveIcon size={16} color={"white"}></SaveIcon>
+                <Text className='text-white'>
+                Save Photo
+                </Text>
+              </TouchableOpacity>
+
+            ):(
+              <TouchableOpacity 
+              onPress={deletePrompt}
+              className="bg-slate-100 p-3 w-fit px-6 w-fit flex-row gap-2 items-center  mt-4 rounded-xl text-center">
+                <Trash2Icon size={16} style={{ color: 'red' } as any}></Trash2Icon>
+                <Text style={{ color: 'red' }}>
+                Delete Photo
+                </Text>
+              </TouchableOpacity>
+            )}
+            
           </View>
 
           {/* Form Fields */}

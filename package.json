@@ -39,7 +39,8 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-select-dropdown": "^4.0.1",
-    "reanimated-color-picker": "^4.1.0"
+    "reanimated-color-picker": "^4.1.0",
+    "expo-image-picker": "~16.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
