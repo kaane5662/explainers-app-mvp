@@ -15,11 +15,13 @@ import { PodcastThumbnail } from "../podcasts/PodcastThumbnail";
 // import { getWatchedUpToExplainerLengths } from "@utils/api/explainers";
 import { IExplainerPodcast, IExplainerVideo } from "@/interfaces";
 import React from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity,FlatList } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity,FlatList, ActivityIndicator } from 'react-native';
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Loader, Search, SearchX } from 'lucide-react-native';
 import { Picker } from "@react-native-picker/picker";
 import PodcastThumbnail2 from "../podcasts/PodcastThumbnail2";
 import VideoThumbnail from "../videos/VideoThumbnail";
+import VideoThumbnailSkeleton from "../videos/VideoThumbnailSkeleton";
+import PodcastThumbnailSkeleton from "../podcasts/PodcastThumbnailSkeleton";
 
 interface IExplainer extends IExplainerVideo, IExplainerPodcast {}
 
@@ -69,6 +71,7 @@ export default function ExplainerPagination({
   const [sortBy, setSortBy] = useState("views");
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState(sortExplainer||"all");
+  // const debounceTimeout = useRef<NodeJS.Timeout>(null)
   // const [explainerType,setExplainerType] = useState("podcasts")
   const sortTypes = [
     {label:"All", value:"all"},
@@ -205,8 +208,10 @@ export default function ExplainerPagination({
     try {
       // setExplainers([]);
       setLoading(true);
-      console.log(sortBy);
-      
+      // console.log(sortBy);
+      if(searchQuery != currentQuery || currentType != sortType){
+        setExplainers([])
+      }
       // Append type as query parameter for search and trending endpoints
       let finalApiRoute = process.env.EXPO_PUBLIC_API_URL + apiRoute;
       if (apiRoute.includes('/search') || apiRoute.includes('/trending')) {
@@ -216,6 +221,7 @@ export default function ExplainerPagination({
         }
         finalApiRoute = url.pathname + url.search;
       }
+      
       console.log(finalApiRoute)
       const response = await axios.post(
         finalApiRoute,
@@ -234,7 +240,14 @@ export default function ExplainerPagination({
       );
       console.log("Success")
       // console.log(response.data.explainers)
-      setExplainers(prev=>[...prev,...response.data.explainers]);
+      // reset pagination cause either new query or new filter
+      if(searchQuery != currentQuery || currentType != sortType){
+        setExplainers(response.data.explainers)
+      }else{
+        setExplainers(prev=>[...prev,...response.data.explainers]);
+      }
+      setSearchQuery(currentQuery)
+      setSortType(currentType)
       getExplainersWatchTime(response.data.explainers)
       setPollExplainers?.(response.data.explainers);
       
@@ -248,7 +261,7 @@ export default function ExplainerPagination({
       setCount(response.data.count);
     } catch (error: any) {
       console.log(error)
-      console.log("Error")
+      // console.log("Error")
     //   toast.error(error?.response?.data?.error);
     } finally {
       setLoading(false);
@@ -257,9 +270,9 @@ export default function ExplainerPagination({
 
   // Fetch videos whenever the page number changes
   useEffect(() => {
-    console.log("Hello there")
+    // console.log("Hello there")
     fetchExplainers(undefined, undefined, undefined, undefined, true);
-  }, [page, apiRoute, extraParams, sortType]);
+  }, [page, apiRoute, extraParams]);
 
 
   const handleScrollY = ({ nativeEvent }: { nativeEvent: any }) => {
@@ -267,7 +280,7 @@ export default function ExplainerPagination({
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
     const isNearEnd = layoutMeasurement.height + contentOffset.y >= contentSize.height - 10;
     if (isNearEnd) {
-        console.log("is near end")
+        console.log("is near end y")
         setPage(prev=>pageNumber+1)
     }
   };
@@ -275,7 +288,7 @@ export default function ExplainerPagination({
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
     const isNearEnd = layoutMeasurement.width + contentOffset.x >= contentSize.width - 10;
     if (isNearEnd) {
-        console.log("is near end")
+        console.log("is near end x")
         setPage(prev=>pageNumber+1)
     }
   };
@@ -303,9 +316,11 @@ return (
                     <Search size={16} className="p-2 text-gray-400" />
                   </TouchableOpacity>
                   <TextInput
-                    onChangeText={(t)=>setSearchQuery(t)}
-                    onSubmitEditing={()=>fetchExplainers(searchQuery)}
-                    value={searchQuery}
+                    onChangeText={(t) => {
+                      fetchExplainers(t)
+                    }}
+                    onSubmitEditing={(t)=>fetchExplainers(t.nativeEvent.text)}
+                    // value={searchQuery}
                     placeholder={"Search"}
                     className="flex-1 text-md bg-transparent py-2"
                   />
@@ -318,7 +333,7 @@ return (
                       <TouchableOpacity
                         key={i}
                         className={clsx("px-4 p-2 rounded-full", s.value == sortType ? "bg-blue" : "bg-slate-200")}
-                        onPress={() => setSortType(s.value)}
+                        onPress={() => fetchExplainers(undefined,undefined,undefined,s.value,true)}
                       >
                         <Text className={clsx(s.value == sortType && "text-white")}>{s.label}</Text>
                       </TouchableOpacity>
@@ -360,6 +375,8 @@ return (
       </View>
     )}
     <View className="flex-row flex-wrap gap-4">
+
+      
       {!loading && Explainers.length === 0 && (
         <View className="flex-col items-center  justify-center self-center w-full gap-4 min-h-100">
           <SearchX size={48} className="text-gray-400" />
@@ -385,6 +402,7 @@ return (
           data={Array.from({ length: numRows || 3 }, (_, i) => i)} // Just 3 rows
           renderItem={({item: rowIndex}) => (
             <View className="flex-row mb-4 gap-8  items-center">
+              
               {Explainers
                 .filter((_, index) => index % 3 === rowIndex) // Distribute items across 3 rows
                 .map((explainer, index) => (
@@ -396,6 +414,19 @@ return (
                     )}
                   </View>
                 ))}
+                {loading && (
+                <>
+                  {Array.from({length:resultsPerPage})
+                  .filter((_, index) => index % 3 === rowIndex)
+                  .map((_,i)=>(
+                    <View key={i}>
+                    {/* {console.log(i)} */}
+                    {sortType === 'reels' && <VideoThumbnailSkeleton />}
+                    {sortType === 'podcasts' && <PodcastThumbnailSkeleton />}
+                    </View>
+                  ))}
+                </>
+              )}
             </View>
           )}
           keyExtractor={(item) => `row-${item}`}
@@ -419,13 +450,19 @@ return (
                     </View>
                   }
               })}
+              {loading && Array.from({length:resultsPerPage}).map((_,i)=>(
+                <>
+                {sortType === 'all' && (Math.random() < 0.5 ? <VideoThumbnailSkeleton /> : <PodcastThumbnailSkeleton />)}
+                {sortType === 'reels' && <VideoThumbnailSkeleton />}
+                {sortType === 'podcasts' && <PodcastThumbnailSkeleton />}
+                </>
+                
+              ))}
           </View>
 
         )}
       </ScrollView>
-      {loading &&
-        <Loader />
-      }
+      
     </View>
     {/* <Pagination
       currentPage={page}
