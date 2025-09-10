@@ -72,7 +72,7 @@ export default function ProfileDropdown({ user }:{user:IUser}) {
 
   return (
     <View className="relative">
-      <TouchableOpacity onPress={() => setShow(!show)} className="flex items-center">
+      <TouchableOpacity onPress={() => router.push(`/profile/${user.id}`)} className="flex items-center">
         {user.imageUrl ? (
           <Image
             source={{ uri: user.imageUrl }}
