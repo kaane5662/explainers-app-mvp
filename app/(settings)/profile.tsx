@@ -258,7 +258,7 @@ export default function ProfileSettingsScreen() {
             {imageUri ?(
               <TouchableOpacity 
               onPress={uploadImage}
-              className="bg-blue p-3 w-fit px-6 w-fit flex-row gap-2 items-center  mt-4 rounded-xl text-center">
+              className="bg-blue p-3 px-6 w-fit flex-row gap-2 items-center  mt-4 rounded-xl text-center">
                 <SaveIcon size={16} color={"white"}></SaveIcon>
                 <Text className='text-white'>
                 Save Photo
@@ -268,7 +268,7 @@ export default function ProfileSettingsScreen() {
             ):(
               <TouchableOpacity 
               onPress={deletePrompt}
-              className="bg-slate-100 p-3 w-fit px-6 w-fit flex-row gap-2 items-center  mt-4 rounded-xl text-center">
+              className="bg-slate-100 p-3 w-fit px-6 flex-row gap-2 items-center  mt-4 rounded-xl text-center">
                 <Trash2Icon size={16} style={{ color: 'red' } as any}></Trash2Icon>
                 <Text style={{ color: 'red' }}>
                 Delete Photo
