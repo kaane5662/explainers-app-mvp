@@ -1,8 +1,9 @@
 import { IExplainerPodcast, IExplainerVideo } from "@/interfaces";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Circle } from "lucide-react-native";
 import moment from "moment";
-import { View,Image,Text, TouchableOpacity } from "react-native";
+import { View,Text, TouchableOpacity } from "react-native";
 
 export default function VideoThumbnail({video}:{video:IExplainerVideo}){
     return(
@@ -13,7 +14,8 @@ export default function VideoThumbnail({video}:{video:IExplainerVideo}){
         }
             }
         className="flex flex-col  gap-4  rounded-xl relative ">
-            <Image className="rounded-xl h-fit aspect-square z-10" src={video.thumbnailUrl} resizeMode="cover" />
+            <Image style={{ borderRadius: 12, height: 'auto', aspectRatio: 1, zIndex: 10 }} 
+            source={video.thumbnailUrl} resizeMode="cover" />
 
             <View className="flex gap-2  z-20   ">
                 <Text className="text-xl w-fit font-semibold -mt-2">{video.title}</Text>
@@ -21,8 +23,8 @@ export default function VideoThumbnail({video}:{video:IExplainerVideo}){
                     <View className="flex flex-row gap-2 items-center">
                         {video.user.imageUrl ? (
                             <Image
-                                className="rounded-full w-4 h-4 object-left"
-                                src={video.user.imageUrl}
+                                style={{ borderRadius: 9999, width: 16, height: 16 }}
+                                source={video.user.imageUrl}
                                 resizeMode="cover"
                                 
                                 

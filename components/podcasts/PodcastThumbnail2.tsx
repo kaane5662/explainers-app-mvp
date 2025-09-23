@@ -1,8 +1,9 @@
 import { IExplainerPodcast } from "@/interfaces";
+import { Image } from "expo-image";
 import { Link, router } from "expo-router";
 import { Circle } from "lucide-react-native";
 import moment from "moment";
-import { View,Image,Text, TouchableOpacity } from "react-native";
+import { View,Text, TouchableOpacity } from "react-native";
 
 export default function PodcastThumbnail2({podcast}:{podcast:IExplainerPodcast}){
     return(
@@ -10,7 +11,7 @@ export default function PodcastThumbnail2({podcast}:{podcast:IExplainerPodcast})
         href={`/podcasts/${podcast.id}`}>
         <View
         className="flex flex-row gap-4 items-center w-full">
-            <Image className="rounded-xl w-[75px] h-[75px]" src={podcast.thumbnailUrl} resizeMode="cover" />
+            <Image style={{ borderRadius: 12, width: 75, height: 75 }} source={podcast.thumbnailUrl} contentFit="cover" />
 
             <View className="flex flex-col gap-2">
                 <TouchableOpacity 
@@ -18,9 +19,9 @@ export default function PodcastThumbnail2({podcast}:{podcast:IExplainerPodcast})
                 className="flex flex-row gap-2 items-center">
                     {podcast.user.imageUrl ? (
                         <Image
-                            className="rounded-full w-4 h-4 object-left"
-                            src={podcast.user.imageUrl}
-                            resizeMode="cover"
+                            style={{ borderRadius: 5, width: 14, height: 14 }}
+                            source={podcast.user.imageUrl}
+                            contentFit="cover"
                             
                             
                         />

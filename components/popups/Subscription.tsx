@@ -15,51 +15,40 @@ interface Plan {
   features_eng:string[];
 }
 
-const PlanComponent: React.FC<{selected:string, plan: Plan; isAnnual:boolean, plan_key:string }> = ({ plan, isAnnual,selected,plan_key}) => (
-    
-  <View className={clsx("rounded-xl relative p-4 mb-3 border-2", plan_key == selected ? "border-blue bg-slate-100":"border-slate-200")}>
-    {plan_key == selected && (
-        <View className='absolute top-2 p-1 bg-blue rounded-full right-2'>
-            <Check
-            color={"white"}
-            size={16}
-            ></Check>
-        </View>
-    )}
-    <View className='flex flex-row gap-2 items-center'>
-        <Text className="text-lg font-semibold text-slate-900">{plan.name} Plan</Text>
+const PlanComponent: React.FC<{plan: Plan; isAnnual:boolean }> = ({ plan, isAnnual}) => (
+  <View className="rounded-xl relative p-6 mb-4 border border-slate-200 bg-white ">
+    <View className='flex flex-row gap-3 items-center mb-3'>
+        <Text className="text-2xl font-bold text-slate-900">{plan.name}</Text>
         {isAnnual &&(
-            <Text className='p-0.5 text-sm font-semibold rounded-full px-2 bg-blue text-white'>Save ${ (plan.price * 12) - plan.annualPrice }</Text>
-        )}
-    </View>
-    <View className='flex flex-row items-end gap-2 mt-2'>
-        <Text className="text-blue font-bold text-4xl">${!isAnnual ?plan.price:Math.round(plan.annualPrice/12)}</Text>
-        {isAnnual ?(
-            <View className='flex-row gap-2'>
-                <Text className='text-slate-500'>/mo</Text>
-                <Text className='text-slate-500'>{`($${plan.annualPrice})`}</Text>
+            <View className='px-3 py-1 bg-green-100 rounded-full'>
+                <Text className='text-xs font-semibold text-green-700'>Save ${ (plan.price * 12) - plan.annualPrice }</Text>
             </View>
-        ):(
-
-            <Text className="text-slate-600 text-sm font-semibold">per month</Text>
         )}
     </View>
-    <View className=' flex flex-col gap-2 mt-4'>
-        {plan.features_eng.map((f)=>(
-            <View className='flex flex-row items-center gap-2'>
-                <Check size={16} color="green"></Check>
-                <Text className='text-slate-500 text-sm flex-1'>{f}</Text>
+    <View className='flex flex-row items-baseline gap-1 mb-6'>
+        <Text className="text-blue font-bold text-5xl">${!isAnnual ?plan.price:Math.round(plan.annualPrice/12)}</Text>
+        <Text className="text-slate-500 text-lg">/month</Text>
+        {isAnnual && (
+            <Text className='text-slate-400 text-sm ml-2'>billed annually (${plan.annualPrice})</Text>
+        )}
+    </View>
+    <View className='flex flex-col gap-3'>
+        {plan.features_eng.map((feature, index) => (
+            <View key={index} className='flex flex-row items-start gap-3'>
+                <View className='mt-0.5'>
+                    <Check size={18} color="#10b981" />
+                </View>
+                <Text className='text-slate-600 text-base flex-1 leading-6'>{feature}</Text>
             </View>
         ))}
     </View>
-    
   </View>
 );
 
 const SubscriptionModal: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
   const [userPlan, setUserPlan] = useState<string | null>(null);
   const [isAnnual,setIsAnnual] = useState(false)
-  const [chosenPlan,setChosenPlan] = useState('free')
+  const [chosenPlan,setChosenPlan] = useState('basic')
 
   useEffect(() => {
     axios.get(`${process.env.EXPO_PUBLIC_API_URL}/user`, { withCredentials: true })
@@ -68,7 +57,7 @@ const SubscriptionModal: React.FC<{ visible: boolean; onClose: () => void }> = (
   }, []);
 
   const upgrade = () => {
-    const isOnboarding = false; // Assuming not onboarding by default
+    const isOnboarding = false;
 
     axios.post(
       `${process.env.EXPO_PUBLIC_API_URL}/subscription`,
@@ -82,53 +71,86 @@ const SubscriptionModal: React.FC<{ visible: boolean; onClose: () => void }> = (
     .catch(error => console.error('Error upgrading plan:', error));
   };
 
+  const availablePlans = Object.entries(plans).filter(([key]) => key !== "free");
+
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
-      <View className="flex-1 justify-end  bg-opacity-50">
-        
-        <View className="bg-white relative rounded-t-2xl  border-slate-200 rounded-xl p-6">
+      <View className="flex-1 justify-end bg-black bg-opacity-50">
+        <View className="bg-white relative rounded-t-3xl max-h-[90%]">
             <TouchableOpacity
             onPress={onClose}
-            className="absolute top-2 right-2 rounded-full p-2 shadow"
+            className="absolute top-4 right-4 rounded-full p-2 bg-slate-100 z-10"
             >
-            <X/>
+            <X size={20} color="#64748b"/>
             </TouchableOpacity>
-          <View className='flex items-center'>
-            <Text className="text-xl font-bold text-slate-900 mb-4">Choose Your Plan</Text>
-            <View className="flex-row items-center justify-between gap-4 mb-4">
-                <Text className="text-lg  text-slate-900">Annual Plan</Text>
+          
+          <View className='px-6 pt-8 pb-4'>
+            <Text className="text-3xl font-bold text-slate-900 mb-2 text-center">Choose Your Plan</Text>
+            <Text className="text-slate-600 text-center mb-6">Unlock premium features and take your experience to the next level</Text>
+            
+            <View className="flex-row items-center justify-center gap-4 mb-6">
+                <Text className={clsx("text-lg font-medium", !isAnnual ? "text-slate-900" : "text-slate-500")}>Monthly</Text>
                 <Switch
                 value={isAnnual}
                 onValueChange={(value) => setIsAnnual(value)}
-                trackColor={{ false: "#767577", true: "#81b0ff" }}
-                // thumbColor={isAnnual ? "#f5dd4b" : "#f4f3f4"}
+                trackColor={{ false: "#e2e8f0", true: "#3b82f6" }}
+                thumbColor={isAnnual ? "#ffffff" : "#ffffff"}
                 />
+                <Text className={clsx("text-lg font-medium", isAnnual ? "text-slate-900" : "text-slate-500")}>Annual</Text>
             </View>
-          </View>
-          <ScrollView>
-            {Object.entries(plans).filter(([key]) => key !== "free" ).map(([key, plan]) => (
-                <TouchableOpacity
-                onPress={()=>{
-                    setChosenPlan(key)
-                }}
-                >
 
-                    <PlanComponent
-                      isAnnual={isAnnual}
-                      selected={chosenPlan}
-                      plan_key={key}
-                      plan={{ name: plan.name, annualPrice:plan.prices.yearly.price, price: plan.prices.monthly.price, stripeId: plan.stripeId, features_eng:plan.features_eng }}
-                    />
-                </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <TouchableOpacity disabled={chosenPlan =="free"} onPress={upgrade} className="mb-4 disabled:opacity-50 mt-4 flex flex-row justify-center items-center gap-4 bg-blue rounded-xl p-5">
-            <Rocket size={20} color={"white"}></Rocket>
-            <Text className=" text-white font-semibold">Upgrade</Text>
-          </TouchableOpacity>
-          {/* <TouchableOpacity onPress={onClose} className="mt-4 bg-slate-200 rounded-lg p-3">
-            <Text className="text-center text-slate-700">Close</Text>
-          </TouchableOpacity> */}
+            {availablePlans.length > 1 && (
+              <View className="flex-row bg-slate-100 rounded-xl p-1 mb-6">
+                {availablePlans.map(([key, plan]) => (
+                  <TouchableOpacity
+                    key={key}
+                    onPress={() => setChosenPlan(key)}
+                    className={clsx(
+                      "flex-1 py-3 px-4 rounded-lg",
+                      chosenPlan === key ? "bg-white " : ""
+                    )}
+                  >
+                    <Text className={clsx(
+                      "text-center font-semibold",
+                      chosenPlan === key ? "text-slate-900" : "text-slate-600"
+                    )}>
+                      {plan.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
+          <View className='px-2'>
+
+            {availablePlans
+              .filter(([key]) => key === chosenPlan)
+              .map(([key, plan]) => (
+                <PlanComponent
+                  key={key}
+                  isAnnual={isAnnual}
+                  plan={{ 
+                    name: plan.name, 
+                    annualPrice: plan.prices.yearly.price, 
+                    price: plan.prices.monthly.price, 
+                    stripeId: plan.stripeId, 
+                    features_eng: plan.features_eng 
+                  }}
+                />
+              ))}
+          </View>
+          
+          
+          <View className="px-6 pb-6 pt-4">
+            <TouchableOpacity 
+              onPress={upgrade} 
+              className="flex flex-row justify-center items-center gap-3 bg-blue rounded-2xl p-5 "
+            >
+              <Rocket size={22} color={"white"}/>
+              <Text className="text-white font-bold text-lg">Get Started</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>

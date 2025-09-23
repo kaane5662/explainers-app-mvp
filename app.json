@@ -56,7 +56,9 @@
       },
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "WAKE_LOCK",
+        "FOREGROUND_SERVICE"
       ],
       "package": "com.nicktrinh.myexpoapp"
     },
