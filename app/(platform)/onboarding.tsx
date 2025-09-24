@@ -4,10 +4,11 @@ import { onboardingOptionsById } from '@/utils/common';
 import { ExplainerType } from '@/utils/constant';
 import axios from 'axios';
 import clsx from 'clsx';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, SafeAreaView, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+
 
 type QuestionType = 'single' | 'multi' | 'custom' | 'info';
 
@@ -23,6 +24,7 @@ interface Question {
 }
 
 export default function Onboarding() {
+  // const pathname = usePathname()
   const questions: Question[] = [
     // {
     //   label: "",
@@ -114,6 +116,7 @@ export default function Onboarding() {
     //   question: "Are you interested in a subscription offer?"
     // },
   ];
+  // console.log(pathname)
 
   const [questionIndex, setQuestionIndex] = useState(0);
   //   const currentPath = usePathname();
@@ -132,10 +135,11 @@ export default function Onboarding() {
 
   // Set up initial responses based on question type
 
-  const initRespones = async () => {
+  const initResponses = async () => {
     const { data: user } = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/user`);
     console.log('The user gang', user);
     setUser(user);
+
     // setQuestionIndex(user.currentQuestionIndex || 0);
     const initialResponses: Record<string, string | string[]> = {
       primaryGoal: user.primaryGoalId || '',
@@ -144,6 +148,7 @@ export default function Onboarding() {
       topSubjects: user.topSubjectIds || [],
       locale: user.locale || '',
     };
+    console.log("Initial responses",initialResponses)
     setResponses(initialResponses);
     setOnboardingExplainer({
       explainerId: user.onboardingExplainerId,
@@ -169,25 +174,7 @@ export default function Onboarding() {
     }
   };
 
-  // Animation variants for sliding left/right
-  const variants = {
-    enter: (dir: number) => ({
-      x: dir > 0 ? 100 : -100,
-      opacity: 0,
-      position: 'static' as const,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-      position: 'static' as const,
-    },
-    exit: (dir: number) => ({
-      x: dir > 0 ? -100 : 100,
-      opacity: 0,
-      position: 'static' as const,
-    }),
-  };
-
+  
   const handleNext = async (isSkip = false) => {
     if (!question) return;
     // console.log("yooo")
@@ -288,7 +275,7 @@ export default function Onboarding() {
   };
 
   useEffect(() => {
-    initRespones();
+    initResponses();
   }, []);
 
   useEffect(() => {
@@ -316,7 +303,7 @@ export default function Onboarding() {
       return (responses[question.id] as string)?.length > 0;
     }
     if (question.type === 'multi') {
-      return (responses[question.id] as string[]).length > 0;
+      return  (responses[question.id] as string)?.length > 0;
     }
     if (question.type === 'info') {
       return true;
@@ -347,7 +334,27 @@ export default function Onboarding() {
 //   };
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1 bg-white dark:bg-slate-900">
+      {/* Progress Bar */}
+      <View className="px-6 pt-4 pb-6">
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            Step {questionIndex + 1} of {questions.length}
+          </Text>
+          <Text className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            {Math.round(((questionIndex + 1) / questions.length) * 100)}%
+          </Text>
+        </View>
+        <View className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <Animated.View
+            className="h-full bg-gradient-to-r bg-blue rounded-full"
+            style={{
+              width: `${((questionIndex + 1) / questions.length) * 100}%`,
+            }}
+          />
+        </View>
+      </View>
+
       <Animated.View
         style={{
           flexDirection: 'row',
@@ -361,105 +368,150 @@ export default function Onboarding() {
           ],
         }}
         className="flex-1">
-        <View key={questionIndex} className={clsx('w-full', 'flex-1', 'p-4')}>
-          <Text className="mb-8 text-2xl font-bold">{question.question}</Text>
-          {/* Render question options or content here */}
-          {question.type == 'single' && (
-            <View className="flex flex-col gap-4">
-              {question.options.map((o, i) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    if (!question?.id) return;
+        <View key={questionIndex} className={clsx('w-full', 'flex-1', 'px-6')}>
+          <View className="flex-1">
+            <Text className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2 leading-tight">
+              {question.question}
+            </Text>
+            <Text className="text-lg text-slate-600 dark:text-slate-400 mb-8">
+              Choose the option that best describes you
+            </Text>
 
-                    setResponses((prev) => ({
-                      ...prev,
-                      [question.id]: o.value,
-                    }));
-                  }}
-                  disabled={o.value == responses[question.id]}
-                  className={clsx(
-                    'flex flex-row items-center gap-4 rounded-xl border-2 border-slate-300 bg-slate-200 p-4 disabled:border-blue'
-                  )}>
-                  <View
-                    className={clsx('h-6 w-6 rounded-full border', {
-                      'border-blue bg-blue': o.value == responses[question.id],
-                      'border-slate-300': o.value != responses[question.id],
-                    })}></View>
-                  <Text className="flex-1 text-xl font-semibold">{o.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-          {question.type == 'multi' && (
-            <View className="flex flex-row flex-wrap gap-2">
-              {question.options.map((o, i) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    if (!question?.id) return;
-                    setResponses((prev) => {
-                      const prevArr = prev[question.id] as string[];
-                      if (prevArr.includes(o.value)) {
-                        // Unselect
-                        const temp = prevArr.filter((v) => v !== o.value);
-
-                        return {
-                          ...prev,
-                          [question.id]: temp,
-                        };
-                      } else {
-                        // Select, with limit if specified
-                        if (question.maxSelections && prevArr.length >= question.maxSelections)
-                          return prev;
-                        const temp = [...prevArr, o.value];
-
-                        return {
-                          ...prev,
-                          [question.id]: temp,
-                        };
-                      }
-                    });
-                  }}
-                  className={clsx(
-                    'flex flex-row items-center  gap-4 rounded-xl border-2 bg-slate-200 p-3 ',
-                    Array.isArray(responses[question?.id || '']) &&
-                      (responses[question?.id || ''] as string[]).includes(o.value)
-                      ? 'border-blue'
-                      : 'border-slate-300'
-                  )}>
-                  <Text
+            {/* Single Selection */}
+            {question.type == 'single' && (
+              <View className="flex flex-col gap-3">
+                {question.options.map((o, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    onPress={() => {
+                      if (!question?.id) return;
+                      setResponses((prev) => ({
+                        ...prev,
+                        [question.id]: o.value,
+                      }));
+                    }}
                     className={clsx(
-                      'text-md font-semibold group-disabled:text-blue',
-                      Array.isArray(responses[question?.id || '']) &&
-                        (responses[question?.id || ''] as string[]).includes(o.value) &&
-                        'text-blue'
+                      'flex flex-row items-center gap-4 rounded-2xl border-2 p-5 transition-all duration-200',
+                      o.value == responses[question.id]
+                        ? 'border-blue2 bg-blue dark:bg-blue-950/30 '
+                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
                     )}>
-                    {o.label}
-                  </Text>
-                  {Array.isArray(responses[question?.id || '']) &&
-                    (responses[question?.id || ''] as string[]).includes(o.value) && (
-                      <Check color={tailwindConfig.theme?.extend?.colors.blue} size={20}></Check>
-                    )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+                    <View
+                      className={clsx(
+                        'h-6 w-6 rounded-full border-2 flex items-center justify-center',
+                        o.value == responses[question.id]
+                          ? 'border-blue2 bg-blue0'
+                          : 'border-slate-300 dark:border-slate-600'
+                      )}>
+                      {o.value == responses[question.id] && (
+                        <View className="h-2 w-2 rounded-full bg-white" />
+                      )}
+                    </View>
+                    <Text className={clsx(
+                      'flex-1 text-lg font-medium',
+                      o.value == responses[question.id]
+                        ? 'text-white dark:text-blue-300'
+                        : 'text-slate-900 dark:text-slate-100'
+                    )}>
+                      {o.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {/* Multi Selection */}
+            <ScrollView>
+
+              {question.type == 'multi' && (
+                <View className="flex flex-row flex-wrap gap-3">
+                  {question.options.map((o, i) => (
+                    <TouchableOpacity
+                      key={i}
+                      onPress={() => {
+                        if (!question?.id) return;
+                        setResponses((prev) => {
+                          console.log("here is previous",prev)
+                          const prevArr = prev[question.id] as string[];
+                          if (prevArr.includes(o.value)) {
+                            const temp = prevArr.filter((v) => v !== o.value);
+                            return {
+                              ...prev,
+                              [question.id]: temp,
+                            };
+                          } else {
+                            if (question.maxSelections && prevArr.length >= question.maxSelections)
+                              return prev;
+                            const temp = [...prevArr, o.value];
+                            return {
+                              ...prev,
+                              [question.id]: temp,
+                            };
+                          }
+                        });
+                      }}
+                      className={clsx(
+                        'flex flex-row items-center gap-3 rounded-full border-2 px-4 py-3 transition-all duration-200',
+                        Array.isArray(responses[question?.id || '']) &&
+                          (responses[question?.id || ''] as string[]).includes(o.value)
+                          ? 'border-blue2 bg-blue '
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
+                      )}>
+                      <Text
+                        className={clsx(
+                          'text-base font-medium',
+                          Array.isArray(responses[question?.id || '']) &&
+                            (responses[question?.id || ''] as string[]).includes(o.value)
+                            ? 'text-white dark:text-blue-300'
+                            : 'text-slate-900 dark:text-slate-100'
+                        )}>
+                        {o.label}
+                      </Text>
+                      {Array.isArray(responses[question?.id || '']) &&
+                        (responses[question?.id || ''] as string[]).includes(o.value) && (
+                          <Check color="white" size={18} />
+                        )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </ScrollView>
+          </View>
         </View>
       </Animated.View>
-      <View className="flex-col items-center justify-between gap-4 p-4">
-        <TouchableOpacity
-          className="w-full rounded-xl bg-blue p-4 disabled:opacity-50"
-          onPress={handleNext}
-          disabled={!isAnswered || saving || disabled}>
-          <Text className={clsx('text-center text-lg font-semibold text-white')}>
-            {questionIndex == questions.length - 1 ? 'Finish' : 'Continue'}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="w-full  rounded-xl bg-slate-300 p-4 disabled:opacity-40"
-          onPress={handleBack}
-          disabled={questionIndex === 0}>
-          <Text className={clsx('text-center text-lg font-semibold text-slate-500')}>Back</Text>
-        </TouchableOpacity>
+
+      {/* Navigation Buttons */}
+      <View className="px-6 pb-6 pt-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
+        <View className="flex-col gap-3">
+          <TouchableOpacity
+            className={clsx(
+              'w-full rounded-xl p-4 transition-all duration-200',
+              !isAnswered || saving || disabled
+                ? 'bg-slate-300 dark:bg-slate-700'
+                : 'bg-gradient-to-r bg-blue hover:bg-blue/40'
+            )}
+            onPress={() => handleNext()}
+            disabled={!isAnswered || saving || disabled}>
+            <Text className={clsx(
+              'text-center text-lg font-semibold',
+              !isAnswered || saving || disabled
+                ? 'text-slate-500 dark:text-slate-400'
+                : 'text-white'
+            )}>
+              {saving ? 'Saving...' : questionIndex == questions.length - 1 ? 'Finish Setup' : 'Continue'}
+            </Text>
+          </TouchableOpacity>
+          
+          {questionIndex > 0 && (
+            <TouchableOpacity
+              className="w-full rounded-xl bg-slate-100 dark:bg-slate-800 p-4 transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700"
+              onPress={handleBack}>
+              <Text className="text-center text-lg font-medium text-slate-700 dark:text-slate-300">
+                Back
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );

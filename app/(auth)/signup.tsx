@@ -36,9 +36,9 @@ function ValidationItem({ isValid, text }: { isValid: boolean; text: string }) {
       )}>
       <Check
         size={16}
-        className={clsx(isValid ? 'text-green' : 'text-gray-400 dark:text-gray-500')}
+        style={{ color: isValid ? 'green' : 'gray' } as any}
       />
-      <Text className="text-sm">{text}</Text>
+      <Text className={clsx('text-sm',isValid ? 'text-black dark:text-white' : 'text-gray-400 dark:text-gray-500')}>{text}</Text>
     </View>
   );
 }
@@ -81,10 +81,9 @@ function PasswordInput({
           value={value}
           onChangeText={onChange}
           className={clsx(
-            'w-full rounded-lg p-2 px-2 pr-10',
-            'border-2 border-slate-200 dark:border-slate-600',
-            'bg-white dark:bg-dark2',
-            'text-black dark:text-white',
+            'rounded-2xl border-2 border-slate-200 p-4 ',
+                'bg-white dark:bg-dark2',
+                'text-black dark:text-white',
             // "focus:outline-none focus:ring-2 focus:ring-blue/20",
             // "transition duration-200",
             {
@@ -119,9 +118,9 @@ function PasswordInput({
             'border-l-2 pl-2 text-xs',
             'border-gray-200 dark:border-gray-700'
           )}>
-          <ValidationItem isValid={validation.hasEightChar} text={tran('vhgnfqz2ais')} />
-          <ValidationItem isValid={validation.hasOneUpperChar} text={tran('1ackjf8dvxj')} />
-          <ValidationItem isValid={validation.hasSpecialChar} text={tran('wex570jear')} />
+          <ValidationItem isValid={validation.hasEightChar} text="Password must be at least 8 characters long" />
+          <ValidationItem isValid={validation.hasOneUpperChar} text="Password must contain at least one uppercase letter" />
+          <ValidationItem isValid={validation.hasSpecialChar} text="Password must contain at least one special character or number" />
         </View>
         // </AnimatePresence>
       )}
@@ -311,7 +310,7 @@ export default function SignupPage() {
           password,
           name,
           turnstileToken,
-          referralCode: formState.referralCode || undefined,
+          // referralCode: formState.referralCode || undefined,
         },
         { withCredentials: true }
       );
@@ -420,25 +419,22 @@ export default function SignupPage() {
   return (
     <View
       className={clsx(
-        'h-full w-full flex-row items-center justify-center',
-        'gap-32 p-2 py-2 md:p-4 md:py-2',
-        'max-md:flex-col max-md:gap-8'
+        'w-full flex-row items-center justify-center py-20',
+        'gap-32 p-4',
+        'max-md:flex-col'
       )}>
-      <View className={clsx('flex-col items-center gap-4', 'w-full max-w-[500px]', 'p-0 md:p-4')}>
-        <Sparkles
-          size={40}
-          className="rounded-xl p-2 text-blue2 shadow-md dark:bg-blue dark:text-white2"
-        />
+      <View className={clsx('flex-col gap-4', 'w-full', 'p-0 md:p-4')}>
+        <View className=" h-12 w-12 items-center justify-center rounded-2xl bg-blue">
+          <Sparkles size={24} color={'white'} />
+        </View>
 
-        <View className="flex-col items-center justify-center gap-2 text-center">
-          <Text className="text-5xl font-semibold">{'Sign Up'}</Text>
-          <Text className="text-slate-500 dark:text-slate-400">
-            {'Sign up and start creating videos for free'}
-          </Text>
+        <View className="flex flex-col gap-2">
+          <Text className="text-4xl font-semibold">Join Us Today</Text>
+          <Text className="text-xl text-slate-500">Start your journey with us and create amazing explainers!</Text>
         </View>
 
         {slideIndex === 0 && (
-          <View className="w-full flex-col items-center gap-4">
+          <View className="w-full flex-col gap-4">
             <View className="mt-8 w-full flex-col gap-1">
               <Text className="text-sm">{'Email'}</Text>
               <TextInput
@@ -450,9 +446,9 @@ export default function SignupPage() {
                   validateEmail();
                 }}
                 className={clsx(
-                  'rounded-lg border-2 border-slate-200 p-3 px-3 dark:border-slate-600',
-                  'bg-white dark:bg-dark2',
-                  'text-black dark:text-white',
+                  'rounded-2xl border-2 border-slate-200 p-4 ',
+                'bg-white dark:bg-dark2',
+                'text-black dark:text-white',
                   //   "focus:outline-none focus:ring-2 focus:ring-blue/20",
                   //   "transition duration-200",
                   { 'border-red-500 text-red-500': !formState.validEmail }
@@ -469,23 +465,23 @@ export default function SignupPage() {
                 </Text>
               )}
             </View>
-            <View className="w-full flex-col gap-1">
+            <View className="w-full h-f flex-col gap-4">
               <SpecialButton
                 onPress={() => setSlideIndex(1)}
                 disabled={!formState.validEmail || formState.email.length < 1}
-                className="w-full bg-blue"
-                title="Continue"
+                className="w-full px-4 py-4 bg-blue"
+                title={<Text className='font-semibold text-white'>Continue</Text>}
                 iconRight={<ArrowRight color={'white'} />}
               />
               <SpecialButton
                 onPress={handleGoogleSignUp}
-                variant="gray"
-                className="w-full bg-gray-300"
+                // variant="gray"
+                className="w-full border-gray-300 px-4 py-4 bg-gray-200"
                 title="Sign in with Google"
-                iconLeft={<CircleArrowLeftIcon />}
+                // iconLeft={<CircleArrowLeftIcon />}
               />
-              <View className="item mt-2 flex flex-row gap-2 self-center text-center text-sm font-medium">
-                <Text>{'Have an Account'} </Text>
+              <View className="item self-center mt-12 flex flex-row gap-2  text-sm font-medium">
+                <Text className='text-center'>{'Have an Account'} </Text>
 
                 <TouchableOpacity
                   onPress={() => {
@@ -494,19 +490,19 @@ export default function SignupPage() {
                     // });
                     router.push('/login');
                   }}>
-                  <Text className="text-blue underline hover:text-blue2 dark:text-blue dark:hover:text-blue">
+                  <Text className="text-blue underline text-center hover:text-blue2 dark:text-blue dark:hover:text-blue">
                     {'Sign in'}
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
-            <View className="flex items-center text-center text-sm">
-              <Text> {tran('By logging in you accept the TOS and')} </Text>
+            <View className="flex text-sm self-center ">
+              <Text className='text-center'> {tran('By logging in you accept the TOS and')} </Text>
               <TouchableOpacity
                 onPress={() =>
                   window.open('/legal/privacy', 'privacyPopup', 'popup=yes,width=800,height=800')
                 }>
-                <Text className="cursor-pointer text-blue underline hover:underline">
+                <Text className="cursor-pointer text-center text-blue underline hover:underline">
                   {'Privacy Policy'}
                 </Text>
               </TouchableOpacity>
@@ -521,9 +517,9 @@ export default function SignupPage() {
                 defaultValue={formState.name}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, name: text }))}
                 className={clsx(
-                  'rounded-lg border-2 border-slate-200 p-2 px-2 dark:border-slate-600',
+                  'rounded-2xl border-2 border-slate-200 p-4 ',
                   'bg-white dark:bg-dark2',
-                  'text-black dark:text-white'
+                  'text-black dark:text-white',
                   //   "focus:outline-none focus:ring-2 focus:ring-blue/20",
                   //   "transition duration-200"
                 )}
@@ -590,8 +586,8 @@ export default function SignupPage() {
             {!formState.showTurnstile ? (
               <SpecialButton
                 onPress={handleInitialClick}
-                className="mt-4 bg-blue"
-                title="Sign Up"
+                className="mt-4 px-4 py-4 bg-blue"
+                title={<Text className='text-white font-semibold'>Sign Up</Text>}
               />
             ) : (
               <View className={clsx('mb-4 mt-4 flex-col items-center justify-center')}>

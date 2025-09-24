@@ -11,7 +11,7 @@ import ProfileDropdown from '@/components/profile/ProfileDropdown';
 import axios, { AxiosError } from 'axios';
 import { use, useEffect, useState } from 'react';
 import { useUser } from '@/hooks/useUser';
-import { BadgeCent, Coins, Heart, Settings, Users } from 'lucide-react-native';
+import { BadgeCent, CircuitBoard, Coins, Heart, Settings, Users } from 'lucide-react-native';
 // import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
 
 
@@ -89,6 +89,9 @@ export default function HomeScreen() {
                   
                 </View>
                 <View className='ml-auto flex flex-row gap-2 opacity-50'>
+                  <TouchableOpacity onPress={()=>router.push("(platform)/onboarding")}>
+                    <CircuitBoard size={24}></CircuitBoard>
+                  </TouchableOpacity>
                   <TouchableOpacity onPress={()=>router.push("(platform)/engagement")}>
                     <Heart size={24}></Heart>
                   </TouchableOpacity>

@@ -32,37 +32,41 @@ export function useUser() {
       setError(null);
 
       // Get JWT token from storage
-      const token = await AsyncStorage.getItem('jwt_token');
-      console.log('JWT token exists:', !!token);
+      // const token = await AsyncStorage.getItem('jwt_token');
+      // console.log('JWT token exists:', !!token);
 
       // Prepare request headers
-      const headers: any = {
-        'Content-Type': 'application/json',
-      };
+      // const headers: any = {
+      //   'Content-Type': 'application/json',
+      // };
 
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-        console.log('Sending JWT token with request');
-      } else {
-        console.log('No JWT token found, user not authenticated');
-        console.log('Current pathname:', pathname);
-        console.log('Redirecting to /auth-landing');
-        // If no token, immediately redirect to auth
-        setLoading(false);
-        return router.replace('/auth-landing');
-      }
+      // if (token) {
+      //   headers['Authorization'] = `Bearer ${token}`;
+      //   console.log('Sending JWT token with request');
+      // } else {
+      //   console.log('No JWT token found, user not authenticated');
+      //   console.log('Current pathname:', pathname);
+      //   console.log('Redirecting to /auth-landing');
+      //   // If no token, immediately redirect to auth
+      //   setLoading(false);
+      //   return router.replace('/auth-landing');
+      // }
 
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/user`, {
         withCredentials: true,
-        headers,
+        // headers,
       });
       console.log('user hook status', res.status);
       if (res.status !== 200) throw new Error(`Failed to fetch user: ${res.statusText}`);
       const data = res.data as IUser;
-      if (user?.isOnboarding && pathname !== '/onboarding') {
-        router.replace('/onboarding');
-      }
+      console.log("before onboarding")
       setUser(data);
+      
+      if (user?.isOnboarding && pathname != '/onboarding') {
+        console.log("is onboarding")
+        return router.replace('(platform)/onboarding');
+      }
+      
       console.log(data);
     } catch (err: any) {
       if (

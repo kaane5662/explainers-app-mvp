@@ -27,21 +27,27 @@ export default function ForgotPassword() {
   };
 
   return (
-    <View className="flex-1 items-center justify-center">
+    <View className={clsx(
+      'w-full flex-row items-center justify-center py-20',
+      'gap-32 p-4',
+      'max-md:flex-col'
+    )}>
       {!success ? (
         // Display the form if email hasn't been sent successfully
-        <View className="flex flex-col gap-5 items-center p-8 w-11/12 max-w-md">
-          <Mail size={50} className="shadow-md p-2 rounded-xl text-blue-500" />
-          <View className="flex flex-col gap-1 justify-center items-center text-center">
-            <Text className="text-4xl text-center font-semibold">Forgot Password</Text>
-            <Text className="text-slate-500 text-center">Enter your email to reset your password</Text>
+        <View className="flex flex-col gap-4 w-full">
+          <View className=" h-12 w-12 items-center justify-center rounded-2xl bg-blue">
+            <Mail size={24} color={'white'} />
+          </View>
+          <View className="flex flex-col gap-2 ">
+            <Text className="text-4xl font-semibold">Forgot Password</Text>
+            <Text className="text-slate-500 text-xl">Enter your email to reset your password</Text>
           </View>
           <View className="flex flex-col gap-4 w-full">
-            <View className="flex flex-col gap-1">
+            <View className="flex flex-col mt-8 gap-1">
               <Text className="text-sm">Email Address</Text>
               <TextInput
                 onChangeText={setEmail}
-                className="p-3 rounded-lg border-slate-200 bg-white border-2 w-full"
+                className="p-4 rounded-lg border-slate-200 bg-white border-2 w-full"
                 placeholder="Enter your email"
               />
               {error && (
@@ -54,11 +60,11 @@ export default function ForgotPassword() {
             </View>
             <TouchableOpacity
               onPress={sendReset}
-              className="rounded-full bg-blue p-3 w-full bg-gradient-to-br from-blue-500 to-blue-700 text-white"
+              className="rounded-full bg-blue p-4 w-full bg-gradient-to-br from-blue-500 to-blue-700 text-white"
             >
               <Text className="text-center font-semibold text-white">Send Reset Link</Text>
             </TouchableOpacity>
-            <Text className="text-base font-semibold text-center mt-4">
+            <Text className="text-base text-center mt-4">
               <Text
                 onPress={() => router.push("/login")}
                 className="text-blue"
@@ -79,17 +85,17 @@ export default function ForgotPassword() {
         // Display success message if email was sent successfully
         <View className="flex flex-col gap-5 items-center p-8 w-11/12 max-w-md">
           <CheckCircle size={50} className="shadow-md p-2 rounded-xl text-blue-500" />
-          <View className="flex flex-col gap-1 justify-center items-center text-center">
+          <View className="flex flex-col gap-2 justify-center items-center text-center">
             <Text className="text-4xl font-semibold">Check Your Email</Text>
-            <Text className="text-slate-500 text-center">
+            <Text className="text-slate-500 text-xl text-center">
               We have sent a password reset link to your email.
             </Text>
           </View>
           <TouchableOpacity
             onPress={() => router.push("/login")}
-            className="rounded-full flex justify-center bg-blue p-3 w-full bg-gradient-to-br from-blue-500 to-blue-700 text-white"
+            className="rounded-full mt-8 flex justify-center bg-blue p-4 w-full bg-gradient-to-br from-blue-500 to-blue-700 text-white"
           >
-            <Text className="text-center text-white">Go to Login</Text>
+            <Text className="text-center font-semibold text-white">Go to Login</Text>
           </TouchableOpacity>
         </View>
       )}
