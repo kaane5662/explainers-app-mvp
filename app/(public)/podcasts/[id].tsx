@@ -19,6 +19,7 @@ export default function DetailsScreen() {
   const [podcasts,setPodcasts] = useState<IExplainerPodcast[]>([])
   const [podcast,setPodcast] = useState<IExplainerPodcast>()
   const [currentPodcastIndex,setCurrentPodcastIndex] = useState(0)
+  const [currentTime,setCurrentTime] = useState(0)
   const [canChange,setCanChange] = useState(true)
 	const player = useAudioPlayer()
 
@@ -190,8 +191,8 @@ export default function DetailsScreen() {
           <View className=' flex mt-10 flex-col gap-2'>
             <PodcastHeader podcast={podcasts[currentPodcastIndex]}/>
             {/* {console.log(podcasts[1])} */}
-            <PodcastPlayer onSkipPodcast={switchPodcast} podcast={podcasts[currentPodcastIndex]}></PodcastPlayer>
-            <PodcastBottomContent likes={likes} onDislike={onDislike} onLike={onLike} podcast={podcasts[currentPodcastIndex]}></PodcastBottomContent>
+            <PodcastPlayer onTimeUpdate={setCurrentTime} onSkipPodcast={switchPodcast} podcast={podcasts[currentPodcastIndex]}></PodcastPlayer>
+            <PodcastBottomContent currentTime={currentTime} likes={likes} onDislike={onDislike} onLike={onLike} podcast={podcasts[currentPodcastIndex]}></PodcastBottomContent>
           </View>
 				)}
 			</View>

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Animated, Easing, Dimensions, } from 'react-native';
 import clsx from 'clsx';
 import { router, useLocalSearchParams, useRouter } from 'expo-router';
-import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader, EllipsisVertical } from 'lucide-react-native';
+import { Play, Pause, ThumbsUp, ThumbsDown, Share, MessageCircle, ChevronLeft, X, Loader, EllipsisVertical, Library } from 'lucide-react-native';
 
 import tailwindConfig  from "@/tailwind.config";
 import ShareExplainer from '../popups/ShareExplainer';
@@ -11,12 +11,14 @@ import { ExplainerType } from '@/utils/constant';
 import ExplainerSettings from '../popups/ExplainerSettings';
 import Comments from '../explainers/Comments';
 import { useUser } from '@/hooks/useUser';
+import VideoResources from '../popups/VideoResources';
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 export default function VideoContent({ shortItem, shortIndex, index, likes,dislikes,onLike,onDislike }: { shortItem: IExplainerVideo,shortIndex:number, index:number, onLike:CallableFunction, onDislike:CallableFunction }) {
 
   const [sharePopup,setSharePopup] = useState(false)
   const [commentsPopup,setCommentsPopup] = useState(false)
+  const [resourcesPopup,setResourcesPopup] = useState(false)
   const [explainerSettings,setExplainerSettings] = useState(false)
   const {user} = useUser()
   return (
@@ -29,7 +31,13 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
         {commentsPopup &&(
           <Comments user={user} id={shortItem.id} isPodcast={false} onClose={()=>setCommentsPopup(false)} visible={commentsPopup}/>
         )}
-        <ExplainerSettings explainerType={ExplainerType.REEL} onClose={()=>setExplainerSettings(false)} visible={explainerSettings} explainer={shortItem as IExplainer}></ExplainerSettings>
+        {resourcesPopup &&(
+          <VideoResources explainerType={ExplainerType.REEL} onClose={()=>setResourcesPopup(false)} visible={resourcesPopup} explainer={shortItem as IExplainer}/>
+        )}
+        {explainerSettings &&(
+          <ExplainerSettings explainerType={ExplainerType.REEL} onClose={()=>setExplainerSettings(false)} visible={explainerSettings} explainer={shortItem as IExplainer}></ExplainerSettings>
+
+        )}
 
         {/* controls */}
         <View className="flex flex-col ml-auto gap-4" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
@@ -84,6 +92,16 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
             <MessageCircle color={"white"} className="shadow-black drop-shadow-xl" />
             {/* <Text className="shadow-black text-white drop-shadow-xl">Comment</Text> */}
           </TouchableOpacity>
+          <TouchableOpacity
+            
+            className="bg-yellow-500 hover:bg-yellow-600 flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:opacity-70"
+            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}
+            onPress={()=>setResourcesPopup(true)}
+            // onPress={() => index === shortIndex && setCommentsPopup(true)}>
+            >
+            <Library color={"white"} className="shadow-black drop-shadow-xl" />
+            {/* <Text className="shadow-black text-white drop-shadow-xl">Comment</Text> */}
+          </TouchableOpacity>
           <TouchableOpacity onPress={()=>setExplainerSettings(true)}  
           style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}
           className='bg-yellow-500 hover:bg-yellow-600 flex flex-col items-center rounded-full p-2 text-sm duration-300 hover:opacity-70'>
@@ -110,7 +128,8 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
               {shortItem.title}
             </Text>
           </TouchableOpacity>
-          <Text className="overflow-x-auto text-sm text-slate-100" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
+          
+          <Text numberOfLines={2} className="overflow-x-auto text-sm text-slate-100" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: .4, shadowRadius: 8 }}>
             {shortItem.tags && shortItem.tags.length > 0
               ? shortItem.tags.map((t) => `#${t}`).join(' ')
               : 'No tags available'}

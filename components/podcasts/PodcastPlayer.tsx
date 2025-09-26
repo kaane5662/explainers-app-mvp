@@ -11,7 +11,7 @@ const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 
 
-export default function PodcastPlayer({podcast, onSkipPodcast}:{podcast:IExplainerPodcast, onSkipPodcast:CallableFunction}){
+export default function PodcastPlayer({podcast, onSkipPodcast, onTimeUpdate}:{podcast:IExplainerPodcast, onSkipPodcast:CallableFunction, onTimeUpdate:CallableFunction}){
     const durationInS = podcast.sectionAudios[0].duration/1000
     const sliderRef = useRef<Slider>()
     // console.log(podcast.sectionAudios[0].streamUrl)
@@ -24,7 +24,9 @@ export default function PodcastPlayer({podcast, onSkipPodcast}:{podcast:IExplain
     })
     const status = useAudioPlayerStatus(player)
 
-    
+    useEffect(()=>{
+        onTimeUpdate(status.currentTime)
+    },[status.currentTime])
     
     
     

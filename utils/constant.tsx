@@ -1,5 +1,10 @@
 // import { Prisma } from "@prisma/client";
 
+import ImageSourceResults from "@/components/popups/ImageSearchResults";
+import WebSearchResults from "@/components/popups/WebSearchResults";
+import StudyFetchEmbed from "@/components/studyfetch/StudyfetchEmbed";
+import { BookCheck, Image, Notebook, Search } from "lucide-react-native";
+
 export const CONSTANT = "constant";
 export const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/ryry";
@@ -186,4 +191,59 @@ export const lengths = [
     length: convertSecondsToMinutes(plans.premium.maxDuration),
     label: convertToLabel(plans.premium.minDuration, plans.premium.maxDuration),
   },
+];
+
+
+export const iconActions = [
+  {
+      label: "Web Search",
+      value: "webSearch",
+      icon: <Search size={18} />,
+      color: "#FFB3BA", // darker pastel pink
+      // onPress: () => {
+      //     console.log("Web Search pressed");
+      //     setVisiblePopup("webSearch")
+      //     // Add your web search logic here
+      // },
+      popup: (id: string, explainerType: ExplainerType, onClose: () => void) => 
+          <WebSearchResults visible={true} id={id} explainerType={explainerType} onClose={onClose} />
+  },
+  {
+      label: "Image Sources",
+      value: "image sources",
+      icon: <Image size={18} />,
+      color: "#FFDFBA", // darker pastel orange
+      // onPress: () => {
+      //     console.log("Web Search pressed");
+      //     setVisiblePopup("webSearch")
+      //     // Add your web search logic here
+      // },
+      popup: (id: string, explainerType: ExplainerType, onClose: () => void) => 
+          <ImageSourceResults visible={true} id={id} explainerType={explainerType} onClose={onClose} />
+  },
+  {
+      label: "Flash Cards",
+      value: "flashCards",
+      icon: <Notebook size={18} />,
+      color: "#B3E5B3", // darker pastel green
+      // onPress: () => {
+      //     console.log("Flash Cards pressed");
+      //     setVisiblePopup("flashCards")
+      //     // Add your flash cards logic here
+      // },
+      popup: (id: string, explainerType: ExplainerType, onClose: () => void) => 
+          <StudyFetchEmbed title="Flashcards" loadingDescription="We're creating personalized flashcards from your content. This may take a moment..."  loadingHeader="Creating Flashcards" componentType='flashcards' id={id} explainerType={explainerType} onClose={onClose} />
+  },
+  {
+      label: "Practice Quiz",
+      value: "practiceQuiz",
+      icon: <BookCheck size={18} />,
+      color: "#B3C6FF", // darker pastel blue
+      onPress: () => {
+          console.log("Practice Quiz pressed");
+          // Add your practice quiz logic here
+      },
+      popup: (id: string, explainerType: ExplainerType, onClose: () => void) => 
+        <StudyFetchEmbed title="Practice Quiz" loadingDescription="We're creating a personalized practice quiz from your content. This may take a moment..."  loadingHeader="Creating Practice Quiz" componentType='practice-quiz' id={id} explainerType={explainerType} onClose={onClose} />
+  }
 ];

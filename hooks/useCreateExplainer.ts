@@ -69,7 +69,7 @@ export function useCreateExplainer() {
         },
         { withCredentials: true }
       );
-      router.push(`/${route}/${res.data.id}`);
+      router.push(`(public)/${type == ExplainerType.PODCAST ? "podcasts":"reels"}/${res.data.id}`);
     } catch (error: any) {
       console.log(error);
       if (error?.response?.status === 403) {

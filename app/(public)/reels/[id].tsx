@@ -11,6 +11,7 @@ import tailwindConfig from '@/tailwind.config';
 import VideoContent from '@/components/videos/VideoContent';
 import { ExplainerType } from '@/utils/constant';
 import ExplainerSettings from '@/components/popups/ExplainerSettings';
+import Generating from '@/components/explainers/Generating';
 const { width, height } = Dimensions.get('window');
 
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
@@ -50,6 +51,7 @@ export default function ReelsContent() {
   const router = useRouter();
   const [shortIndex, setShortIndex] = useState<number>(0);
   const [shorts, setShorts] = useState<IExplainerVideo[]>([]);
+  const [startingShort,setStartingShort] = useState<IExplainerVideo>()
   
   const [sharePopup, setSharePopup] = useState<boolean>(false);
   const [commentsPopup, setCommentsPopup] = useState<boolean>(false);
@@ -88,8 +90,9 @@ export default function ReelsContent() {
         const reelsPromise =  axios.get(`${process.env.EXPO_PUBLIC_API_URL}/videos/${id}`);
         const reccsPromise = axios.get(`${process.env.EXPO_PUBLIC_API_URL}/explainers/${id}/recommendations?explainerType=${ExplainerType.VIDEO}&type=reel`)
         const [video, reccs] = await Promise.all([reelsPromise,reccsPromise])
-        console.log("Reccs",reccs.data)
-        
+        console.log(video.data.explainer)
+        // console.log("Reccs",reccs.data)
+        setStartingShort(video.data.explainer)
         // setV(podcast.data.explainer)
         // console.log("Reccs",reccs.data.explainers.map((r)=>(r.id || "hahaha")))
         // console.log(response.data);
@@ -249,6 +252,10 @@ export default function ReelsContent() {
       // playVideo(newIndex);
     }
   };
+  if(startingShort?.generating){
+    console.log(startingShort)
+    return (<Generating explainerType={ExplainerType.REEL} explainer={startingShort as IExplainer}></Generating>)
+  }
   return (
     <View className={clsx('')}>
       {/* <Text>Hello</Text> */}
