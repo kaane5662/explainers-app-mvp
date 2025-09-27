@@ -1,11 +1,12 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View, Text, Image, SafeAreaView, ActivityIndicator, TouchableOpacity,  } from 'react-native';
+import { View, Text, Image, SafeAreaView, ActivityIndicator, TouchableOpacity,  ScrollView} from 'react-native';
 import axios from 'axios';
 import { IUser } from '@/interfaces';
 import { MapPin } from 'lucide-react-native';
 import ExplainerPagination from '@/components/explainers/ExplainerPagination';
 import clsx from 'clsx';
+
 
 
 export default function ProfileScreen() {
@@ -84,122 +85,106 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView>
-      <View className="p-8">
-        <View className="flex flex-col items-center">
-          {profile.imageUrl ? (
-            <Image
-              className="w-32 h-32 rounded-full"
-              source={{ uri: profile.imageUrl }}
-              style={{ width: 128, height: 128 }}
-            />
-          ) : (
-            <View className="w-32 h-32 bg-gray-200 rounded-full" />
-          )}
-          <Text className="text-2xl font-semibold mt-4">{profile.name}</Text>
-          <Text className="flex gap-2 text-slate-500 dark:text-slate-400 flex-row items-center items-center">
-            <MapPin size={18} />
-            {profile.group || "New York"}, {profile.country || "US"}{" "}
-          </Text>
-          <View className='mt-6 gap-2 flex justify-center items-center flex-col'>
-            <Text>{profile.follower_count} Followers</Text>
-            <TouchableOpacity className={clsx("p-3 px-8 rounded-full", followed ? "bg-slate-300":"bg-blue")}onPress={()=>followUser()}>
-              <Text className={clsx(followed ? "text-black":"text-white")}>{followed ? "Followed":"Follow"}</Text>
-            </TouchableOpacity>
-          </View>
-          <View className="flex gap-0 flex-col">
-            
+      <ScrollView>
 
-            <View
-            className={clsx(
-                "flex w-full flex-row mt-4",
+        <View className="p-8">
+          <View className="flex flex-col items-center">
+            {profile.imageUrl ? (
+              <Image
+                className="w-32 h-32 rounded-full"
+                source={{ uri: profile.imageUrl }}
+                style={{ width: 128, height: 128 }}
+              />
+            ) : (
+              <View className="w-32 h-32 bg-gray-200 rounded-full" />
             )}
-            >
-            {availableOptions
-                .filter((option) => !option.ownerOnly || profile?.profileOwner)
-                .map((option, index) => (
-                <TouchableOpacity
-                    key={index}
-                    onPress={() => setOption(option.id)}
-                    disabled={currentOption === option.id}
-                    className={clsx(
-                    "p-2 px-6",
-                    "text-slate-500 dark:text-slate-400",
-                    "flex justify-center",
-                    currentOption === option.id &&   "border-b-2 border-blue text-blue",
-                    )}
-                >
-                    <Text>{option.label}</Text>
-                </TouchableOpacity>
-                ))}
+            <Text className="text-2xl font-semibold mt-4">{profile.name}</Text>
+            <Text className="flex gap-2 text-slate-500 dark:text-slate-400 flex-row items-center items-center">
+              <MapPin size={18} />
+              {profile.group || "New York"}, {profile.country || "US"}{" "}
+            </Text>
+            <View className='mt-6 gap-2 flex justify-center items-center flex-col'>
+              <Text>{profile.follower_count} Followers</Text>
+              <TouchableOpacity className={clsx("p-3 px-8 rounded-full", followed ? "bg-slate-300":"bg-blue")}onPress={()=>followUser()}>
+                <Text className={clsx(followed ? "text-black":"text-white")}>{followed ? "Followed":"Follow"}</Text>
+              </TouchableOpacity>
+            </View>
+            <View className="flex gap-0 flex-col">
+              
+
+              <View
+              className={clsx(
+                  "flex w-full flex-row mt-4",
+              )}
+              >
+              {availableOptions
+                  .filter((option) => !option.ownerOnly || profile?.profileOwner)
+                  .map((option, index) => (
+                  <TouchableOpacity
+                      key={index}
+                      onPress={() => setOption(option.id)}
+                      disabled={currentOption === option.id}
+                      className={clsx(
+                      "p-2 px-6",
+                      "text-slate-500 dark:text-slate-400",
+                      "flex justify-center",
+                      currentOption === option.id &&   "border-b-2 border-blue text-blue",
+                      )}
+                  >
+                      <Text>{option.label}</Text>
+                  </TouchableOpacity>
+                  ))}
+              </View>
+              
+
+                {currentOption === "explainers" && (
+                    <View>
+                        <ExplainerPagination
+                        name=""
+                        pageResults={20}
+                        hideSearch
+                            hideCount
+                            hideSortBy
+                        extraParams={{}}
+                        apiRoute={`/profile/${id}/explainers`}
+                        />
+                    </View>
+                )}
+                
+                {currentOption == "pending_explainers" &&  (
+                    <View>
+                        <ExplainerPagination
+                          name={""}
+                          pageResults={20}
+                          hideCount
+                          hideSearch
+                          apiRoute={`/profile/${id}/explainers?pendingOnly=true`}
+                          hideSortBy={true}
+                        />
+                    </View>
+                )}
+                
+                {currentOption == "likes" && (
+                    <View>
+                        <ExplainerPagination
+                          name={""}
+                          hideSortBy
+                          hideSearch
+                          hideCount
+                        
+                          extraParams={{}}
+                          pageResults={20}
+                          apiRoute={`/profile/${id}/likes/`}
+                        />
+                    </View>
+                )}
+              
             </View>
             
-            {currentOption === "explainers" && (
-                <View>
-                    <ExplainerPagination
-                    name=""
-                    pageResults={20}
-                    hideSearch
-                        hideCount
-                        hideSortBy
-                    extraParams={{}}
-                    apiRoute={`/profile/${id}/explainers`}
-                    />
-                </View>
-            )}
-            {/* {currentOption == "podcasts" && (
-              <PodcastPagination
-                name={
-                  <>
-                    <Text className="max-md:hidden">{profile.name}'s</Text>{" "}
-                    Podcasts
-                  </>
-                }
-                pageResults={20}
-                apiRoute={`/profile/${id}/podcasts/`}
-              />
-            )} */}
-            {currentOption == "pending_explainers" &&  (
-                <View>
-                    <ExplainerPagination
-                      name={""}
-                      pageResults={20}
-                      
-                      apiRoute={`/profile/${id}/explainers?pendingOnly=true`}
-                      hideSortBy={true}
-                    />
-                </View>
-            )}
-            {/* {currentOption == "pending_podcasts" && (
-              <PodcastPagination
-                name={
-                  <>
-                    <Text className="max-md:hidden">{profile.name}'s</Text>{" "}
-                    Pending Podcasts
-                  </>
-                }
-                pageResults={20}
-                apiRoute={`/profile/${id}/podcasts?pendingOnly=true`}
-              />
-            )} */}
-            {currentOption == "likes" && (
-                <View>
-                    <ExplainerPagination
-                      name={""}
-                      hideSortBy
-                      hideSearch
-                        hideCount
-                    
-                    extraParams={{}}
-                      pageResults={20}
-                      apiRoute={`/profile/${id}/likes/`}
-                    />
-                </View>
-            )}
+            
           </View>
-          
-          
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
