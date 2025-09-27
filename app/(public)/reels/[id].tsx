@@ -16,34 +16,7 @@ const { width, height } = Dimensions.get('window');
 
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
-// import Video from 'react-native-video';
-// import { toast } from 'react-toastify';
-// import StreamPlayer from '@components/stream/Playe'r;
-// import ShareVideo from '@components/[locale]/popups/ShareVideo';
-// import Comments from '@components/[locale]/videos/VideoComments';
 
-
-//  Short {
-//   id: string;
-//   title: string;
-//   tags: string[];
-//   sections?: string;
-//   streamId?: string;
-//   user: {
-//     id: string;
-//     name: string;
-//     imageUrl?: string;
-//   };
-//   totalDuration?: number;
-// }
-
-// interface Props {
-//   loggedIn: boolean;
-//   user: {
-//     id: string;
-//     name: string;
-//   };
-// }
 
 export default function ReelsContent() {
 //   const clsx = useTailwind();
@@ -53,18 +26,18 @@ export default function ReelsContent() {
   const [shorts, setShorts] = useState<IExplainerVideo[]>([]);
   const [startingShort,setStartingShort] = useState<IExplainerVideo>()
   
-  const [sharePopup, setSharePopup] = useState<boolean>(false);
-  const [commentsPopup, setCommentsPopup] = useState<boolean>(false);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [isPreloading, setIsPreloading] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [paused, setPaused] = useState<boolean>(false);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [showPlayButton,setShowPlayButton] = useState(false)
 
   
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const playerRef = useRef<VideoPlayerRef | null>(null);
   const scrollY = new Animated.Value(0)
+  const animatePop = new Animated.Value(0)
   const lastScrollTime = useRef<number>(0);
   const accumulatedDelta = useRef<number>(0);
   // const scrollY = new Animated.Value(0);
@@ -234,9 +207,7 @@ export default function ReelsContent() {
     }
   };
 
-  const onTimeChange = async (t:number)=>{
-    setCurrentTime(t)
-  }
+  
 
   const handleScrollEnd = (event: any) => {
     const contentOffsetY = event.nativeEvent.contentOffset.y;
@@ -258,32 +229,10 @@ export default function ReelsContent() {
   }
   return (
     <View className={clsx('')}>
-      {/* <Text>Hello</Text> */}
-      {/* {sharePopup && shorts[shortIndex] && (
-        <ShareVideo
-          loggedIn={loggedIn}
-          owner={false}
-          explainerType="VIDEO"
-          id={shorts[shortIndex].id}
-          onSetShow={setSharePopup}
-          explainer={shorts[shortIndex]}
-        />
-      )} */}
+      
       
       <View className={clsx('h-full w-full bg-opacity-15 flex flex-col ')}>
-        {/* {commentsPopup && shorts[shortIndex] && (
-          <Animated.View
-            style={[
-              clsx('absolute z-50 p-4 bg-white2 dark:bg-dark2 w-11/12 h-5/6 shadow-xl rounded-xl'),
-              { transform: [{ scale: scrollY.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] },
-            ]}
-          >
-            <TouchableOpacity onPress={() => setCommentsPopup(false)} className={clsx('absolute top-2 right-2')}>
-              <X />
-            </TouchableOpacity>
-            <Comments id={shorts[shortIndex].id} user={user} isPodcast={false} />
-          </Animated.View>
-        )} */}
+        
 
         {loading && (
           <View className={clsx('absolute w-full h-full items-center justify-center flex bg-black')}>
@@ -336,25 +285,14 @@ export default function ReelsContent() {
                       minHeight: height
                     }}
                     key={index}
-                    //       {
-                    //         scale: scrollY.interpolate({
-                    //           inputRange: [index * 100 - 50, index * 100, index * 100 + 50],
-                    //           outputRange: [0.95, 1, 0.95],
-                    //           extrapolate: 'clamp',
-                    //         }),
-                    //       },
-                    //     ],
-                    //   },
-                    // ]}
+                    
                   >
-                    {/* {index === shortIndex && (
-                      
-                    )} */}
+                    
                     <View className='w-full h-full bg-black'>
                         {shortIndex == index ?(
 
                           <VideoPlayerComponent
-                            onTimeChange={setCurrentTime}
+                              onTimeChange={setCurrentTime}
                               ref={playerRef}
                               // onDurationUpdate={setCurrentTime}
                               // hideControls={true} 
@@ -374,34 +312,74 @@ export default function ReelsContent() {
                           </View>
                         )}
                     </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        // console.log("hello")
+                        const isPlaying = playerRef.current?.onPlayPause();
+                        animatePop.resetAnimation()
+                        // animatePop.setValue(0)
+                        // console.log(!isPlaying)
+                        setPaused(!isPlaying)
+                        setShowPlayButton(true);
+                        console.log("Started anum")
+                        // Animate scale up with cubic bezier
+                        Animated.timing(animatePop, {
+                          toValue: 2,
+                          duration: 300,
+                          easing: Easing.bezier(0.25, 0.46, 0.45, 0.94),
+                          useNativeDriver: true,
+                        }).start(({finished}) => {
+                          // animatePop.resetAnimation()
+                          if(finished){
 
-                    <View className="flex text-white w-full flex-col gap-4 z-[100000000] absolute bottom-0 p-2">
-                      {/* <Animated.View
+                            console.log("Finished anum")
+                            
+                            setTimeout(() => {
+                              setShowPlayButton(false);
+                            }, 2000);
+                          }
+                        })
                         
-                        className="h-full place-self-center z-10 absolute w-full flex items-center justify-center"
-                      >
-                        <TouchableOpacity
-                          className="p-4 bg-blue rounded-full shadow-lg"
-                          onPress={() => {
-                            if (!playerRef.current) return;
-                            let paused = playerRef.current.onPlayPause();
-                            setPaused(paused);
-                            setIsPlaying(true);
+                        
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '25%',
+                        left: '25%',
+                        width: '50%',
+                        height: '50%',
+                        zIndex: 100000001,
+                      }}
+                    >
+                      {showPlayButton && (
+                        <Animated.View
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: [
+                              { translateX: -25 }, 
+                              { translateY: -25 },
+                              { scale: animatePop }
+                            ],
+                            width: 50,
+                            height: 50,
+                            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                            borderRadius: 25,
+                            justifyContent: 'center',
+                            alignItems: 'center',
                           }}
                         >
-                          {paused ? <Play color={"white"} className="text-white" /> : <Pause color={"white"} className="text-white" />}
-                        </TouchableOpacity>
-                      </Animated.View> */}
+                          {!paused ? (
+                            <Pause color="black" size={24} />
+                          ) : (
+                            <Play color="black" size={24} />
+                          )}
+                        </Animated.View>
+                      )}
+                    </TouchableOpacity>
 
-                      {/* <View className="flex flex-col gap-4 z-10 self-start">
-                        <TouchableOpacity
-                          onPress={() => router.push('/')}
-                          className="bg-green-500 flex flex-col duration-300 hover:opacity-70 text-sm p-2 rounded-full hover:bg-green-600"
-                        >
-                          <ChevronLeft color={"white"} className="drop-shadow-xl" />
-                          <Text className="drop-shadow-xl text-white">Back</Text>
-                        </TouchableOpacity>
-                      </View> */}
+                    <View className="flex text-white w-full flex-col gap-4 z-[100000000] absolute bottom-4 p-2">
                       
                       
                       <VideoContent onDislike={onDislike} onLike={onLike} dislikes={dislikes} likes={likes} shortItem={shortItem} index={index} shortIndex={shortIndex}></VideoContent>
@@ -409,11 +387,13 @@ export default function ReelsContent() {
                       
                           
                             
-                              
+                             
                           <Slider
                             style={{ zIndex:100000000000 }}
+                            
                             minimumValue={0}
                             maximumValue={shortItem.totalDuration || 0}
+                            
                             value={currentTime} // Use a state variable to track current time
                             onValueChange={(newTime) => {
                              setCurrentTime(newTime) // Update current time every second

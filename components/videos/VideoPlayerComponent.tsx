@@ -4,12 +4,14 @@ import React, { useRef, useImperativeHandle, forwardRef, useEffect, use } from '
 // import { View } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import clsx from 'clsx';
+import { useEvent, useEventListener } from 'expo';
 
 export interface VideoPlayerRef {
   captureCurrentFrame: () => Promise<string | null>;
   getCurrentTime: () => number;
   onSeek: (time: number) => void;
   onPlayPause: () => boolean;
+  isPlaying: () => boolean;
 }
 
 interface VideoPlayerComponentProps {
@@ -20,56 +22,54 @@ interface VideoPlayerComponentProps {
 
 const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerComponentProps>(({ videoUri, onTimeChange }, ref) => {
   // console.log("Video component", videoUri)
-  const player = useVideoPlayer(videoUri,
-
-    player=>{player.play()}
-  );
+  const player = useVideoPlayer(videoUri, (p) => {
+    p.play();
+    p.loop = true
+    p.timeUpdateEventInterval =1
+  });
+ 
+  useEventListener(player, 'timeUpdate', ({ currentTime }) => {
+    // console.log('Player is changing time:', currentTime);
+    onTimeChange(currentTime)
+  });
+  
   const playerRef = useRef<any>(null);
 
-  useEffect(() => {
-    return () => {
-      // Cleanup if necessary
-    };
-  }, []);
 
   const captureCurrentFrame = async (): Promise<string | null> => {
-    // Implement frame capture logic if applicable
     return null;
   };
 
   const getCurrentTime = (): number => {
-    // console.log(player.currentTime)
-    // console.log("returing")
-    return playerRef.current
+    return player.currentTime
+  };
+  const isPlaying = (): boolean => {
+    return player.playing;
   };
 
   const onSeek = (currentTime: number) => {
-    
-    player.currentTime = currentTime
+    player.currentTime = currentTime;
   };
 
   const onPlayPause = (): boolean => {
-    if (playerRef.current) {
-      if (playerRef.current.isPlaying()) {
-        playerRef.current.pause();
-      } else {
-        playerRef.current.play();
-      }
-      return !playerRef.current.isPlaying();
+    if (player.playing) {
+      player.pause();
+      return false
+    } else {
+      player.play();
+      return true
     }
-    return false;
   };
 
   useImperativeHandle(ref, () => ({
     captureCurrentFrame,
     getCurrentTime,
     onSeek,
+    isPlaying,
     onPlayPause,
   }));
 
-  useEffect(()=>{
-    onTimeChange(player.currentTime)
-  },[player.currentTime])
+  
 
   return (
     <View className={clsx('w-full h-full bg-black')}>
