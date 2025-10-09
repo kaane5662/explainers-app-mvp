@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "slug": "imagine-explainers-app",
     "version": "1.0.0",
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -42,7 +42,6 @@
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": [
-          "audio",
           "audio"
         ],
         "ITSAppUsesNonExemptEncryption": false
@@ -65,8 +64,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "70e59fc6-30f7-4020-8bf5-6a8b2234fe52"
+        "projectId": "e9f3c340-1f4a-4140-9d3b-4838c5591909"
       }
-    }
+    },
+    "owner": "kaan_eren"
   }
 }

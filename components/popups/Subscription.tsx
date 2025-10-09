@@ -145,10 +145,17 @@ const SubscriptionModal: React.FC<{ visible: boolean; onClose: () => void }> = (
           <View className="px-6 pb-6 pt-4">
             <TouchableOpacity 
               onPress={upgrade} 
-              className="flex flex-row justify-center items-center gap-3 bg-blue rounded-2xl p-5 "
+              disabled={chosenPlan==userPlan}
+              className="flex flex-row justify-center items-center gap-3 disabled:bg-gray-300 bg-blue rounded-2xl p-5 "
             >
               <Rocket size={22} color={"white"}/>
-              <Text className="text-white font-bold text-lg">Get Started</Text>
+              {userPlan == chosenPlan ? (
+                <Text className="text-white font-bold text-lg">Subscribed</Text>
+              ) : userPlan == "free" ? (
+                <Text className="text-white font-bold text-lg">Get Started</Text>
+              ) : (
+                <Text className="text-white font-bold text-lg">Upgrade</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>

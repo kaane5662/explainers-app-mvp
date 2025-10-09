@@ -141,8 +141,8 @@ export default function Comments({ id, user, isPodcast, visible, onClose }: Comm
     <View className="flex-1 justify-center bg-black/30  items-center">
         
       <ScrollView className={clsx("flex flex-col rounded-3xl bg-white gap-6 w-full max-h-[500px] p-4 absolute bottom-0")}>
-        <TouchableOpacity onPress={() => onClose()} className="absolute top-2 -z-20 right-2">
-          <X />
+        <TouchableOpacity onPress={() => onClose()} className="absolute -z-20 right-1 p-1 pb-4 px-4">
+          <X size={25} />
         </TouchableOpacity>
         <Text
           className={clsx(

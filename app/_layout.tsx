@@ -8,9 +8,16 @@ import "../global.css";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { View,Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEffect } from 'react';
+// import TrackPlayer from 'react-native-track-player';
+// import { playbackService } from '@/src/trackPlayerService';
 
+
+// TrackPlayer.registerPlaybackService(()=>playbackService)
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
+  
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });

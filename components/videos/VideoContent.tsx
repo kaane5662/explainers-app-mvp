@@ -60,7 +60,7 @@ export default function VideoContent({ shortItem, shortIndex, index, likes,disli
                 likes.some((l) => l.id === shortItem.id) ? { color: tailwindColors.blue } : null
               }
               className={`shadow-black text-white drop-shadow-xl ${likes.some((l) => l.id === shortItem.id) ? 'text-blue' : ''}`}>
-              100
+              Like
             </Text>
           </TouchableOpacity>
 

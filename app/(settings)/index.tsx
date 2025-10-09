@@ -93,7 +93,7 @@ export default function SettingsScreen() {
               <Text className="text-slate-600">{user?.email}</Text>
               {user?.plan &&(
 
-                <Text className="text-sm text-slate-500 mt-1">
+                <Text className="text-sm text-blue font-semibold mt-1">
                     {plans[user.plan as keyof typeof plans].name } Plan
                 </Text>
               )}
@@ -117,7 +117,7 @@ export default function SettingsScreen() {
                 </View>
                 <View className="flex-1">
                   <Text className="text-lg font-semibold text-slate-900">{option.title}</Text>
-                  <Text className="text-slate-600">{option.subtitle}</Text>
+                  <Text className="text-slate-600 ">{option.subtitle}</Text>
                 </View>
                 <ChevronRight style={{marginLeft:"auto"}} size={20} color="#94a3b8" />
               </View>
@@ -131,7 +131,7 @@ export default function SettingsScreen() {
             onPress={handleLogout}
             className="bg-red-50 rounded-xl p-4 border border-red-200"
           >
-            <View className="flex-row items-center space-x-4">
+            <View className="flex-row items-center gap-4">
               <View className="w-10 h-10 bg-red-100 rounded-lg items-center justify-center">
                 <LogOut size={20} color="#dc2626" />
               </View>

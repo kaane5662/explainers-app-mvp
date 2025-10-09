@@ -35,8 +35,11 @@ export default function Explore() {
         <View className='flex flex-col gap-4'>
           <Text className=' font-bold text-4xl '>Explore</Text>
           <TouchableOpacity className='p-0 gap-4 bg-slate-200 rounded-xl flex flex-row items-center'>
-            <Search size={20} className=' font-bold text-zinc-300 w-fit '></Search>
-            <TextInput className='p-3' onChangeText={(t)=>setSearch(t)} placeholder='Search'>
+            <View className='ml-2'>
+
+              <Search size={20} className=' font-bold text-zinc-300 w-fit '></Search>
+            </View>
+            <TextInput className='py-3 w-full' onChangeText={(t)=>setSearch(t)} placeholder='Search'>
 
             </TextInput>
           </TouchableOpacity>

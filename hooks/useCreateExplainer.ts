@@ -3,6 +3,7 @@ import axios from 'axios';
 import { router } from 'expo-router';
 import { ExplainerType } from '@/utils/constant';
 import { voiceOptions } from '@/utils/common';
+import { Alert } from 'react-native';
 
 interface CreateExplainerParams {
   type: ExplainerType;
@@ -71,7 +72,15 @@ export function useCreateExplainer() {
       );
       router.push(`(public)/${type == ExplainerType.PODCAST ? "podcasts":"reels"}/${res.data.id}`);
     } catch (error: any) {
-      console.log(error);
+      console.log(error.response.data, error.response.status);
+      let errStatus = "Error: "+ error?.response?.status || "500"
+      let errDesc = error?.response?.data?.error || "Unknown error has occurred"
+      Alert.alert(
+        errStatus.toString(),
+        errDesc.toString(),
+        [{ text: "OK", style: "destructive" }],
+        { cancelable: true }
+      );
       if (error?.response?.status === 403) {
         console.log('You have run out of credits');
       }
