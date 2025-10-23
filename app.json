@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "my-expo-app",
-    "slug": "imagine-explainers-app",
+    "slug": "imagine-app",
     "version": "1.0.0",
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -64,9 +64,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "e9f3c340-1f4a-4140-9d3b-4838c5591909"
+        "projectId": "6eb5846f-f1b4-40cb-8a7a-8270798ffc38"
       }
     },
-    "owner": "kaan_eren"
+    "owner": "imagine-demo"
   }
 }
