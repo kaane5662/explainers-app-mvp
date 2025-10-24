@@ -184,7 +184,7 @@ export default function PodcastBottomContent({podcast, onLike, onDislike, likes,
                     if (ref && srtTranscript && subtitleEntries.length > 0) {
                         let scrollPosition = 0;
                         let currentSubtitleIndex = -1;
-                        
+                        // console.log(currentTime)
                         for (let i = 0; i < subtitleEntries.length; i++) {
                             if (currentTime * 1000 >= subtitleEntries[i].startTime && currentTime * 1000 <= subtitleEntries[i].endTime) {
                                 currentSubtitleIndex = i;

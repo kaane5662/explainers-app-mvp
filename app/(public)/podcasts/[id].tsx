@@ -11,7 +11,7 @@ import PodcastHeader from '@/components/podcasts/PodcastHeader';
 import Generating from '@/components/explainers/Generating';
 import { ExplainerType } from '@/utils/constant';
 import PodcastBottomContent from '@/components/podcasts/PodcastBottomContent';
-import TrackPlayer, {useTrackPlayerEvents, State, Event, usePlaybackState} from 'react-native-track-player';
+import TrackPlayer, {useTrackPlayerEvents, State, Event, usePlaybackState, useProgress} from 'react-native-track-player';
 import { AArrowUp } from 'lucide-react-native';
 // import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
 
@@ -24,6 +24,7 @@ export default function DetailsScreen() {
   const [currentTime,setCurrentTime] = useState(0)
   const [canChange,setCanChange] = useState(true)
 	const player = useAudioPlayer()
+  const progress = useProgress()
 
   // recc stuff
   const [likes,setLikes] = useState([])
@@ -248,6 +249,7 @@ export default function DetailsScreen() {
         <Generating explainerType={ExplainerType.PODCAST} explainer={podcast as any}></Generating>
     </SafeAreaView>
   )
+  // console.log(progress.position)
 
   return (
     <ScrollView >
@@ -257,7 +259,7 @@ export default function DetailsScreen() {
             <PodcastHeader podcast={podcasts[currentPodcastIndex]}/>
             {/* {console.log(podcasts[1])} */}
             <PodcastPlayer onTimeUpdate={setCurrentTime} onSkipPodcast={switchPodcast} podcast={podcasts[currentPodcastIndex]}></PodcastPlayer>
-            <PodcastBottomContent currentTime={currentTime} likes={likes} onDislike={onDislike} onLike={onLike} podcast={podcasts[currentPodcastIndex]}></PodcastBottomContent>
+            <PodcastBottomContent currentTime={progress.position} likes={likes} onDislike={onDislike} onLike={onLike} podcast={podcasts[currentPodcastIndex]}></PodcastBottomContent>
           </View>
 				)}
 			</View>
