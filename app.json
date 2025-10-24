@@ -35,18 +35,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ],
+        "UIBackgroundModes": ["audio"],
         "ITSAppUsesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.nicktrinh.myexpoapp"
+      "bundleIdentifier": "com.nicktrinh.myexpoapp",
+      "newArchEnabled": true
     },
     "android": {
       "adaptiveIcon": {
@@ -59,7 +56,8 @@
         "WAKE_LOCK",
         "FOREGROUND_SERVICE"
       ],
-      "package": "com.nicktrinh.myexpoapp"
+      "package": "com.nicktrinh.myexpoapp",
+      "newArchEnabled": true
     },
     "extra": {
       "router": {},
