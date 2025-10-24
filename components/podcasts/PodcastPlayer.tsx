@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 import tailwindConfig  from "@/tailwind.config";
+import TrackPlayer, { State, usePlaybackState, useProgress } from "react-native-track-player";
 const tailwindColors = tailwindConfig.theme?.extend?.colors;
 
 
@@ -14,58 +15,60 @@ const tailwindColors = tailwindConfig.theme?.extend?.colors;
 export default function PodcastPlayer({podcast, onSkipPodcast, onTimeUpdate}:{podcast:IExplainerPodcast, onSkipPodcast:CallableFunction, onTimeUpdate:CallableFunction}){
     const durationInS = podcast.sectionAudios[0].duration/1000
     const sliderRef = useRef<Slider>()
+    const progress = useProgress()
+    const playState = usePlaybackState()
     // console.log(podcast.sectionAudios[0].streamUrl)
     
-    const player = useAudioPlayer({
-        uri: podcast.sectionAudios[0].streamUrl,
-        // headers: {
-        //     'x-amz-acl': 'public-read'
-        // }
-    })
-    const status = useAudioPlayerStatus(player)
+    // const player = useAudioPlayer({
+    //     uri: podcast.sectionAudios[0].streamUrl,
+    //     // headers: {
+    //     //     'x-amz-acl': 'public-read'
+    //     // }
+    // })
+    // const status = useAudioPlayerStatus(player)
 
-    useEffect(()=>{
-        onTimeUpdate(status.currentTime)
-    },[status.currentTime])
+    // useEffect(()=>{
+    //     onTimeUpdate(status.currentTime)
+    // },[status.currentTime])
     
     
     
-    useEffect(()=>{
-        const configureAudio = async () => {
-        try {
-            await setAudioModeAsync({
+    // useEffect(()=>{
+    //     const configureAudio = async () => {
+    //     try {
+    //         await setAudioModeAsync({
             
-            playsInSilentMode: true,
-            shouldPlayInBackground:true,
+    //         playsInSilentMode: true,
+    //         shouldPlayInBackground:true,
             
             
             
-            });
-            console.log('Audio mode configured successfully');
-            player.play()
-        } catch (error) {
-            console.log('Error configuring audio mode:', error);
-        }
-        };
+    //         });
+    //         console.log('Audio mode configured successfully');
+    //         // player.play()
+    //     } catch (error) {
+    //         console.log('Error configuring audio mode:', error);
+    //     }
+    //     };
     
-        configureAudio();
+    //     // configureAudio();
         
-        // return()=>{
-        //     player.remove()
-        // }
-    },[podcast])
+    //     // return()=>{
+    //     //     player.remove()
+    //     // }
+    // },[podcast])
 
     const onPlayPause = async ()=>{
-        if(player.playing){
-            player.pause()
+        if(playState.state == State.Playing){
+            await TrackPlayer.pause()
         }else{
-            player.play()
+            await TrackPlayer.play()
         }
     }
 
     const onSeekAudio = async(value: number) => {
-        if (player) {
-            await player.seekTo(value);
+        if (TrackPlayer) {
+            await TrackPlayer.seekTo(value);
         }
     };
     return(
@@ -74,8 +77,8 @@ export default function PodcastPlayer({podcast, onSkipPodcast, onTimeUpdate}:{po
             
             ref={sliderRef}
             minimumValue={0}
-            maximumValue={durationInS}
-            value={player.currentTime}
+            maximumValue={progress.duration}
+            value={progress.position}
             thumbTintColor={tailwindColors.blue}
             minimumTrackTintColor={tailwindColors.blue}
             // maximumTrackTintColor="blue"
@@ -86,15 +89,15 @@ export default function PodcastPlayer({podcast, onSkipPodcast, onTimeUpdate}:{po
             >
             </Slider>
             <View className="flex items-center text-sm text-slate-400 flex-row justify-between">
-                <Text className=" text-sm text-slate-400">{formatDuration(player.currentTime)}</Text>
-                <Text className=" text-sm text-slate-400">{formatDuration(durationInS)}</Text>
+                <Text className=" text-sm text-slate-400">{formatDuration(progress.position)}</Text>
+                <Text className=" text-sm text-slate-400">{formatDuration(progress.duration)}</Text>
             </View>
             <View className=" gap-20 mt-2  self-center flex flex-row items-center">
                 <TouchableOpacity className=" active:bg-slate-300 rounded-full p-2" onPress={()=>onSkipPodcast(-1)}>
                     <SkipBack fill={"black"}/>
                 </TouchableOpacity>
                 <TouchableOpacity className=" bg-blue rounded-full p-4">
-                    {player.playing?(
+                    {playState.state == State.Playing || playState.state == State.Buffering?(
                         <Pause
                         className=""
                         onPress={onPlayPause}

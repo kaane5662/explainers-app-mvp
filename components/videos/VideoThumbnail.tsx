@@ -24,6 +24,7 @@ export default function VideoThumbnail({video}:{video:IExplainerVideo}){
                         {video.user.imageUrl ? (
                             <Image
                                 style={{ borderRadius: 9999, width: 16, height: 16 }}
+                                
                                 source={video.user.imageUrl}
                                 resizeMode="cover"
                                 

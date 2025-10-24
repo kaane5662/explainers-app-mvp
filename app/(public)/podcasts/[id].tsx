@@ -11,6 +11,8 @@ import PodcastHeader from '@/components/podcasts/PodcastHeader';
 import Generating from '@/components/explainers/Generating';
 import { ExplainerType } from '@/utils/constant';
 import PodcastBottomContent from '@/components/podcasts/PodcastBottomContent';
+import TrackPlayer, {useTrackPlayerEvents, State, Event, usePlaybackState} from 'react-native-track-player';
+import { AArrowUp } from 'lucide-react-native';
 // import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
 
 export default function DetailsScreen() {
@@ -28,12 +30,22 @@ export default function DetailsScreen() {
   const [dislikes,setDislikes] = useState([])
   const [initialized,setInitialized] = useState(false)
 
+  useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async(event) => {
+    if (event.type === Event.PlaybackActiveTrackChanged) {
+      let newTrackIndex = await TrackPlayer.getActiveTrackIndex()
+      newTrackIndex = newTrackIndex || 0
+      setCurrentPodcastIndex(newTrackIndex)
+    }
+    
+  });
+
 
   const fetchPodcastDetails = async () => {
     setLoading(true)
     try {
 
       if(!initialized){
+        setInitialized(true)
         const podcastPromise =  axios.get(`${process.env.EXPO_PUBLIC_API_URL}/podcasts/${id}`);
         const reccsPromise = axios.get(`${process.env.EXPO_PUBLIC_API_URL}/explainers/${id}/recommendations?explainerType=${ExplainerType.PODCAST}&type=podcast`)
         const [podcast, reccs] = await Promise.all([podcastPromise,reccsPromise])
@@ -41,11 +53,26 @@ export default function DetailsScreen() {
         setPodcast(podcast.data.explainer)
         // console.log("Reccs",reccs.data.explainers.map((r)=>(r.id || "hahaha")))
         // console.log(response.data);
-        setInitialized(true)
+        
         let temp = [podcast.data.explainer, ...reccs.data.explainers]
+        
+        await TrackPlayer.add(
+          temp.map((t:IExplainerPodcast) => ({
+            url: t.sectionAudios[0].streamUrl, // Load media from the network
+            title: t.title,
+            artist: t.user.name || 'Unknown Artist',
+            // album: t.album || '',
+            // genre: t.genre || '',
+            date: t.created.toString() || '', // Assumes RFC 3339 string
+            artwork: t.thumbnailUrl, // Load artwork from the network
+            duration: t.totalDuration || 0 // Duration in seconds
+          }))
+        );
+        TrackPlayer.play()
         setPodcasts(temp)
-        console.log(temp[1])
+        // console.log(temp[1])
       }else{
+        console.log("new engaged recs")
         const enagagedRecs= await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/explainers/reccomendations`,{
           likes: likes,
           dislikes: dislikes,
@@ -56,6 +83,18 @@ export default function DetailsScreen() {
         setLikes([])
         setDislikes([])
         setPodcasts(prev=> [...prev, ...enagagedRecs.data.explainers])
+        await TrackPlayer.add(
+          enagagedRecs.data.explainers.map((t:IExplainerPodcast) => ({
+            url: t.sectionAudios[0].streamUrl, // Load media from the network
+            title: t.title,
+            artist: t.user.name || 'Unknown Artist',
+            // album: t.album || '',
+            // genre: t.genre || '',
+            date: t.created.toString() || '', // Assumes RFC 3339 string
+            artwork: t.thumbnailUrl, // Load artwork from the network
+            duration: t.totalDuration || 0 // Duration in seconds
+          }))
+        );
       }
         // setPodcast(response.dataP)
     } catch (error) {
@@ -65,17 +104,21 @@ export default function DetailsScreen() {
     }
   };
 
-  const switchPodcast = (direction: number) => {
+
+  const switchPodcast = async(direction: number) => {
     if (podcasts) {
       if(!canChange) return
       setCanChange(false)
-      const newIndex = currentPodcastIndex + direction;
-      if (newIndex >= 0 && newIndex < podcasts.length-1) {
-        // console.log("Podcast",podcasts[newIndex])
-        setCurrentPodcastIndex(newIndex);
-        viewPodcast(podcasts[newIndex].id)
-        // setPodcast(podcasts[newIndex]);
+      if(direction == 1){
+        await TrackPlayer.skipToNext()
+      }else{
+        await TrackPlayer.skipToPrevious()
       }
+      let newIndex = await TrackPlayer.getActiveTrackIndex()
+      newIndex = newIndex || 0
+      viewPodcast(podcasts[newIndex].id)
+      setCurrentPodcastIndex(newIndex)
+      
       setTimeout(()=>setCanChange(true),500)
     }
   };
@@ -176,6 +219,28 @@ export default function DetailsScreen() {
       fetchPodcastDetails();
     }
   }, [id, currentPodcastIndex]);
+
+  useEffect(()=>{
+    const getCurrentTrack = async ()=>{
+      let trackIndex = await TrackPlayer.getActiveTrackIndex()
+      trackIndex = trackIndex || 0
+      if(podcasts.length > 0){
+
+        setCurrentPodcastIndex(trackIndex)
+      }
+    }
+    getCurrentTrack()
+    // return ()=>{
+    //   TrackPlayer.reset()
+    // }
+    // TrackPlayer.reset()
+  },[])
+
+  useEffect(()=>{
+    TrackPlayer.reset()
+  },[id])
+
+
 
 
   if(podcast?.generating) return(

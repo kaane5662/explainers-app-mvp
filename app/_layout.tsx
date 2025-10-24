@@ -1,6 +1,6 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import "../global.css";
@@ -8,15 +8,23 @@ import "../global.css";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { View,Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useEffect } from 'react';
-// import TrackPlayer from 'react-native-track-player';
-// import { playbackService } from '@/src/trackPlayerService';
+import { useCallback, useEffect } from 'react';
+import TrackPlayer from 'react-native-track-player';
+import { playbackService } from '@/src/trackPlayerService';
+import { useSetupTrackPlayer } from '@/hooks/setUpTrackPlayer';
 
 
-// TrackPlayer.registerPlaybackService(()=>playbackService)
+TrackPlayer.registerPlaybackService(()=>playbackService)
+// await TrackPlayer.setupPlayer()
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const handleTrackPlayerLoaded = useCallback(() => {
+		SplashScreen.hideAsync()
+	}, [])
 
+	useSetupTrackPlayer({
+		onLoad: handleTrackPlayerLoaded,
+	})
   
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
