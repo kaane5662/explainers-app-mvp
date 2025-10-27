@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "my-expo-app",
-    "slug": "imagine-app",
+    "slug": "imagine-explainers",
     "version": "1.0.0",
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -35,11 +35,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
+        "UIBackgroundModes": [
+          "audio",
+          "audio"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.nicktrinh.myexpoapp",
@@ -62,9 +67,15 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "6eb5846f-f1b4-40cb-8a7a-8270798ffc38"
+        "projectId": "77742d0a-0a6a-4dff-a718-cea255b5e24e"
       }
     },
-    "owner": "imagine-demo"
+    "owner": "studyfetchteam",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6eb5846f-f1b4-40cb-8a7a-8270798ffc38"
+    }
   }
 }
