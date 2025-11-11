@@ -5,23 +5,38 @@
   },
   "build": {
     "development": {
-      "developmentClient": true,
+      "channel": "development",
       "distribution": "internal",
+      "developmentClient": true,
       "env": {
+        "EXPO_PUBLIC_APP_ENV": "preview",
         "NODE_OPTIONS": "--max-old-space-size=4096"
       },
       "cache": {
         "disabled": true
       },
-      "channel": "development"
     },
     "preview": {
+      "channel": "preview",
       "distribution": "internal",
-      "channel": "preview"
+      "developmentClient": true,
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "preview"
+      }
+    },
+    "testing": {
+      "channel": "testing",
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "testing"
+      }
     },
     "production": {
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "production"
+      }
     }
   },
   "submit": {
